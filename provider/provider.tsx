@@ -4,7 +4,7 @@ import { PaxContext, User, AdditionalData } from '@/context/context';
 import axios from 'axios';
 import { useLocale } from 'next-intl';
 import { setCookie } from 'nookies';
-import React, { ReactNode, useEffect, useState, useRef } from 'react';
+import React, { ReactNode, useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import useSWR from 'swr';
 import { useSession } from 'next-auth/react';
 import cookies from 'next-cookies';
@@ -32,18 +32,13 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
   const [currentPlan, setCurrentPlan] = useState<string>('BASIC');
   const socketRef = useRef<WebSocket | null>(null); // Используем useRef для хранения состояния сокета
   const locale = useLocale();
-  const [userFetchURL, setUserFetchURL] = useState<string>(
-    `/api/users/me?language=${locale}`
-  );
+
+  const userFetchURL = useMemo(() => `/api/users/me?language=${locale}`, [locale]);
 
   const { data: fetchedData, error, mutate: userMutate } = useSWR(
     session.status === 'authenticated' || initialAccessToken ? userFetchURL : null,
     fetcher
   );
-
-  useEffect(() => {
-    setUserFetchURL(`/api/users/me?language=${locale}`);
-  }, [locale]);
 
   useEffect(() => {
     if (!error && fetchedData) {
@@ -74,7 +69,7 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
     }
   }, [fetchedData, error]);
 
-  const connectWebSocket = () => {
+  const connectWebSocket = useCallback(() => {
     if (socketRef.current) {
       socketRef.current.close();
     }
@@ -126,7 +121,7 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
     };
 
     socketRef.current = _socket;
-  };
+  }, []);
 
   useEffect(() => {
     if (socketRef.current === null) {
@@ -136,7 +131,7 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
     return () => {
       socketRef.current?.close();
     };
-  }, []);
+  }, [connectWebSocket]);
 
   return (
     <PaxContext.Provider
