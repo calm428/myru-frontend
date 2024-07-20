@@ -1,13 +1,12 @@
-"use client"
+'use client';
 
 import { PaxContext, User, AdditionalData } from '@/context/context';
 import axios from 'axios';
 import { useLocale } from 'next-intl';
 import { setCookie } from 'nookies';
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState, useRef } from 'react';
 import useSWR from 'swr';
 import { useSession } from 'next-auth/react';
-import cookie from 'cookie';
 import cookies from 'next-cookies';
 import { GetServerSideProps } from 'next';
 
@@ -31,7 +30,7 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
   const session = useSession();
   const [additionalData, setAdditionalData] = useState<AdditionalData[]>([]);
   const [currentPlan, setCurrentPlan] = useState<string>('BASIC');
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const socketRef = useRef<WebSocket | null>(null); // Используем useRef для хранения состояния сокета
   const locale = useLocale();
   const [userFetchURL, setUserFetchURL] = useState<string>(
     `/api/users/me?language=${locale}`
@@ -41,7 +40,6 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
     session.status === 'authenticated' || initialAccessToken ? userFetchURL : null,
     fetcher
   );
-
 
   useEffect(() => {
     setUserFetchURL(`/api/users/me?language=${locale}`);
@@ -77,56 +75,66 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
   }, [fetchedData, error]);
 
   const connectWebSocket = () => {
-    if (typeof window !== 'undefined') {
-      const wsProtocol =
-        window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const _socket = new WebSocket(
-        `${wsProtocol}//${process.env.NEXT_PUBLIC_SOCKET_URL}/socket.io/`
-      );
-
-      _socket.onopen = () => {
- 
-      };
-
-      _socket.onmessage = (received) => {
-        console.log('Socket message: ', received.data);
-        try {
-          const data = JSON.parse(received.data);
-
-          if (data?.command) {
-            setLastCommand(data?.command);
-          }
-
-          if (data?.command === 'newDonat' && data?.data) {
-            setAdditionalData(data.data);
-          }
-
-
-          if (data?.session) {
-            console.log('Socket message: ', data?.session);
-            setCookie(null, 'session', data?.session, {
-              path: '/',
-            });
-            axios.defaults.headers.common['session'] = data?.session;
-          }
-        } catch (error) {
-          console.error('Ошибка при обработке сообщения сокета:', error);
-        }
-      };
-
-      _socket.onclose = () => {
-        console.log('WebSocket disconnected, attempting to reconnect...');
-        setTimeout(connectWebSocket, 5000); // Attempt to reconnect every 5 seconds
-      };
-
-      setSocket(_socket);
+    if (socketRef.current) {
+      socketRef.current.close();
     }
+
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const _socket = new WebSocket(
+      `${wsProtocol}//${process.env.NEXT_PUBLIC_SOCKET_URL}/socket.io/`
+    );
+
+    _socket.onopen = () => {
+      console.log('WebSocket connected');
+    };
+
+    _socket.onmessage = (received) => {
+      console.log('Socket message: ', received.data);
+      try {
+        const data = JSON.parse(received.data);
+
+        if (data?.command) {
+          setLastCommand(data?.command);
+        }
+
+        if (data?.command === 'newDonat' && data?.data) {
+          setAdditionalData(data.data);
+        }
+
+        if (data?.session) {
+          console.log('Socket message: ', data?.session);
+          setCookie(null, 'session', data?.session, {
+            path: '/',
+          });
+          axios.defaults.headers.common['session'] = data?.session;
+        }
+      } catch (error) {
+        console.error('Ошибка при обработке сообщения сокета:', error);
+      }
+    };
+
+    _socket.onclose = (event) => {
+      console.log('WebSocket disconnected with code:', event.code, 'and reason:', event.reason);
+      if (event.code !== 1000) { // 1000 indicates a normal closure
+        console.log('Attempting to reconnect WebSocket...');
+        setTimeout(connectWebSocket, 5000); // Attempt to reconnect every 5 seconds
+      }
+    };
+
+    _socket.onerror = (error) => {
+      console.error('WebSocket error: ', error);
+    };
+
+    socketRef.current = _socket;
   };
 
   useEffect(() => {
-    connectWebSocket();
+    if (socketRef.current === null) {
+      connectWebSocket();
+    }
+
     return () => {
-      socket?.close();
+      socketRef.current?.close();
     };
   }, []);
 
@@ -141,8 +149,10 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
         setPostMode,
         currentPlan,
         setCurrentPlan,
-        socket,
-        setSocket,
+        socket: socketRef.current,
+        setSocket: (socket) => {
+          socketRef.current = socket;
+        },
         additionalData, 
         setAdditionalData, 
       }}
