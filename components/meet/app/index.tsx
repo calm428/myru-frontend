@@ -36,6 +36,8 @@ import useWatchWindowSize from '@/helpers/hooks/useWatchWindowSize';
 import useWatchVisibilityChange from '@/helpers/hooks/useWatchVisibilityChange';
 import WaitingRoomPage from '../waiting-room/room-page';
 import { updateIsActiveChatPanel } from '@/store/slices/bottomIconsActivitySlice';
+import { PaxContext } from '@/context/context';
+
 // import useThemeSettings from '@/helpers/hooks/useThemeSettings';
 import {
   VerifyTokenReq,
@@ -92,6 +94,8 @@ const Meet: React.FC<MeetProps> = ({ roomId }) => {
   const [userTypeClass, setUserTypeClass] = useState('participant');
   const [accessTokenLocal, setAccessTokenLocal] = useState('');
   const [accessTokenLoaded, setAccessTokenLoaded] = useState(false);
+  const { user } = useContext(PaxContext); // Получение пользователя из контекста
+
   // const [livekitInfo, setLivekitInfo] = useState<LivekitInfo>();
   const {
     livekitInfo,
@@ -128,7 +132,7 @@ const Meet: React.FC<MeetProps> = ({ roomId }) => {
     const randomPart = generateRandomString(4);
     const timestampHash = hashTimestamp(Date.now());
     const userId = `user-${randomPart}-${timestampHash}`;
-    const userName = `User ${randomPart}`;
+    const userName = user ? user.username : `User ${randomPart}`;
     const userEmail = `${randomPart}-${timestampHash}@test.me`;
     setLoading(true);
     const token = await joinRoom(roomId, userId, userName);
