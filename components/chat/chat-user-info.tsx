@@ -67,8 +67,8 @@ export default function ChatUserInfo() {
             <p>@{chatUser?.profile.name}</p>
             <p className='text-xs text-gray-500'>
               {chatUser?.online
-                ? 'online'
-                : 'last seen ' +
+                ? 'онлайн'
+                : 'Последняя активность ' +
                   format.relativeTime(
                     chatUser?.lastOnlineTimestamp
                       ? new Date(chatUser?.lastOnlineTimestamp) > currentTime
