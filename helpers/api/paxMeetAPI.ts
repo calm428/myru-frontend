@@ -120,7 +120,7 @@ export const createRoom = async (
     metadata: {
       room_title: 'Встреча в реальном времени',
       welcome_message:
-        'Добро пожаловать в конференцию!<br />.',
+        'Добро пожаловать в конференцию!<br />',
       //webhook_url: "http://example.com",
       //logout_url: "http://example.com",
       room_features: {

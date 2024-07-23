@@ -63,12 +63,12 @@ export default function ChatUserInfo() {
             style={{ objectFit: 'cover' }}
             className='z-0'
           />
-          <div className='absolute bottom-4 left-2'>
-            <p>@{chatUser?.profile.name}</p>
-            <p className='text-xs text-gray-500'>
+          <div className='absolute w-full bottom-0 left-0 p-4 bg-black/70'>
+            <p className='text-white'>@{chatUser?.profile.name}</p>
+            <p className='text-xs text-white'>
               {chatUser?.online
-                ? 'онлайн'
-                : 'Последняя активность ' +
+                ? 'Онлайн'
+                : 'Активность ' +
                   format.relativeTime(
                     chatUser?.lastOnlineTimestamp
                       ? new Date(chatUser?.lastOnlineTimestamp) > currentTime
@@ -79,7 +79,7 @@ export default function ChatUserInfo() {
                   )}
             </p>
           </div>
-          <div className='absolute bottom-2 right-2'>
+          {/* <div className='absolute bottom-2 right-2'>
             <div
               className={`right-0 top-[0.2rem] mr-0 rounded-md bg-cover bg-center bg-no-repeat`}
               style={{
@@ -91,11 +91,11 @@ export default function ChatUserInfo() {
                 <span className='uppercase'>{data?.country}</span>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
         <div className='mt-4 space-y-2 p-2'>
           <div>
-            <span className='!text-xs text-muted-foreground'>Username</span>
+            <span className='!text-xs text-muted-foreground'>Имя пользователя</span>
             {data?.username ? (
               <p className='text-sm'>@{data?.username}</p>
             ) : (
@@ -103,7 +103,7 @@ export default function ChatUserInfo() {
             )}
           </div>
           <div>
-            <span className='!text-xs text-muted-foreground'>Bio</span>
+            <span className='!text-xs text-muted-foreground'>Краткая информация</span>
             {data?.description ? (
               <p className='text-sm'>{data.description}</p>
             ) : (
