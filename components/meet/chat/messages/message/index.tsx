@@ -52,7 +52,7 @@ const Message = ({ body, currentUser }: IMessageProps) => {
               </span>
             </p>
             <p
-              className='message-content max-w-fit bg-white text-xs shadow-footer'
+              className='message-content max-w-fit bg-white text-xs dark:text-black shadow-footer'
               dangerouslySetInnerHTML={{ __html: body.msg }}
             />
           </div>

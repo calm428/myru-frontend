@@ -43,7 +43,7 @@ export default function AutoJoinConference({
           <div className='mb-48 mt-auto space-y-4'>
             <div>
               <div className='w-full text-center text-3xl font-semibold'>
-                {t('premium')} <span className='text-primary'>PaxMeet</span>{' '}
+                {t('premium')} <span className='text-primary text-xs'>MYRUONLINE</span>{' '}
                 {t('video_meeting')}
               </div>
               <div className='w-full text-center text-muted-foreground'>

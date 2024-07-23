@@ -174,7 +174,7 @@ export default function ChatMessage(props: ChatMessageProps) {
                 />
                 <span>MYRUONLINE</span>
               </div>
-              <span className='line-clamp-1 !text-xs text-white dark:text-muted-foreground'>
+              <span className='line-clamp-1 !text-xs text-muted-foreground dark:text-muted-foreground'>
                 {t('click_to_join_the_conference')}
               </span>
             </div>
