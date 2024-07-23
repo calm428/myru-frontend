@@ -54,9 +54,16 @@ const DropdownMenuDemo = ({
 
       setAccessToken(token);
 
-      onRoomCreate &&
-        onRoomCreate(`${process.env.NEXT_PUBLIC_WEBSITE_URL}/meet/${roomId}`);
-      console.log(`${process.env.NEXT_PUBLIC_WEBSITE_URL}/meet/${roomId}`);
+      const roomLink = `${process.env.NEXT_PUBLIC_WEBSITE_URL}/meet/${roomId}`;
+
+      onRoomCreate && onRoomCreate(roomLink);
+
+      // Перенаправление на страницу комнаты
+      if (typeof window !== 'undefined') {
+        window.location.href = roomLink;
+      }
+
+      console.log(roomLink);
     } else {
       toast.error('Failed to create room. Please try again', {
         position: 'top-right',
@@ -88,7 +95,7 @@ const DropdownMenuDemo = ({
               className='DropdownMenuItem'
               onClick={onCreateRoom}
             >
-              Пригласить в конференцию
+              <p className='p-0'>Пригласить в конференцию</p>
             </DropdownMenu.Item>
             <DropdownMenu.RadioGroup
               value={person}
