@@ -95,7 +95,7 @@ const DropdownMenuDemo = ({
               className='DropdownMenuItem'
               onClick={onCreateRoom}
             >
-              <p className='p-4'>Пригласить в конференцию</p>
+              <p className='p-0'>Пригласить в конференцию</p>
             </DropdownMenu.Item>
             <DropdownMenu.RadioGroup
               value={person}
