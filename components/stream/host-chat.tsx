@@ -94,7 +94,7 @@ export default function Chat({ participantName, messages }: Props) {
           </div>
         ))}
       </div>
-      <div className='flex-shrink-0 p-0 sticky bottom-0 bg-white dark:bg-zinc-900'>
+      <div className='flex-shrink-0 p-0 sticky bottom-0'>
         <Textarea
           value={message}
           className='border-box h-10'
