@@ -88,10 +88,10 @@ export default function Chat({ participantName, messages }: Props) {
           </div>
         ))}
       </div>
-      <div className='flex-shrink-0 p-2'>
+      <div className='flex-shrink-0 p-2 sticky bottom-0 bg-white dark:bg-zinc-900'>
         <Textarea
           value={message}
-          className='border-box h-10  bg-white dark:bg-zinc-900'
+          className='border-box h-10'
           onChange={(e) => {
             setMessage(e.target.value);
           }}
