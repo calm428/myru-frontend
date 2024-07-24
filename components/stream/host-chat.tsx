@@ -66,7 +66,7 @@ export default function Chat({ participantName, messages }: Props) {
               <div className='flex items-center gap-2'>
                 <div
                   className={cn(
-                    'text-xs font-semibold text-white md:text-black dark:text-white md:dark:text-white',
+                    'text-xs font-semibold text-white md:text-white dark:text-white md:dark:text-white',
                     participantName === message.from?.identity && 'text-indigo-500'
                   )}
                 >
@@ -77,7 +77,7 @@ export default function Chat({ participantName, messages }: Props) {
                   {new Date(message.timestamp).toLocaleTimeString()}
                 </div>
               </div>
-              <div className='text-sm text-white md:text-black dark:text-white md:dark:text-white'>
+              <div className='text-sm text-white md:text-white dark:text-white md:dark:text-white'>
                 {message.type === 'system' ? (
                   <span className='italic'>{message.message}</span>
                 ) : (
