@@ -55,12 +55,10 @@ export default function Chat({ participantName, messages }: Props) {
   return (
     <div className='flex flex-col h-full'>
       <div className='flex-1 overflow-y-auto md:hidden'></div>
-      <div className='flex-1 overflow-y-auto md:hidden'></div>
-
       <div className='flex-1 overflow-y-auto pt-[0%] md:pt-0' 
        style={{
-        WebkitMaskImage: 'linear-gradient(to top, black 70%, transparent 100%)',
-        maskImage: 'linear-gradient(to top, black 70%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
+        maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
       }}>
 
         {allMessages.map((message, index) => (
@@ -85,7 +83,7 @@ export default function Chat({ participantName, messages }: Props) {
                   {new Date(message.timestamp).toLocaleTimeString()}
                 </div>
               </div>
-              <div className='text-sm text-white md:text-white dark:text-white md:dark:text-white'>
+              <div className='text-xs text-white md:text-white dark:text-white md:dark:text-white'>
                 {message.type === 'system' ? (
                   <span className='italic'>{message.message}</span>
                 ) : (
