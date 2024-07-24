@@ -26,7 +26,7 @@ export default function ClientHeader({ data }: ClientHeaderProps) {
       <div className='border-gardient-h relative top-[80px] w-full'></div>
       <div className='flex h-20 items-center space-x-4 px-2 sm:justify-between sm:space-x-0 md:px-4'>
         <MainNav items={siteConfig.mainNav} />
-        <div className='flex gap-4'>
+        <div className='flex gap-1'>
         <AlarmNav authenticated={!!data} />
         <Notification authenticated={!!data} />
         </div>
