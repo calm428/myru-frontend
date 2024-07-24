@@ -1,7 +1,7 @@
 "use client"
 import Chat from './host-chat';
 import { LiveKitRoom, RoomContext, useParticipants } from '@livekit/components-react';
-import { createLocalTracks, LocalTrack, Track, Room, LocalTrackPublication } from 'livekit-client';
+import { createLocalTracks, LocalTrack, Track, Room, LocalTrackPublication, Participant } from 'livekit-client';
 import { useEffect, useState, useRef, useContext, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import apiHelper from '@/helpers/api/apiRequest';
@@ -20,6 +20,13 @@ interface HostChannelProps {
   products: IProduct[];
 }
 
+interface ChatMessage {
+  type: 'system' | 'user';
+  message: string;
+  timestamp: number;
+  from?: { identity?: string; name?: string; metadata?: string };
+}
+
 export default function HostChannel({
   slug,
   userId,
@@ -34,6 +41,7 @@ export default function HostChannel({
   const [selectedMic, setSelectedMic] = useState<string>('');
   const [videoTrack, setVideoTrack] = useState<LocalTrack | null>(null);
   const [audioTrack, setAudioTrack] = useState<LocalTrack | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const router = useRouter();
   const { user } = usePaxContext();
   const { lastCommand, additionalData } = useContext(PaxContext);
@@ -84,7 +92,7 @@ export default function HostChannel({
       },
       body: JSON.stringify({
         Title: 'Пользователь ' + (user?.username || '') + ' в эфире',
-        Text: 'Поток начался. Присоединяйтесь сейчас!',
+        Text: 'Поток начался.',
         PageURL: pageURL,
       }),
     });
@@ -107,6 +115,10 @@ export default function HostChannel({
       router.push('/profile/posts');
     }
   }
+
+  const addMessageToChat = (message: string, type: 'system' | 'user', from?: { identity?: string; name?: string; metadata?: string }) => {
+    setChatMessages((prevMessages) => [...prevMessages, { message, type, timestamp: Date.now(), from }]);
+  };
 
   return (
     <LiveKitRoom
@@ -133,6 +145,8 @@ export default function HostChannel({
               setSelectedWebcam={setSelectedWebcam}
               selectedMic={selectedMic}
               setSelectedMic={setSelectedMic}
+              addMessageToChat={addMessageToChat}
+              chatMessages={chatMessages}
             />
 
             <ShareWebcamModal
@@ -182,6 +196,8 @@ interface HostStreamManagerProps {
   setSelectedWebcam: (deviceId: string) => void;
   selectedMic: string;
   setSelectedMic: (deviceId: string) => void;
+  addMessageToChat: (message: string, type: 'system' | 'user', from?: { identity?: string; name?: string; metadata?: string }) => void;
+  chatMessages: ChatMessage[];
 }
 
 function HostStreamManager({
@@ -200,6 +216,8 @@ function HostStreamManager({
   setSelectedWebcam,
   selectedMic,
   setSelectedMic,
+  addMessageToChat,
+  chatMessages,
 }: HostStreamManagerProps) {
   const [isPublishing, setIsPublishing] = useState(false);
   const [isUnpublishing, setIsUnpublishing] = useState(false);
@@ -231,13 +249,6 @@ function HostStreamManager({
   useEffect(() => {
     void createTracks(selectedMic, selectedWebcam);
   }, [selectedMic, selectedWebcam]);
-
-  // useEffect(() => {
-  //   return () => {
-  //     videoTrack?.stop();
-  //     audioTrack?.stop();
-  //   };
-  // }, [videoTrack, audioTrack]);
 
   useEffect(() => {
     setParticipantCount(participants.length);
@@ -336,6 +347,22 @@ function HostStreamManager({
     setIsPublishing((prev) => !prev);
   }, [audioTrack, isPublishing, localParticipant, videoTrack, sendPushNotification, selectedMic, selectedWebcam]);
 
+  useEffect(() => {
+    if (!room) return;
+
+    const handleParticipantConnected = (participant: Participant) => {
+      const participantName = participant.name || 'Unknown';
+      addMessageToChat(`${participantName} ✋`, 'system', { identity: participant.name, name: "Присоединился" });
+    };
+
+    room.on('participantConnected', handleParticipantConnected);
+    // room.off('participantDisconnected', handleParticipantConnected)
+    // Clean up the event listener when the component is unmounted
+    return () => {
+      room.off('participantConnected', handleParticipantConnected);
+    };
+  }, [room, addMessageToChat]);
+
   return (
     <div className='flex h-full flex-col gap-4'>
       <div className='flex flex-col items-center justify-between absolute z-40 w-full md:w-[250px] top-4 md:right-[50px]'>
@@ -400,7 +427,7 @@ function HostStreamManager({
         <div className='flex h-full w-full justify-between md:h-full rtl:flex-row-reverse absolute inset-0 z-10'>
           <div className='relative w-full md:block'>
             <div className='absolute bottom-0 right-0 top-0 flex h-full w-full md:w-[340px] pt-[120px] flex-col gap-2 p-2 bg-black/40'>
-              <Chat participantName={userId} />
+              <Chat participantName={userId} messages={chatMessages} />
             </div>
           </div>
         </div>
@@ -420,7 +447,6 @@ async function switchWebcamDevice(room: Room, deviceId: string) {
   const tracks = await createLocalTracks({ video: { deviceId } });
   const newVideoTrack = tracks.find(track => track.kind === Track.Kind.Video) as LocalTrack;
   await localParticipant.publishTrack(newVideoTrack);
-  
 }
 
 async function switchMicrophoneDevice(room: Room, deviceId: string) {
@@ -435,4 +461,3 @@ async function switchMicrophoneDevice(room: Room, deviceId: string) {
   const newAudioTrack = tracks.find(track => track.kind === Track.Kind.Audio) as LocalTrack;
   await localParticipant.publishTrack(newAudioTrack);
 }
-

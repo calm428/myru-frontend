@@ -4,7 +4,7 @@ import {
     useTracks,
   } from '@livekit/components-react';
   import { ConnectionState, Track } from 'livekit-client';
-  import React, { useRef } from 'react';
+  import React, { useRef, useEffect } from 'react';
   import { useTranslations } from 'next-intl';
   import StreamPlayer from './stream-player';
   
@@ -26,6 +26,16 @@ import {
         return 'Unknown';
     }
   }
+
+//   function handleStreamOffline() {
+//     const storeRoomId: string | null = localStorage.getItem('latest-stream-id');
+//     if (storeRoomId !== null) {
+//       const tokenKey = Object.keys(localStorage).find((key) =>
+//         key.startsWith(storeRoomId)
+//       );
+//       if (tokenKey) localStorage.removeItem(tokenKey);
+//     }
+//   }
   
   export default function StreamPlayerWrapper({ streamerIdentity }: Props) {
     const connectionState = useConnectionState();
@@ -36,7 +46,13 @@ import {
     );
   
     const videoRef = useRef<HTMLVideoElement>(null);
-  
+
+    // useEffect(() => {
+    //     if (connectionState !== ConnectionState.Connected || !participant) {
+    //       //handleStreamOffline();
+    //     }
+    //   }, [connectionState, participant]);
+    
     if (connectionState !== ConnectionState.Connected || !participant) {
       return (
         <div className='grid h-full items-center justify-center bg-black text-sm uppercase text-white'>
