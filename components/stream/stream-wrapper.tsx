@@ -27,15 +27,15 @@ import {
     }
   }
 
-  function handleStreamOffline() {
-    const storeRoomId: string | null = localStorage.getItem('latest-stream-id');
-    if (storeRoomId !== null) {
-      const tokenKey = Object.keys(localStorage).find((key) =>
-        key.startsWith(storeRoomId)
-      );
-      if (tokenKey) localStorage.removeItem(tokenKey);
-    }
-  }
+//   function handleStreamOffline() {
+//     const storeRoomId: string | null = localStorage.getItem('latest-stream-id');
+//     if (storeRoomId !== null) {
+//       const tokenKey = Object.keys(localStorage).find((key) =>
+//         key.startsWith(storeRoomId)
+//       );
+//       if (tokenKey) localStorage.removeItem(tokenKey);
+//     }
+//   }
   
   export default function StreamPlayerWrapper({ streamerIdentity }: Props) {
     const connectionState = useConnectionState();
@@ -47,11 +47,12 @@ import {
   
     const videoRef = useRef<HTMLVideoElement>(null);
 
-    useEffect(() => {
-        if (connectionState !== ConnectionState.Connected || !participant) {
-          handleStreamOffline();
-        }
-      }, [connectionState, participant]);
+    // useEffect(() => {
+    //     if (connectionState !== ConnectionState.Connected || !participant) {
+    //       //handleStreamOffline();
+    //     }
+    //   }, [connectionState, participant]);
+    
     if (connectionState !== ConnectionState.Connected || !participant) {
       return (
         <div className='grid h-full items-center justify-center bg-black text-sm uppercase text-white'>

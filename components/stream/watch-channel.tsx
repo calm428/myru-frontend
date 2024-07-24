@@ -16,6 +16,13 @@ interface WatchChannelProps {
   products: IProduct[];
 }
 
+interface ChatMessage {
+  type: 'system' | 'user';
+  message: string;
+  timestamp: number;
+  from?: { identity?: string; name?: string; metadata?: string };
+}
+
 export default function WatchChannel({
   slug,
   userId,
@@ -25,6 +32,7 @@ export default function WatchChannel({
   userAvatar,
 }: WatchChannelProps) {
   const [viewerToken, setViewerToken] = useState('');
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   useEffect(() => {
     const SESSION_VIEWER_TOKEN_KEY = `${slug}-viewer-token`;
@@ -56,7 +64,7 @@ export default function WatchChannel({
               <ProductPanel products={products} />
             </div>
             <div className='' style={{ maxHeight: '430px' }}>
-              <Chat participantName={userId} />
+              <Chat participantName={userId} messages={chatMessages} />
             </div>
           </div>
         </div>
@@ -67,7 +75,7 @@ export default function WatchChannel({
               <ChannelInfo streamerIdentity={userId} viewerIdentity={userName} />
             </div>
             <div className='' style={{ maxHeight: '620px' }}>
-              <Chat participantName={userId} />
+              <Chat participantName={userId} messages={chatMessages} />
             </div>
           </div>
         </div>
