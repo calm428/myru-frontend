@@ -54,12 +54,15 @@ export default function Chat({ participantName, messages }: Props) {
 
   return (
     <div className='flex flex-col h-full'>
-      <div className='flex-1 overflow-y-auto pt-[90%] md:pt-0' 
+      <div className='flex-1 overflow-y-auto md:hidden'></div>
+      <div className='flex-1 overflow-y-auto md:hidden'></div>
+
+      <div className='flex-1 overflow-y-auto pt-[0%] md:pt-0' 
        style={{
-        // height: '50%',
-        WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
-        maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to top, black 70%, transparent 100%)',
+        maskImage: 'linear-gradient(to top, black 70%, transparent 100%)',
       }}>
+
         {allMessages.map((message, index) => (
           <div key={index} className='flex items-center gap-2 p-2'>
             <Avatar className='mr-3 size-10'>
