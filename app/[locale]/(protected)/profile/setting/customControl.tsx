@@ -1,41 +1,65 @@
-import React from 'react';
+import React, { useEffect, useState, useRef, forwardRef } from 'react';
 import { ControlProps, components, GroupBase } from 'react-select';
 import { useSelectContext } from './selectContext';
 
-const CustomControl = (props: ControlProps<any, boolean, GroupBase<any>>) => {
-  const { onOpenMobileModal } = useSelectContext();
-  const isMobile = window.innerWidth <= 768;
+const CustomControl = forwardRef<HTMLDivElement, ControlProps<any, boolean, GroupBase<any>> & { type: string }>(
+  (props, ref) => {
+    const { onOpenMobileModal } = useSelectContext();
+    const [isMobile, setIsMobile] = useState(false);
+    const localRef = useRef<HTMLDivElement>(null);
+    const combinedRef = ref || localRef;
 
-  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    handleClick(event);
-  };
+    useEffect(() => {
+      if (typeof window !== 'undefined') {
+        setIsMobile(window.innerWidth <= 768);
+      }
+    }, []);
 
-  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    handleClick(event);
-  };
+    useEffect(() => {
+      const handleTouchStart = (event: TouchEvent) => {
+        handleClick(event);
+      };
 
-  const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent> | React.TouchEvent<HTMLDivElement>) => {
-    if (isMobile && onOpenMobileModal) {
-      onOpenMobileModal();
-      event.preventDefault();
-      event.stopPropagation();
-    } else if ('onMouseDown' in props.innerProps && props.innerProps.onMouseDown) {
-      props.innerProps.onMouseDown(event as React.MouseEvent<HTMLDivElement, MouseEvent>);
-    }
-  };
+      if (combinedRef && 'current' in combinedRef && combinedRef.current) {
+        combinedRef.current.addEventListener('touchstart', handleTouchStart, { passive: false });
+      }
 
-  return (
-    <components.Control
-      {...props}
-      innerProps={{
-        ...props.innerProps,
-        onMouseDown: handleMouseDown,
-        onTouchStart: handleTouchStart,
-      }}
-    >
-      {props.children}
-    </components.Control>
-  );
-};
+      return () => {
+        if (combinedRef && 'current' in combinedRef && combinedRef.current) {
+          combinedRef.current.removeEventListener('touchstart', handleTouchStart);
+        }
+      };
+    }, [isMobile, onOpenMobileModal]);
+
+    const handleMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      handleClick(event);
+    };
+
+    const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent> | React.TouchEvent<HTMLDivElement> | TouchEvent) => {
+      if (isMobile && onOpenMobileModal) {
+        onOpenMobileModal(props.type);
+        event.preventDefault();
+        event.stopPropagation();
+      } else if ('onMouseDown' in props.innerProps && props.innerProps.onMouseDown) {
+        props.innerProps.onMouseDown(event as React.MouseEvent<HTMLDivElement, MouseEvent>);
+      }
+    };
+
+    return (
+      <div ref={combinedRef}>
+        <components.Control
+          {...props}
+          innerProps={{
+            ...props.innerProps,
+            onMouseDown: handleMouseDown,
+            onTouchStart: handleClick, // Обработка touch событий
+          }}
+        >
+          {props.children}
+        </components.Control>
+      </div>
+    );
+  }
+);
 
 export default CustomControl;

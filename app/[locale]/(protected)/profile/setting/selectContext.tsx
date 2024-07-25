@@ -1,7 +1,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 
 interface SelectContextProps {
-  onOpenMobileModal?: () => void;
+  onOpenMobileModal?: (type: string) => void;
   children?: ReactNode;
 }
 
