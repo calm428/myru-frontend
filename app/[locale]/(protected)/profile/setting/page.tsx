@@ -265,6 +265,7 @@ export default function SettingPage() {
   const [isAdditionalLoading, setIsAdditionalLoading] =
     useState<boolean>(false);
   const [isRechargeLoading, setIsRechargeLoading] = useState<boolean>(false);
+  const [isCategoryLoading, setIsCategoryLoading] = useState(false);
 
   const [hashtagURL, setHashtagURL] = useState<string>(
     `/api/hashtags/profile/get`
@@ -277,7 +278,10 @@ export default function SettingPage() {
   const [hashtagOptions, setHashtagOptions] = useState<Option[]>([]);
   const [cityKeyword, setCityKeyword] = useState<string>('');
   const [categoryKeyword, setCategoryKeyword] = useState<string>('');
+
   const [searchResults, setSearchResults] = useState<Option[]>([]);
+  const [searchResultsCategory, setSearchResultsCategory] = useState<Option[]>([]);
+
   const [isLoading, setIsLoading] = useState(false);
 
   const basicForm = useForm<BasicFormData>({
@@ -328,6 +332,8 @@ export default function SettingPage() {
 
   const handleCategorySearch = useDebouncedCallback((value: string) => {
     setCategoryKeyword(value);
+    setIsCategoryLoading(true);
+
   }, 300);
 
   function customFilterFunction(option: Option, searchInput: string) {
@@ -413,6 +419,14 @@ export default function SettingPage() {
   useEffect(() => {
     if (fetchedCategories) {
       if (fetchedCategories.data.length == 0) {
+        setIsCategoryLoading(false);
+        setSearchResultsCategory([
+          {
+            value: -1,
+            label: t('no_category'),
+          },
+        ]);
+  
         setCategoryOptions([
           {
             value: -1,
@@ -420,11 +434,19 @@ export default function SettingPage() {
           },
         ]);
       } else {
+        const limitedResults = fetchedCategories.data
+          .map((category: any) => ({
+            value: category.ID,
+            label: category.Translations.find((t: any) => t.Language === locale).Name,
+          }))
+          .slice(0, 3); // Ограничение до 3 элементов
+  
+        setSearchResultsCategory(limitedResults);
+        setIsCategoryLoading(false);
         setCategoryOptions(
           fetchedCategories.data.map((category: any) => ({
             value: category.ID,
-            label: category.Translations.find((t: any) => t.Language === locale)
-              .Name,
+            label: category.Translations.find((t: any) => t.Language === locale).Name,
           }))
         );
       }
@@ -890,7 +912,6 @@ export default function SettingPage() {
                                 basicForm.setValue('city', [...field.value, city]);
                                 setSearchResults(prevResults => prevResults.filter((c: Option) => c.value !== city.value));
                               }
-                              // setSearchResults([]); // Clear search results after adding
                             };
 
                             const handleModalClose = (isOpen: boolean) => {
@@ -909,7 +930,7 @@ export default function SettingPage() {
                                       isMulti
                                       options={cityOptions}
                                       value={field.value}
-                                      components={{ Control: CustomControl }}
+                                      components={{ Control: (props) => <CustomControl {...props} type="city" /> }}
                                       onChange={(value) => {
                                         if (value.slice(-1)[0] && value.slice(-1)[0].value === -1) {
                                           setRequestType("city");
@@ -929,14 +950,13 @@ export default function SettingPage() {
                                           "!flex !w-full !rounded-md !border !border-input !bg-background !text-sm !ring-offset-background file:!border-0 file:!bg-transparent file:!text-sm file:!font-medium focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-ring focus-visible:!ring-offset-2 disabled:!cursor-not-allowed disabled:!opacity-50",
                                         option: () => "!bg-transparent !my-0 hover:!bg-muted-foreground !cursor-pointer",
                                         menu: () => "!bg-muted",
-                                        indicatorsContainer: () => "invisible md:visible" // Добавьте это для скрытия индикаторов на мобильных устройствах
-
+                                        indicatorsContainer: () => "invisible md:visible"
                                       }}
                                     />
                                   </SelectProvider>
                                 </FormControl>
                                 <FormMessage />
-                                <Dialog open={isMobileModalOpen} onOpenChange={handleModalClose}>
+                                <Dialog open={isMobileModalOpen && mobileSelectType === 'city'} onOpenChange={handleModalClose}>
                                   <DialogContent>
                                     <DialogHeader>
                                       <DialogTitle>Выбор города(ов)</DialogTitle>
@@ -944,49 +964,45 @@ export default function SettingPage() {
                                     </DialogHeader>
                                     <div>
                                       {mobileSelectType === "city" && (
-                                    
                                         <div className="flex flex-wrap gap-2">
-                                          <Input placeholder="Найдите или выберите"
-                                            onChange={(e) => handleCitySearch(e.target.value)}
-                                          />
-                                           {isLoading ? (
-                                              <Loader2 className='mr-2 size-4 animate-spin' />
-                                            ) : (
+                                          <Input placeholder="Найдите или выберите" onChange={(e) => handleCitySearch(e.target.value)} />
+                                          {isLoading ? (
+                                            <Loader2 className='mr-2 size-4 animate-spin' />
+                                          ) : (
                                             searchResults.length > 0 && (
-                                                <div className="w-full rounded-md">
-                                                  {searchResults.map((city) => (
-                                                    <div
-                                                      key={city.value}
-                                                      className="dark:bg-gray-800 dark:text-white bg-gray-200 text-black p-2 cursor-pointer mb-2 rounded-sm"
-                                                      onClick={() => addCity(city)}
-                                                    >
-                                                      <div className='flex justify-between items-center gap-2'> 
+                                              <div className="w-full rounded-md">
+                                                {searchResults.map((city) => (
+                                                  <div
+                                                    key={city.value}
+                                                    className="dark:bg-gray-800 dark:text-white bg-gray-200 text-black p-2 cursor-pointer mb-2 rounded-sm"
+                                                    onClick={() => addCity(city)}
+                                                  >
+                                                    <div className='flex justify-between items-center gap-2'>
                                                       {city.label}
                                                       <IoMdAdd />
-                                                      </div>
                                                     </div>
-                                                  ))}
-                                                </div>
-                                              )
-                                            )} 
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            )
+                                          )}
                                           <Separator className='mb-4' />
-                                          <span>Уже добавленные</span><br/>
+                                          <span>Уже добавленные</span><br />
                                           <div className='flex flex-wrap gap-2'>
-                                          {field.value.map((city: Option) => (
-                                            <div
-                                              key={city.value}
-                                              className="dark:bg-white dark:text-black bg-black text-white p-2 cursor-pointer"
-                                              onClick={() => removeCity(city)}
-                                            >
-                                             <div className='flex justify-center items-center gap-2'> 
-                                              {city.label}
-                                               <IoIosCloseCircleOutline /></div>
-
-                                            </div>
-                                          ))}
+                                            {field.value.map((city: Option) => (
+                                              <div
+                                                key={city.value}
+                                                className="dark:bg-white dark:text-black bg-black text-white p-2 cursor-pointer"
+                                                onClick={() => removeCity(city)}
+                                              >
+                                                <div className='flex justify-center items-center gap-2'>
+                                                  {city.label}
+                                                  <IoIosCloseCircleOutline />
+                                                </div>
+                                              </div>
+                                            ))}
                                           </div>
-
-                                          </div>
+                                        </div>
                                       )}
                                     </div>
                                     <DialogFooter>
@@ -1000,54 +1016,136 @@ export default function SettingPage() {
                             );
                           }}
                         />
-                        
+                          
                         <FormField
                           control={basicForm.control}
                           name='category'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel htmlFor='category'>
-                                {t('type_of_activities')}
-                              </FormLabel>
-                              <FormControl>
-                                <Select
-                                  isMulti
-                                  placeholder={t('select') + '...'}
-                                  noOptionsMessage={() => t('no_options')}
-                                  options={categoryOptions}
-                                  value={field.value}
-                                  styles={customStyles(theme || 'light')}
-                                  onInputChange={(value) =>
-                                    handleCategorySearch(value)
-                                  }
-                                  filterOption={customFilterFunction}
-                                  onChange={(value) => {
-                                    if (
-                                      value.slice(-1)[0] &&
-                                      value.slice(-1)[0].value === -1
-                                    ) {
-                                      setRequestType('category');
-                                      setOpenModal(true);
-                                    } else
-                                      value &&
-                                        basicForm.setValue('category', [
-                                          ...value,
-                                        ]);
-                                  }}
-                                  classNames={{
-                                    input: () =>
-                                      'dark:text-white text-black text-[16px]',
-                                    control: () =>
-                                      '!flex !w-full !rounded-md !border !border-input !bg-background !text-sm !ring-offset-background file:!border-0 file:!bg-transparent file:!text-sm file:!font-medium focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-ring focus-visible:!ring-offset-2 disabled:!cursor-not-allowed disabled:!opacity-50',
-                                    option: () =>
-                                      '!bg-transparent !my-0 hover:!bg-muted-foreground !cursor-pointer',
-                                    menu: () => '!bg-muted',
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          render={({ field }) => {
+                            const removeCategory = (categoryToRemove: Option) => {
+                              const updatedCategories = field.value.filter(
+                                (category: Option) => category.value !== categoryToRemove.value
+                              );
+                              basicForm.setValue('category', updatedCategories);
+                            };
+
+                            const addCategory = (category: Option) => {
+                              if (category.value === -1) {
+                                setRequestType('category');
+                                setOpenModal(true);
+                              } else if (
+                                !field.value.some((c: Option) => c.value === category.value)
+                              ) {
+                                basicForm.setValue('category', [...field.value, category]);
+                                setSearchResultsCategory((prevResults) =>
+                                  prevResults.filter((c: Option) => c.value !== category.value)
+                                );
+                              }
+                            };
+                            const handleModalClose = (isOpen: boolean) => {
+                              setIsMobileModalOpen(isOpen);
+                              if (!isOpen) {
+                                basicForm.handleSubmit(submitBasicInfo)();
+                              }
+                            };
+
+                            return (
+                              <FormItem>
+                                <FormLabel htmlFor='category'>{t('type_of_activities')}</FormLabel>
+                                <FormControl>
+                                  <SelectProvider onOpenMobileModal={() => handleOpenMobileModal('category')}>
+                                    <Select
+                                      isMulti
+                                      options={categoryOptions}
+                                      value={field.value}
+                                      components={{ Control: (props) => <CustomControl {...props} type='category' /> }}
+                                      onChange={(value) => {
+                                        if (value.slice(-1)[0] && value.slice(-1)[0].value === -1) {
+                                          setRequestType('category');
+                                          setOpenModal(true);
+                                        } else if (value) {
+                                          basicForm.setValue('category', [...value]);
+                                        }
+                                      }}
+                                      onInputChange={(value) => handleCategorySearch(value)}
+                                      filterOption={customFilterFunction}
+                                      noOptionsMessage={() => t('no_options')}
+                                      placeholder={t('select') + '...'}
+                                      styles={customStyles(theme || 'light')}
+                                      classNames={{
+                                        input: () => 'dark:text-white text-black text-[16px]',
+                                        control: () =>
+                                          '!flex !w-full !rounded-md !border !border-input !bg-background !text-sm !ring-offset-background file:!border-0 file:!bg-transparent file:!text-sm file:!font-medium focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-ring focus-visible:!ring-offset-2 disabled:!cursor-not-allowed disabled:!opacity-50',
+                                        option: () => '!bg-transparent !my-0 hover:!bg-muted-foreground !cursor-pointer',
+                                        menu: () => '!bg-muted',
+                                        indicatorsContainer: () => 'invisible md:visible',
+                                      }}
+                                    />
+                                  </SelectProvider>
+                                </FormControl>
+                                <FormMessage />
+                                <Dialog open={isMobileModalOpen && mobileSelectType === 'category'} onOpenChange={handleModalClose}>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Выбор категорий</DialogTitle>
+                                      <DialogClose />
+                                    </DialogHeader>
+                                    <div>
+                                      {mobileSelectType === 'category' && (
+                                        <div className='flex flex-wrap gap-2'>
+                                          <Input
+                                            placeholder='Найдите или выберите'
+                                            onChange={(e) => handleCategorySearch(e.target.value)}
+                                          />
+                                          {isCategoryLoading ? (
+                                            <Loader2 className='mr-2 size-4 animate-spin' />
+                                          ) : (
+                                            searchResultsCategory.length > 0 && (
+                                              <div className='w-full rounded-md'>
+                                                {searchResultsCategory.map((category) => (
+                                                  <div
+                                                    key={category.value}
+                                                    className='dark:bg-gray-800 dark:text-white bg-gray-200 text-black p-2 cursor-pointer mb-2 rounded-sm'
+                                                    onClick={() => addCategory(category)}
+                                                  >
+                                                    <div className='flex justify-between items-center gap-2'>
+                                                      {category.label}
+                                                      <IoMdAdd />
+                                                    </div>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            )
+                                          )}
+                                          <Separator className='mb-4' />
+                                          <span>Уже добавленные</span>
+                                          <br />
+                                          <div className='flex flex-wrap gap-2'>
+                                            {field.value.map((category: Option) => (
+                                              <div
+                                                key={category.value}
+                                                className='dark:bg-white dark:text-black bg-black text-white p-2 cursor-pointer'
+                                                onClick={() => removeCategory(category)}
+                                              >
+                                                <div className='flex justify-center items-center gap-2'>
+                                                  {category.label}
+                                                  <IoIosCloseCircleOutline />
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <DialogFooter>
+                                      <Button onClick={() => setIsMobileModalOpen(false)}>
+                                        {t('close')}
+                                      </Button>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
+                              </FormItem>
+                            );
+                          }}
                         />
                         <FormField
                           control={basicForm.control}
