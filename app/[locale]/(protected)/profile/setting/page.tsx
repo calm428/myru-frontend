@@ -11,6 +11,15 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,7 +28,6 @@ import { PaxContext } from '@/context/context';
 import '@/styles/editor.css';
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
-import { Loader2 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -47,8 +55,12 @@ import { GrHostMaintenance } from "react-icons/gr";
 import { IoMdPhotos } from "react-icons/io";
 import { MdDashboardCustomize } from "react-icons/md";
 import { useTheme } from 'next-themes';
-
+import CustomControl from './customControl'; 
+import { SelectProvider } from './selectContext'; // Импортируем SelectProvider
 import Loader from '@/components/ui/loader';
+import { IoIosCloseCircleOutline, IoMdAdd } from "react-icons/io";
+import { Loader2 } from 'lucide-react';
+
 const ReactQuill =
   typeof window === 'object' ? require('react-quill') : () => false;
 
@@ -216,6 +228,13 @@ const subscriptions = [
 
 export default function SettingPage() {
   const { theme } = useTheme();
+  const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
+  const [mobileSelectType, setMobileSelectType] = useState<string | null>(null);
+  const handleOpenMobileModal = (type: string) => {
+    console.log(type)
+    setMobileSelectType(type);
+    setIsMobileModalOpen(true);
+  };
 
   const t = useTranslations('main');
   const { userMutate } = useContext(PaxContext);
@@ -258,6 +277,8 @@ export default function SettingPage() {
   const [hashtagOptions, setHashtagOptions] = useState<Option[]>([]);
   const [cityKeyword, setCityKeyword] = useState<string>('');
   const [categoryKeyword, setCategoryKeyword] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<Option[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const basicForm = useForm<BasicFormData>({
     resolver: zodResolver(basicFormSchema),
@@ -301,6 +322,8 @@ export default function SettingPage() {
 
   const handleCitySearch = useDebouncedCallback((value: string) => {
     setCityKeyword(value);
+    setIsLoading(true);
+
   }, 300);
 
   const handleCategorySearch = useDebouncedCallback((value: string) => {
@@ -352,6 +375,14 @@ export default function SettingPage() {
   useEffect(() => {
     if (fetchedCities) {
       if (fetchedCities.data.length == 0) {
+        setIsLoading(false);
+        setSearchResults([
+          {
+            value: -1,
+            label: t('no_city'),
+          },
+        ]);
+
         setCityOptions([
           {
             value: -1,
@@ -359,6 +390,15 @@ export default function SettingPage() {
           },
         ]);
       } else {
+        const limitedResults = fetchedCities.data
+        .map((city: any) => ({
+          value: city.ID,
+          label: city.Translations.find((t: any) => t.Language === locale).Name,
+        }))
+        .slice(0, 3); // Ограничение до 3 элементов
+
+        setSearchResults(limitedResults);
+        setIsLoading(false);
         setCityOptions(
           fetchedCities.data.map((city: any) => ({
             value: city.ID,
@@ -713,7 +753,7 @@ export default function SettingPage() {
       setIsUpgradeLoading(false);
     }
   };
-
+  
   return (
     <div className='pb-4 px-4'>
 
@@ -827,6 +867,7 @@ export default function SettingPage() {
                     value='basic'
                     className='flex w-full max-w-lg flex-col gap-3'
                   >
+                    
                     <Form {...basicForm}>
                       <form
                         onSubmit={basicForm.handleSubmit(submitBasicInfo)}
@@ -834,50 +875,132 @@ export default function SettingPage() {
                       >
                         <FormField
                           control={basicForm.control}
-                          name='city'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel htmlFor='city'>
-                                {t('city_of_operation')}
-                              </FormLabel>
-                              <FormControl>
-                                <Select
-                                  isMulti
-                                  options={cityOptions}
-                                  value={field.value}
-                                  onChange={(value) => {
-                                    if (
-                                      value.slice(-1)[0] &&
-                                      value.slice(-1)[0].value === -1
-                                    ) {
-                                      setRequestType('city');
-                                      setOpenModal(true);
-                                    } else
-                                      value &&
-                                        basicForm.setValue('city', [...value]);
-                                  }}
-                                  onInputChange={(value) =>
-                                    handleCitySearch(value)
-                                  }
-                                  filterOption={customFilterFunction}
-                                  noOptionsMessage={() => t('no_options')}
-                                  placeholder={t('select') + '...'}
-                                  styles={customStyles(theme || 'light')}
-                                  classNames={{
-                                    input: () =>
-                                      'dark:text-white text-black text-[16px]',
-                                    control: () =>
-                                      '!flex !w-full !rounded-md !border !border-input !bg-background !text-sm !ring-offset-background file:!border-0 file:!bg-transparent file:!text-sm file:!font-medium focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-ring focus-visible:!ring-offset-2 disabled:!cursor-not-allowed disabled:!opacity-50',
-                                    option: () =>
-                                      '!bg-transparent !my-0 hover:!bg-muted-foreground !cursor-pointer',
-                                    menu: () => '!bg-muted',
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          name="city"
+                          render={({ field }) => {
+                            const removeCity = (cityToRemove: Option) => {
+                              const updatedCities = field.value.filter((city: Option) => city.value !== cityToRemove.value);
+                              basicForm.setValue("city", updatedCities);
+                            };
+
+                            const addCity = (city: Option) => {
+                              if (city.value === -1) {
+                                setRequestType("city");
+                                setOpenModal(true);
+                              } else if (!field.value.some((c: Option) => c.value === city.value)) {
+                                basicForm.setValue('city', [...field.value, city]);
+                                setSearchResults(prevResults => prevResults.filter((c: Option) => c.value !== city.value));
+                              }
+                              // setSearchResults([]); // Clear search results after adding
+                            };
+
+                            const handleModalClose = (isOpen: boolean) => {
+                              setIsMobileModalOpen(isOpen);
+                              if (!isOpen) {
+                                basicForm.handleSubmit(submitBasicInfo)();
+                              }
+                            };
+
+                            return (
+                              <FormItem>
+                                <FormLabel htmlFor="city">{t("city_of_operation")}</FormLabel>
+                                <FormControl>
+                                  <SelectProvider onOpenMobileModal={() => handleOpenMobileModal("city")}>
+                                    <Select
+                                      isMulti
+                                      options={cityOptions}
+                                      value={field.value}
+                                      components={{ Control: CustomControl }}
+                                      onChange={(value) => {
+                                        if (value.slice(-1)[0] && value.slice(-1)[0].value === -1) {
+                                          setRequestType("city");
+                                          setOpenModal(true);
+                                        } else if (value) {
+                                          basicForm.setValue("city", [...value]);
+                                        }
+                                      }}
+                                      onInputChange={(value) => handleCitySearch(value)}
+                                      filterOption={customFilterFunction}
+                                      noOptionsMessage={() => t("no_options")}
+                                      placeholder={t("select") + "..."}
+                                      styles={customStyles(theme || "light")}
+                                      classNames={{
+                                        input: () => "dark:text-white text-black text-[16px]",
+                                        control: () =>
+                                          "!flex !w-full !rounded-md !border !border-input !bg-background !text-sm !ring-offset-background file:!border-0 file:!bg-transparent file:!text-sm file:!font-medium focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-ring focus-visible:!ring-offset-2 disabled:!cursor-not-allowed disabled:!opacity-50",
+                                        option: () => "!bg-transparent !my-0 hover:!bg-muted-foreground !cursor-pointer",
+                                        menu: () => "!bg-muted",
+                                        indicatorsContainer: () => "invisible md:visible" // Добавьте это для скрытия индикаторов на мобильных устройствах
+
+                                      }}
+                                    />
+                                  </SelectProvider>
+                                </FormControl>
+                                <FormMessage />
+                                <Dialog open={isMobileModalOpen} onOpenChange={handleModalClose}>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Выбор города(ов)</DialogTitle>
+                                      <DialogClose />
+                                    </DialogHeader>
+                                    <div>
+                                      {mobileSelectType === "city" && (
+                                    
+                                        <div className="flex flex-wrap gap-2">
+                                          <Input placeholder="Найдите или выберите"
+                                            onChange={(e) => handleCitySearch(e.target.value)}
+                                          />
+                                           {isLoading ? (
+                                              <Loader2 className='mr-2 size-4 animate-spin' />
+                                            ) : (
+                                            searchResults.length > 0 && (
+                                                <div className="w-full rounded-md">
+                                                  {searchResults.map((city) => (
+                                                    <div
+                                                      key={city.value}
+                                                      className="dark:bg-gray-800 dark:text-white bg-gray-200 text-black p-2 cursor-pointer mb-2 rounded-sm"
+                                                      onClick={() => addCity(city)}
+                                                    >
+                                                      <div className='flex justify-between items-center gap-2'> 
+                                                      {city.label}
+                                                      <IoMdAdd />
+                                                      </div>
+                                                    </div>
+                                                  ))}
+                                                </div>
+                                              )
+                                            )} 
+                                          <Separator className='mb-4' />
+                                          <span>Уже добавленные</span><br/>
+                                          <div className='flex flex-wrap gap-2'>
+                                          {field.value.map((city: Option) => (
+                                            <div
+                                              key={city.value}
+                                              className="dark:bg-white dark:text-black bg-black text-white p-2 cursor-pointer"
+                                              onClick={() => removeCity(city)}
+                                            >
+                                             <div className='flex justify-center items-center gap-2'> 
+                                              {city.label}
+                                               <IoIosCloseCircleOutline /></div>
+
+                                            </div>
+                                          ))}
+                                          </div>
+
+                                          </div>
+                                      )}
+                                    </div>
+                                    <DialogFooter>
+                                      <Button onClick={() => setIsMobileModalOpen(false)}>
+                                        {t("close")}
+                                      </Button>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
+                              </FormItem>
+                            );
+                          }}
                         />
+                        
                         <FormField
                           control={basicForm.control}
                           name='category'
