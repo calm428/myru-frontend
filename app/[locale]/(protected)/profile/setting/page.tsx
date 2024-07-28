@@ -1264,6 +1264,7 @@ export default function SettingPage() {
                                         option: () =>
                                           '!bg-transparent !my-0 hover:!bg-muted-foreground !cursor-pointer',
                                         menu: () => '!bg-muted',
+                                        indicatorsContainer: () => 'invisible md:visible',
                                       }}
                                     />
                                   </SelectProvider>
