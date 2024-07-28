@@ -267,10 +267,6 @@ export default function SettingPage() {
   const [isRechargeLoading, setIsRechargeLoading] = useState<boolean>(false);
   const [isCategoryLoading, setIsCategoryLoading] = useState(false);
 
-  const [hashtagURL, setHashtagURL] = useState<string>(
-    `/api/hashtags/profile/get`
-  );
-
   const [isNeededUpdate, setIsNeededUpdate] = useState<boolean>(false);
 
   const [cityOptions, setCityOptions] = useState<Option[]>([]);
@@ -281,6 +277,13 @@ export default function SettingPage() {
 
   const [searchResults, setSearchResults] = useState<Option[]>([]);
   const [searchResultsCategory, setSearchResultsCategory] = useState<Option[]>([]);
+
+  const [isHashtagLoading, setIsHashtagLoading] = useState(false);
+  const [searchResultsHashtag, setSearchResultsHashtag] = useState<Option[]>([]);
+  const [hashtagKeyword, setHashtagKeyword] = useState<string>('');
+  const [hashtagURL, setHashtagURL] = useState<string>(
+    `/api/hashtags/profile/get`
+  );
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -455,16 +458,41 @@ export default function SettingPage() {
 
   useEffect(() => {
     if (!hashtagFetchError && fetchedHashtags) {
-      setHashtagOptions(
-        fetchedHashtags?.map((hashtag: any) => ({
-          value: hashtag.ID,
-          label: hashtag.Hashtag,
-        })) || []
-      );
+      if (fetchedHashtags.length === 0 && hashtagKeyword) {
+        setIsHashtagLoading(false);
+        setSearchResultsHashtag([
+          {
+            value: hashtagKeyword,
+            label: hashtagKeyword,
+          },
+        ]);
+        setHashtagOptions([
+          {
+            value: hashtagKeyword,
+            label: hashtagKeyword,
+          },
+        ]);
+      } else {
+        const limitedResults = fetchedHashtags
+          .map((hashtag: any) => ({
+            value: hashtag.ID,
+            label: hashtag.Hashtag,
+          }))
+          .slice(0, 3); // Ограничение до 3 элементов
+        setIsHashtagLoading(false);
+        setSearchResultsHashtag(limitedResults);
+        setHashtagOptions(
+          fetchedHashtags.map((hashtag: any) => ({
+            value: hashtag.ID,
+            label: hashtag.Hashtag,
+          }))
+        );
+      }
     } else {
       setHashtagOptions([]);
+      setSearchResultsHashtag([]);
     }
-  }, [hashtagFetchError, fetchedHashtags]);
+  }, [hashtagFetchError, fetchedHashtags, hashtagKeyword]);
 
   const handleLinkCopy = async (text: string) => {
     await navigator.clipboard.writeText(text);
@@ -718,8 +746,12 @@ export default function SettingPage() {
   };
 
   const handleHashtagSearch = useDebouncedCallback((query: string) => {
-    if (query) setHashtagURL(`/api/hashtags/get?name=${query}`);
-    else setHashtagURL(`/api/hashtags/profile/get`);
+    if (query) {
+      setHashtagURL(`/api/hashtags/get?name=${query}`);
+    } else {
+      setHashtagURL(`/api/hashtags/profile/get`);
+    }
+    setIsHashtagLoading(true);
   }, 300);
 
   const handleDeleteAccount = async () => {
@@ -1149,37 +1181,160 @@ export default function SettingPage() {
                         />
                         <FormField
                           control={basicForm.control}
-                          name='hashtags'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel htmlFor='hashtags'>
-                                {t('hashtag_for_promoting')}
-                              </FormLabel>
-                              <FormControl>
-                                <CreatableSelect
-                                  isMulti
-                                  placeholder={t('select') + '...'}
-                                  noOptionsMessage={() => t('no_options')}
-                                  options={hashtagOptions}
-                                  value={field.value}
-                                  onChange={field.onChange}
-                                  onInputChange={handleHashtagSearch}
-                                  formatCreateLabel={(inputValue) => `Добавить "${inputValue}"`}
-                                  styles={customStyles(theme || 'light')}
-                                  classNames={{
-                                    input: () =>
-                                      'dark:text-white text-black text-[16px]',
-                                    control: () =>
-                                      '!flex !w-full !rounded-md !border !border-input !bg-background !text-sm !ring-offset-background file:!border-0 file:!bg-transparent file:!text-sm file:!font-medium focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-ring focus-visible:!ring-offset-2 disabled:!cursor-not-allowed disabled:!opacity-50',
-                                    option: () =>
-                                      '!bg-transparent !my-0 hover:!bg-muted-foreground !cursor-pointer',
-                                    menu: () => '!bg-muted',
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          name="hashtags"
+                          render={({ field }) => {
+                            const removeHashtag = (hashtagToRemove: Option) => {
+                              const updatedHashtags = field.value.filter(
+                                (hashtag: Option) => hashtag.value !== hashtagToRemove.value
+                              );
+                              basicForm.setValue('hashtags', updatedHashtags);
+                            };
+
+                            const addHashtag = async (hashtag: Option) => {
+                              if (hashtag.label === hashtag.value) {
+                                try {
+                                  const res = await axios.post('/api/hashtags/create', {
+                                    hashTag: hashtag.label,
+                                  });
+
+                                  if (res.status === 200) {
+                                    const hashtagData = res.data.data;
+                                    hashtag.value = hashtagData.ID;
+                                    if (!field.value.some((h: Option) => h.value === hashtag.value)) {
+                                      basicForm.setValue('hashtags', [...field.value, hashtag]);
+                                      setSearchResultsHashtag((prevResults) =>
+                                        prevResults.filter((h: Option) => h.value !== hashtag.value)
+                                      );
+                                    }
+                                  } else {
+                                    toast.error(t('add_hashtag_failed'), {
+                                      position: 'top-right',
+                                    });
+                                  }
+                                } catch (error) {
+                                  toast.error(t('add_hashtag_failed'), {
+                                    position: 'top-right',
+                                  });
+                                }
+                              } else if (!field.value.some((h: Option) => h.value === hashtag.value)) {
+                                basicForm.setValue('hashtags', [...field.value, hashtag]);
+                                setSearchResultsHashtag((prevResults) =>
+                                  prevResults.filter((h: Option) => h.value !== hashtag.value)
+                                );
+                              }
+                            };
+
+                            const handleModalClose = (isOpen: boolean) => {
+                              setIsMobileModalOpen(isOpen);
+                              if (!isOpen) {
+                                basicForm.handleSubmit(submitBasicInfo)();
+                              }
+                            };
+
+                            return (
+                              <FormItem>
+                                <FormLabel htmlFor="hashtags">{t('hashtag_for_promoting')}</FormLabel>
+                                <FormControl>
+                                  <SelectProvider onOpenMobileModal={() => handleOpenMobileModal('hashtag')}>
+                                    <CreatableSelect
+                                      isMulti
+                                      placeholder={t('select') + '...'}
+                                      noOptionsMessage={() => t('no_options')}
+                                      options={hashtagOptions}
+                                      value={field.value}
+                                      components={{ Control: (props) => <CustomControl {...props} type='hashtag' /> }}
+                                      onChange={(value) => {
+                                        if (value.slice(-1)[0] && value.slice(-1)[0].label === value.slice(-1)[0].value) {
+                                          addHashtag(value.slice(-1)[0]);
+                                        } else if (value) {
+                                          basicForm.setValue('hashtags', [...value]);
+                                        }
+                                      }}
+                                      onInputChange={(value) => {
+                                        setHashtagKeyword(value);
+                                        handleHashtagSearch(value);
+                                      }}
+                                      filterOption={customFilterFunction}
+                                      formatCreateLabel={(inputValue) => `Добавить "${inputValue}"`}
+                                      styles={customStyles(theme || 'light')}
+                                      classNames={{
+                                        input: () => 'dark:text-white text-black text-[16px]',
+                                        control: () =>
+                                          '!flex !w-full !rounded-md !border !border-input !bg-background !text-sm !ring-offset-background file:!border-0 file:!bg-transparent file:!text-sm file:!font-medium focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-ring focus-visible:!ring-offset-2 disabled:!cursor-not-allowed disabled:!opacity-50',
+                                        option: () =>
+                                          '!bg-transparent !my-0 hover:!bg-muted-foreground !cursor-pointer',
+                                        menu: () => '!bg-muted',
+                                      }}
+                                    />
+                                  </SelectProvider>
+                                </FormControl>
+                                <FormMessage />
+                                <Dialog open={isMobileModalOpen && mobileSelectType === 'hashtag'} onOpenChange={handleModalClose}>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Выбор хэштегов</DialogTitle>
+                                      <DialogClose />
+                                    </DialogHeader>
+                                    <div>
+                                      {mobileSelectType === 'hashtag' && (
+                                        <div className='flex flex-wrap gap-2'>
+                                          <Input
+                                            placeholder='Найдите или выберите'
+                                            onChange={(e) => {
+                                              setHashtagKeyword(e.target.value);
+                                              handleHashtagSearch(e.target.value);
+                                            }}
+                                          />
+                                          {isHashtagLoading ? (
+                                            <Loader2 className='mr-2 size-4 animate-spin' />
+                                          ) : (
+                                            searchResultsHashtag.length > 0 && (
+                                              <div className='w-full rounded-md'>
+                                                {searchResultsHashtag.map((hashtag) => (
+                                                  <div
+                                                    key={hashtag.value}
+                                                    className='dark:bg-gray-800 dark:text-white bg-gray-200 text-black p-2 cursor-pointer mb-2 rounded-sm'
+                                                    onClick={() => addHashtag(hashtag)}
+                                                  >
+                                                    <div className='flex justify-between items-center gap-2'>
+                                                      {hashtag.label}
+                                                      <IoMdAdd />
+                                                    </div>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            )
+                                          )}
+                                          <Separator className='mb-4' />
+                                          <span>Уже добавленные</span>
+                                          <br />
+                                          <div className='flex flex-wrap gap-2'>
+                                            {field.value.map((hashtag: Option) => (
+                                              <div
+                                                key={hashtag.value}
+                                                className='dark:bg-white dark:text-black bg-black text-white p-2 cursor-pointer'
+                                                onClick={() => removeHashtag(hashtag)}
+                                              >
+                                                <div className='flex justify-center items-center gap-2'>
+                                                  {hashtag.label}
+                                                  <IoIosCloseCircleOutline />
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <DialogFooter>
+                                      <Button onClick={() => setIsMobileModalOpen(false)}>
+                                        {t("close")}
+                                      </Button>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
+                              </FormItem>
+                            );
+                          }}
                         />
                         <FormField
                           control={basicForm.control}
