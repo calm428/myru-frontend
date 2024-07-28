@@ -186,9 +186,8 @@ export default function ChatMessageContainer() {
         const index = messages.findIndex((msg) => msg.id === deleteMessageId);
 
         if (index > -1) {
-          const _messages = messages;
-          _messages[index].isDeleted = true;
-
+          const _messages = [...messages];
+          _messages.splice(index, 1); // Удалить сообщение из массива
           setMessages(_messages);
 
           setIsDeleting(false);
@@ -359,43 +358,45 @@ export default function ChatMessageContainer() {
         <div className='wrapper h-full items-end'>
           <div className='chat-area container !px-0'>
             <div className='chat-area-main'>
-              {messages.map((message) => {
-                const day = new Date(message.timestamp).toLocaleDateString(
-                  'en-US',
-                  {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                  }
-                );
-                if (!chatUser?.bot && day !== lastDay) {
-                  lastDay = day;
-                  return (
-                    <div key={message.id}>
-                      <div className='my-2 w-full text-center text-sm text-muted-foreground'>
-                        {day}
+              {messages
+                .filter((message) => !message.isDeleted)
+                .map((message) => {
+                  const day = new Date(message.timestamp).toLocaleDateString(
+                    'ru-RU',
+                    {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    }
+                  );
+                  if (!chatUser?.bot && day !== lastDay) {
+                    lastDay = day;
+                    return (
+                      <div key={message.id}>
+                        <div className='my-2 w-full text-center text-sm text-muted-foreground'>
+                          {day}
+                        </div>
+                        <ChatMessage
+                          {...message}
+                          onDelete={handleMessageDelete}
+                          onEdit={handleMessageEdit}
+                          onReply={handleMessageReply}
+                          isBot={chatUser?.bot}
+                        />
                       </div>
+                    );
+                  } else
+                    return (
                       <ChatMessage
+                        key={message.id}
                         {...message}
                         onDelete={handleMessageDelete}
                         onEdit={handleMessageEdit}
                         onReply={handleMessageReply}
                         isBot={chatUser?.bot}
                       />
-                    </div>
-                  );
-                } else
-                  return (
-                    <ChatMessage
-                      key={message.id}
-                      {...message}
-                      onDelete={handleMessageDelete}
-                      onEdit={handleMessageEdit}
-                      onReply={handleMessageReply}
-                      isBot={chatUser?.bot}
-                    />
-                  );
-              })}
+                    );
+                })}
             </div>
           </div>
         </div>
