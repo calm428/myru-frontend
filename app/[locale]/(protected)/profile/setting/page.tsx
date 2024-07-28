@@ -458,18 +458,18 @@ export default function SettingPage() {
 
   useEffect(() => {
     if (!hashtagFetchError && fetchedHashtags) {
-      if (fetchedHashtags.length === 0) {
+      if (fetchedHashtags.length === 0 && hashtagKeyword) {
         setIsHashtagLoading(false);
         setSearchResultsHashtag([
           {
-            value: -1,
-            label: 'нет тегов',
+            value: hashtagKeyword,
+            label: hashtagKeyword,
           },
         ]);
         setHashtagOptions([
           {
-            value: -1,
-            label: 'нет тегов',
+            value: hashtagKeyword,
+            label: hashtagKeyword,
           },
         ]);
       } else {
@@ -479,9 +479,8 @@ export default function SettingPage() {
             label: hashtag.Hashtag,
           }))
           .slice(0, 3); // Ограничение до 3 элементов
-  
-        setSearchResultsHashtag(limitedResults);
         setIsHashtagLoading(false);
+        setSearchResultsHashtag(limitedResults);
         setHashtagOptions(
           fetchedHashtags.map((hashtag: any) => ({
             value: hashtag.ID,
@@ -491,9 +490,9 @@ export default function SettingPage() {
       }
     } else {
       setHashtagOptions([]);
-      setIsHashtagLoading(false);
+      setSearchResultsHashtag([]);
     }
-  }, [hashtagFetchError, fetchedHashtags]);
+  }, [hashtagFetchError, fetchedHashtags, hashtagKeyword]);
 
   const handleLinkCopy = async (text: string) => {
     await navigator.clipboard.writeText(text);
@@ -747,8 +746,11 @@ export default function SettingPage() {
   };
 
   const handleHashtagSearch = useDebouncedCallback((query: string) => {
-    if (query) setHashtagURL(`/api/hashtags/get?name=${query}`);
-    else setHashtagURL(`/api/hashtags/profile/get`);
+    if (query) {
+      setHashtagURL(`/api/hashtags/get?name=${query}`);
+    } else {
+      setHashtagURL(`/api/hashtags/profile/get`);
+    }
     setIsHashtagLoading(true);
   }, 300);
 
@@ -1188,19 +1190,40 @@ export default function SettingPage() {
                               basicForm.setValue('hashtags', updatedHashtags);
                             };
 
-                            const addHashtag = (hashtag: Option) => {
-                              if (hashtag.value === -1) {
-                                setRequestType('hashtag');
-                                setOpenModal(true);
-                              } else if (
-                                !field.value.some((h: Option) => h.value === hashtag.value)
-                              ) {
+                            const addHashtag = async (hashtag: Option) => {
+                              if (hashtag.label === hashtag.value) {
+                                try {
+                                  const res = await axios.post('/api/hashtags/create', {
+                                    hashTag: hashtag.label,
+                                  });
+
+                                  if (res.status === 200) {
+                                    const hashtagData = res.data.data;
+                                    hashtag.value = hashtagData.ID;
+                                    if (!field.value.some((h: Option) => h.value === hashtag.value)) {
+                                      basicForm.setValue('hashtags', [...field.value, hashtag]);
+                                      setSearchResultsHashtag((prevResults) =>
+                                        prevResults.filter((h: Option) => h.value !== hashtag.value)
+                                      );
+                                    }
+                                  } else {
+                                    toast.error(t('add_hashtag_failed'), {
+                                      position: 'top-right',
+                                    });
+                                  }
+                                } catch (error) {
+                                  toast.error(t('add_hashtag_failed'), {
+                                    position: 'top-right',
+                                  });
+                                }
+                              } else if (!field.value.some((h: Option) => h.value === hashtag.value)) {
                                 basicForm.setValue('hashtags', [...field.value, hashtag]);
                                 setSearchResultsHashtag((prevResults) =>
                                   prevResults.filter((h: Option) => h.value !== hashtag.value)
                                 );
                               }
                             };
+
                             const handleModalClose = (isOpen: boolean) => {
                               setIsMobileModalOpen(isOpen);
                               if (!isOpen) {
@@ -1221,14 +1244,16 @@ export default function SettingPage() {
                                       value={field.value}
                                       components={{ Control: (props) => <CustomControl {...props} type='hashtag' /> }}
                                       onChange={(value) => {
-                                        if (value.slice(-1)[0] && value.slice(-1)[0].value === -1) {
-                                          setRequestType('hashtag');
-                                          setOpenModal(true);
+                                        if (value.slice(-1)[0] && value.slice(-1)[0].label === value.slice(-1)[0].value) {
+                                          addHashtag(value.slice(-1)[0]);
                                         } else if (value) {
                                           basicForm.setValue('hashtags', [...value]);
                                         }
                                       }}
-                                      onInputChange={(value) => handleHashtagSearch(value)}
+                                      onInputChange={(value) => {
+                                        setHashtagKeyword(value);
+                                        handleHashtagSearch(value);
+                                      }}
                                       filterOption={customFilterFunction}
                                       formatCreateLabel={(inputValue) => `Добавить "${inputValue}"`}
                                       styles={customStyles(theme || 'light')}
@@ -1239,7 +1264,6 @@ export default function SettingPage() {
                                         option: () =>
                                           '!bg-transparent !my-0 hover:!bg-muted-foreground !cursor-pointer',
                                         menu: () => '!bg-muted',
-                                        indicatorsContainer: () => 'invisible md:visible',
                                       }}
                                     />
                                   </SelectProvider>
@@ -1256,7 +1280,10 @@ export default function SettingPage() {
                                         <div className='flex flex-wrap gap-2'>
                                           <Input
                                             placeholder='Найдите или выберите'
-                                            onChange={(e) => handleHashtagSearch(e.target.value)}
+                                            onChange={(e) => {
+                                              setHashtagKeyword(e.target.value);
+                                              handleHashtagSearch(e.target.value);
+                                            }}
                                           />
                                           {isHashtagLoading ? (
                                             <Loader2 className='mr-2 size-4 animate-spin' />
