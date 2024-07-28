@@ -51,11 +51,9 @@ export default function Notification({ authenticated }: { authenticated: boolean
     <Link href="/profile/notifications">
       <button>
         <div className='flex items-center justify-center'>
-          {unreadCount > 0 && (
-            <span className='relative -top-2 left-10 rounded-full bg-card-gradient-menu px-2 text-center text-xs'>
-              {unreadCount}
-            </span>
-          )}
+        <span className='relative -top-2 left-10 rounded-full bg-card-gradient-menu px-2 text-center text-xs'>
+          {unreadCount > 0 ? unreadCount : 0}
+        </span>
           <IoIosNotifications size={32} />
         </div>
       </button>
