@@ -1038,7 +1038,7 @@ export default function SettingPage() {
                                       )}
                                     </div>
                                     <DialogFooter>
-                                      <Button onClick={() => setIsMobileModalOpen(false)}>
+                                      <Button onClick={() => handleModalClose(false)}>
                                         {t("close")}
                                       </Button>
                                     </DialogFooter>
@@ -1169,7 +1169,7 @@ export default function SettingPage() {
                                       )}
                                     </div>
                                     <DialogFooter>
-                                      <Button onClick={() => setIsMobileModalOpen(false)}>
+                                      <Button onClick={() => handleModalClose(false)}>
                                         {t('close')}
                                       </Button>
                                     </DialogFooter>
@@ -1327,7 +1327,7 @@ export default function SettingPage() {
                                       )}
                                     </div>
                                     <DialogFooter>
-                                      <Button onClick={() => setIsMobileModalOpen(false)}>
+                                      <Button onClick={() => handleModalClose(false)}>
                                         {t("close")}
                                       </Button>
                                     </DialogFooter>
