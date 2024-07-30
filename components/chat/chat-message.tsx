@@ -140,6 +140,7 @@ export default function ChatMessage(props: ChatMessageProps) {
             },
             { 'mr-24': props.isEdited }
           )}
+          style={{ overflowWrap: 'anywhere' }} 
           dangerouslySetInnerHTML={{
             __html: DOMPurify.sanitize(processText(props.message), {
               ALLOWED_TAGS: ['a', 'br'],
@@ -327,7 +328,7 @@ export default function ChatMessage(props: ChatMessageProps) {
                 </>
               )}
               {!props.isBot && (
-                <div className='-mt-3 flex w-full justify-end gap-1 text-xs text-gray-200'>
+                <div className='-mt-3 flex w-full justify-end gap-1 text-xs text-gray-900'>
                   {props.isEdited && <p>{t('edited')}</p>}
                   <p>
                     {format.dateTime(new Date(props.timestamp), {
