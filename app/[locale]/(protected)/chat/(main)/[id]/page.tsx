@@ -47,12 +47,14 @@ export default function ChatDetailPage({
 
         setActiveRoomSubscribed(true);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
     setActiveRoom(id);
-  }, []);
+  }, [id]);
 
   return !isMessageLoading && !isRoomLoading ? (
     <div className='new-content-container'>

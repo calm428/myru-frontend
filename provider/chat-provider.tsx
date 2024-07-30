@@ -17,6 +17,13 @@ import { useContext, useEffect, useRef, useState } from 'react';
 
 Howler.autoUnlock = true;
 
+const messageReceivedSound = new Howl({
+  src: ['/audio/message-received.mp3'],
+  html5: true,
+  loop: false,
+  preload: true,
+});
+
 export default function Providers({ children }: { children: React.ReactNode }) {
   const t = useTranslations('chatting');
   const locale = useLocale();
@@ -49,15 +56,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   const fadeTypingRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentTime = useNow({
-    // … and update it every 60 seconds
     updateInterval: 1000 * 60,
-  });
-
-  const messageReceivedSound = new Howl({
-    src: ['/audio/message-received.mp3'],
-    html5: true,
-    loop: false,
-    preload: true,
   });
 
   useCentrifuge(user?.id, onPublication.current);
@@ -77,7 +76,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       return _rooms;
     } catch (error) {
       console.log(error);
-
       return [];
     }
   };
@@ -87,7 +85,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
     getRooms()
       .then((res) => {
-        console.log(res);
         setChatRooms(res);
         setIsRoomLoading(false);
       })
@@ -132,10 +129,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }, [chatRooms, activeRoom]);
 
   useEffect(() => {
-    if (window === undefined) return;
+    if (typeof window === 'undefined') return;
 
     const handleVisibilityChange = () => {
-      setIsOnline(!window.document.hidden);
+      setIsOnline(!document.hidden);
     };
 
     const handleFocus = () => {
@@ -163,14 +160,12 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       window.removeEventListener('online', handleFocus);
       window.removeEventListener('offline', handleBlur);
     };
-  }, []); // Empty array ensures this effect runs only on mount and unmount
+  }, []);
 
   useEffect(() => {
     onPublication.current = (publication: any) => {
-      console.log(publication, activeRoom);
       if (publication.type === 'new_message') {
-        console.log(`${publication.body.room_id}`, activeRoom);
-        if (`${publication.body.room_id}` === activeRoom)
+        if (`${publication.body.room_id}` === activeRoom) {
           setMessages((messages) => {
             const index = messages.findIndex(
               (msg) => msg.id === `${publication.body.id}` || msg.id === '00000'
@@ -217,34 +212,35 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             }
           });
 
-        setChatRooms((chatRooms) => {
-          return chatRooms
-            .map((room) => {
-              if (room.id === `${publication.body.room_id}`) {
-                return {
-                  ...room, // Spread existing room properties
-                  lastMessage: {
-                    id: `${publication.body.id}`,
-                    message: publication.body.content,
-                    owner: publication.body.user_id,
-                  },
-                  timestamp: publication.body.created_at,
-                  unreadCount:
-                    user?.id !== publication.body.user_id
-                      ? room.unreadCount + 1
-                      : room.unreadCount,
-                };
-              }
-              return room;
-            })
-            .sort(
-              (a, b) =>
-                new Date(b.timestamp).getTime() -
-                new Date(a.timestamp).getTime()
-            );
-        });
+          setChatRooms((chatRooms) => {
+            return chatRooms
+              .map((room) => {
+                if (room.id === `${publication.body.room_id}`) {
+                  return {
+                    ...room,
+                    lastMessage: {
+                      id: `${publication.body.id}`,
+                      message: publication.body.content,
+                      owner: publication.body.user_id,
+                    },
+                    timestamp: publication.body.created_at,
+                    unreadCount:
+                      user?.id !== publication.body.user_id
+                        ? room.unreadCount + 1
+                        : room.unreadCount,
+                  };
+                }
+                return room;
+              })
+              .sort(
+                (a, b) =>
+                  new Date(b.timestamp).getTime() -
+                  new Date(a.timestamp).getTime()
+              );
+          });
 
-        messageReceivedSound.play();
+          messageReceivedSound.play();
+        }
       } else if (publication.type === 'edit_message') {
         setMessages((messages) => {
           const index = messages.findIndex(
@@ -347,14 +343,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           return newChatRooms;
         });
       } else if (publication.type === 'updated_last_read_msg_id') {
-        // publication.body.lastReadMessageId
-        // publication.body.roomId
-        // publication.body.ownerId
         setChatRooms((chatRooms) => {
           return chatRooms.map((room) => {
-            // Check if this is the room to update.
             if (room.id === `${publication.body.roomId}`) {
-              // Check if the user in this room matches the readerId.
               if (
                 room.user &&
                 room.user.id === `${publication.body.readerId}`
@@ -367,7 +358,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                   },
                 };
               } else {
-                // If not updating a specific user, update the lastSeenMessage for the room.
                 let unreadCount = 0;
                 messages.forEach((message) => {
                   if (
@@ -389,7 +379,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               }
             }
 
-            // For rooms that do not match the condition, return them unchanged.
             return room;
           });
         });
