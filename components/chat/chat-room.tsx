@@ -182,7 +182,7 @@ export default function ChatRoom({ room }: { room: ChatRoomType }) {
               <p className='line-clamp-1 max-w-40 text-xs text-gray-500 dark:text-gray-400'>
                 {room.user.isTyping ? (
                   <>
-                    is typing
+                    Печатает
                     <TypingDots />
                   </>
                 ) : (
@@ -199,7 +199,7 @@ export default function ChatRoom({ room }: { room: ChatRoomType }) {
                         )}
                       />
                     )}
-                    {room.lastMessage.message}
+                    {/* {room.lastMessage.message} */}
                   </>
                 )}
               </p>

@@ -46,7 +46,7 @@ export default function ChatHeader() {
         <p className='text-xs text-gray-500'>
           {chatUser?.isTyping ? (
             <>
-              is typing
+              Печатает
               <TypingDots />
             </>
           ) : chatUser?.online ? (

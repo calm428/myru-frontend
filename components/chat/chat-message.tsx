@@ -328,7 +328,7 @@ export default function ChatMessage(props: ChatMessageProps) {
                 </>
               )}
               {!props.isBot && (
-                <div className='-mt-3 flex w-full justify-end gap-1 text-xs text-gray-900'>
+                <div className='-mt-3 flex w-full justify-end gap-1 text-xs text-gray-900 dark:text-white'>
                   {props.isEdited && <p>{t('edited')}</p>}
                   <p>
                     {format.dateTime(new Date(props.timestamp), {
