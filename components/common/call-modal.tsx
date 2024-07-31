@@ -29,6 +29,7 @@ interface UserType {
   id: string;
   username: string;
   avatar: string;
+  session: string;
 }
 
 interface CallModalProps {
