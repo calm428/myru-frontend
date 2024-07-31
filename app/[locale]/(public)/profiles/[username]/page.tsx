@@ -42,7 +42,10 @@ import { IoLanguage } from 'react-icons/io5';
 import CallModal from '@/components/common/call-modal';
 import { CiStreamOff } from 'react-icons/ci';
 import { CiStreamOn } from 'react-icons/ci';
-
+import dynamic from 'next/dynamic';
+const ProfileDetailsComponent = dynamic(() => import('./clientComponent'), {
+  ssr: false,
+});
 interface ProfileDetails {
   streaming: string[];
   id: string;
@@ -73,9 +76,10 @@ interface ProfileDetails {
     hero: string;
     review: {
       votes: number;
+      views?: number; // Если views используется
     };
     link: string;
-  };
+  } | null;
   gallery: {
     original: string;
     thumbnail: string;
@@ -105,7 +109,7 @@ async function getData(locale: string, username: string, userId: string | null) 
     }
 
     const data = await res.json();
-    console.log(data)
+    console.log(data);
     const profile = {
       id: data.data.ID,
       username: data.data.Name,
@@ -183,20 +187,18 @@ async function getData(locale: string, username: string, userId: string | null) 
       telegram: data.data.TelegramActivated ? data.data.TelegramName : '',
       qrcode: data.data.Name,
       follow: userId
-        ? data.data.Followings.filter(
-            (item: any) => item.ID === userId
-          )?.length > 0
+        ? data.data.Followings.filter((item: any) => item.ID === userId)?.length > 0
         : false,
       me: userId === data.data.ID,
       bot: data.data.IsBot,
       streaming: data?.data?.Profile?.[0]?.streaming?.length > 0
-      ? data.data.Profile[0].streaming.map((stream: any) => ({
-          roomID: stream.RoomID,
-          title: stream.Title,
-          userID: stream.UserID,
-          createdAt: stream.CreatedAt,
-        }))
-      : [],
+        ? data.data.Profile[0].streaming.map((stream: any) => ({
+            roomID: stream.RoomID,
+            title: stream.Title,
+            userID: stream.UserID,
+            createdAt: stream.CreatedAt,
+          }))
+        : [],
     };
 
     return profile;
@@ -263,25 +265,25 @@ export default async function ProfilePage({
       <div className='grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-4'>
         <div className=''>
           <div className='w-full'>
-          <div className='absolute z-10'>
-                    {profileDetails.streaming && profileDetails.streaming.length > 0 ? (
-                      <div className='streaming-list'>
-                        {profileDetails.streaming.map((stream: any, index: any) => (
-                            <Link href={`/stream/${stream.roomID}`} key={index} className='stream-item'>
-                              <div className='flex items-center justify-end rou bg-red-500 px-2 text-white'>
-                                <CiStreamOn className='mr-2' />
-                                <span>В эфире</span>
-                              </div>
-                          </Link>
-                        ))}
+            <div className='absolute z-10'>
+              {profileDetails.streaming && profileDetails.streaming.length > 0 ? (
+                <div className='streaming-list'>
+                  {profileDetails.streaming.map((stream: any, index: any) => (
+                    <Link href={`/stream/${stream.roomID}`} key={index} className='stream-item'>
+                      <div className='flex items-center justify-end rou bg-red-500 px-2 text-white'>
+                        <CiStreamOn className='mr-2' />
+                        <span>В эфире</span>
                       </div>
-                    ) : (
-                      <div className='flex items-center justify-end  bg-black/50 px-2 text-white'>
-                        <CiStreamOff className='mr-2' />
-                        <span className=''>Вне эфира</span>
-                      </div>
-                    )}
-                  </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className='flex items-center justify-end  bg-black/50 px-2 text-white'>
+                  <CiStreamOff className='mr-2' />
+                  <span className=''>Вне эфира</span>
+                </div>
+              )}
+            </div>
             {profileDetails.gallery?.length > 0 ? (
               <ProfileImageGallery images={profileDetails.gallery} />
             ) : (
@@ -418,7 +420,6 @@ export default async function ProfilePage({
               <div className=''>
                 <div className='flex gap-3 pb-2 text-xl font-semibold text-secondary-foreground'>
                   @{profileDetails.username}
-
                 </div>
                 <div className='pb-2 text-sm text-muted-foreground'>
                   {profileDetails.bio}
@@ -533,12 +534,7 @@ export default async function ProfilePage({
               <div className='pb-2 text-lg font-semibold'>
                 {t('additional_info')}
               </div>
-              <div
-                className='text-sm text-muted-foreground'
-                dangerouslySetInnerHTML={{
-                  __html: profileDetails.additionalinfo,
-                }}
-              />
+              <ProfileDetailsComponent profileDetails={profileDetails} />
             </div>
           </div>
 
