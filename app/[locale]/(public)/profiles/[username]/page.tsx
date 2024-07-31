@@ -105,7 +105,7 @@ async function getData(locale: string, username: string, userId: string | null) 
     }
 
     const data = await res.json();
-
+    console.log(data)
     const profile = {
       id: data.data.ID,
       username: data.data.Name,
@@ -162,6 +162,7 @@ async function getData(locale: string, username: string, userId: string | null) 
         monthposts: data.data.TotalBlogs,
         followers: data.data.Followings.length,
       },
+      session: data.data.Session,
       gallery:
         data.data.Profile[0].photos?.length > 0
           ? data.data.Profile[0].photos[0].files?.map((file: any) => {
@@ -313,6 +314,7 @@ export default async function ProfilePage({
                 username: profileDetails.username || '',
                 avatar: profileDetails.gallery?.[0]?.original || '',
                 id: profileDetails.id || '',
+                session: profileDetails.session
               }}
             >
               <Button variant='outline' className='rounded-full' size='icon'>
@@ -445,7 +447,7 @@ export default async function ProfilePage({
                 <MdOutlineHouseSiding className='pb0-8 size-5' />
                 {t('city')}
               </div>
-              <div className='flex flex-col gap-2'>
+              <div className='flex flex-wrap gap-2'>
                 {profileDetails.cities.map((city: string, index: number) => (
                   <Link href={`/home?mode=profile&city=${city}`} key={index}>
                     <Badge
@@ -463,7 +465,7 @@ export default async function ProfilePage({
                 <BiSolidCategory className='size-4' />
                 {t('category')}
               </div>
-              <div className='flex flex-col gap-2'>
+              <div className='flex flex-wrap gap-2'>
                 {profileDetails.categories.map(
                   (category: string, index: number) => (
                     <Link
