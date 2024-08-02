@@ -32,7 +32,7 @@ function FlowImageGallery({ images }: FlowImageGalleryProps) {
     <ImageGallery
       items={images}
       autoPlay
-      additionalClass={'sliderH'}
+      // additionalClass={'sliderH'}
       thumbnailPosition={`${windowWidth > 640 ? 'right' : 'bottom'}`}
     />
   );
