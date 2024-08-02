@@ -31,7 +31,7 @@ function FlowImageGallery({ images }: FlowImageGalleryProps) {
   return (
     <ImageGallery
       items={images}
-      additionalClass={'sliderH'}
+      // additionalClass={'sliderH'}
       thumbnailPosition={`${windowWidth > 640 ? 'right' : 'bottom'}`}
     />
   );
