@@ -276,11 +276,11 @@ export default async function FlowPage({
           <div className='grid gap-4 md:grid-cols-2 xl:grid-cols-3'>
             <div className='col-span-2 grid grid-cols-2 gap-2 xl:col-span-3'>
               <div>
-                <div className='flex items-center gap-2 '>
+                <div className='flex flex-wrap items-center gap-2 '>
                   <MdOutlineHouseSiding className='size-5' />
                   {t('city')}
                 </div>
-                <div className='flex gap-2' style={{ overflowWrap: 'anywhere' }}>
+                <div className='flex flex-wrap gap-2' style={{ overflowWrap: 'anywhere' }}>
                   {blogDetails.cities &&
                     blogDetails.cities.map((city: string) => (
                       <Link
@@ -299,11 +299,11 @@ export default async function FlowPage({
                 </div>
               </div>
               <div>
-                <div className='flex items-center gap-2 overflow-hidden'>
+                <div className='flex flex-wrap items-center gap-2 overflow-hidden'>
                   <BiSolidCategory className='size-4' />
                   {t('category')}
                 </div>
-                <div className='flex gap-2' style={{ overflowWrap: 'anywhere' }}>
+                <div className='flex flex-wrap gap-2' style={{ overflowWrap: 'anywhere' }}>
                   {blogDetails.categories &&
                     blogDetails.categories.map((category: string) => (
                       <Link
