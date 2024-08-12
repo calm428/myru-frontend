@@ -48,7 +48,7 @@ export function CTASection() {
   }, [viewMode]);
 
   return (
-    <div className='container fixed bottom-0 top-[calc(100dvh_-_6.2rem)] z-20 mx-auto flex h-[100px] w-full flex-col-reverse items-center justify-start gap-2 bg-white  pb-[20px] pl-[10px] pr-[25px] pt-[10px] dark:bg-black sm:flex-row sm:justify-between md:sticky md:top-[80px] md:pl-[10px] md:pr-[10px] '>
+    <div className='container fixed bottom-0 top-[calc(100dvh_-_6.2rem)] z-20 mx-auto flex h-[100px] w-full flex-col-reverse items-center justify-start gap-2 bg-white  pb-[10px] dark:bg-black sm:flex-row sm:justify-between md:sticky md:top-[80px] '>
       <ToggleGroup
         type='single'
         variant='outline'
@@ -74,8 +74,8 @@ export function CTASection() {
         </ToggleGroupItem>
       </ToggleGroup>
 
-      <div className='absolute -left-[10px] -top-[10px] flex w-full flex-row-reverse justify-between gap-3 bg-white px-4 pt-2 dark:bg-black md:static md:flex-row md:pt-0'>
-        <div className='relative w-[-webkit-fill-available] md:w-[15rem] lg:w-[30rem]'>
+      <div className=' w-full gap-3 bg-white py-0 px-0 dark:bg-black md:static md:flex-row md:pt-0'>
+        <div className='flex  gap-2 relative w-[-webkit-fill-available] md:w-[15rem] lg:w-[30rem]'>
           <Search className='absolute inset-y-0 left-3 my-auto size-4 text-gray-500' />
           <Input
             type='text'
@@ -87,8 +87,8 @@ export function CTASection() {
               handleSearch(e.target.value);
             }}
           />
+          <FilterModal />
         </div>
-        <FilterModal />
       </div>
     </div>
   );

@@ -47,8 +47,9 @@ export default function HomePage() {
   }, []);
 
   return (
+    <div>
+    <CTASection />
     <section className='container'>
-      <CTASection />
       <FilterListSection />
       {viewMode === 'profile' ? (
         <ProfileSection />
@@ -56,5 +57,7 @@ export default function HomePage() {
         <FlowSection />
       ) : null}
     </section>
+    </div>
+
   );
 }
