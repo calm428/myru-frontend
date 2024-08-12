@@ -518,7 +518,7 @@ export function FilterModal() {
         <DialogFooter>
           <Button
             type='submit'
-            className='mr-3'
+            className='mr-0'
             variant='outline'
             onClick={handleResetFilters}
           >
