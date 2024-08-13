@@ -75,27 +75,68 @@ export const ImageUpload = forwardRef<
     hiddenFileInputRef.current.click();
   };
 
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
 
-    const newFiles = Array.from(e.target.files);
-    const duplicate = newFiles.some((newFile) =>
-      images.some(
-        (existingFile) =>
-          existingFile.name === newFile.name &&
-          existingFile.size === newFile.size &&
-          existingFile.type === newFile.type
-      )
-    );
 
-    if (!duplicate) {
-      setImages([...images, ...Array.from(e.target.files)]);
+
+type OrientationCallback = (correctedFile: File) => void;
+
+const removeExifData = (file: File, callback: OrientationCallback) => {
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    const imgElement = new window.Image();
+    imgElement.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) return;
+
+      canvas.width = imgElement.width;
+      canvas.height = imgElement.height;
+
+      ctx.drawImage(imgElement, 0, 0);
+
+      // Преобразуем canvas в файл, очищая все метаданные
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const cleanedFile = new File([blob], file.name, { type: file.type });
+          callback(cleanedFile);
+        }
+      }, file.type);
+    };
+
+    if (e.target && e.target.result) {
+      imgElement.src = e.target.result as string;
     }
-
-    onChange && onChange([...images, ...Array.from(e.target.files)]);
-
-    e.target.value = '';
   };
+
+  reader.readAsDataURL(file);
+};
+
+const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (!e.target.files) return;
+
+  const newFiles: File[] = [];
+
+  Array.from(e.target.files).forEach((file) => {
+    removeExifData(file, (cleanedFile) => {
+      const duplicate = newFiles.some(
+        (newFile) =>
+          newFile.name === cleanedFile.name &&
+          newFile.size === cleanedFile.size &&
+          newFile.type === cleanedFile.type
+      );
+
+      if (!duplicate) {
+        newFiles.push(cleanedFile);
+        setImages((prevImages) => [...prevImages, cleanedFile]);
+        onChange && onChange([...images, cleanedFile]);
+      }
+    });
+  });
+
+  e.target.value = '';
+};
 
   const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
