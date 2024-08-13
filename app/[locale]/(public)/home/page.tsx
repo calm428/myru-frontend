@@ -34,9 +34,8 @@ export default function HomePage() {
         }
       } else {
         setIsScrolledDown(false);
-        if (!isManualToggle) {
-          setIsCTAVisible(true); // Показать CTASection при прокрутке вверх
-        }
+        setIsCTAVisible(true); // Показать CTASection при прокрутке вверх
+        setIsManualToggle(false); // Сбросить состояние ручного управления
       }
     };
 
