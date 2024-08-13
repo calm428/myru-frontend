@@ -86,10 +86,10 @@ export default function HomePage() {
         <button
           onClick={toggleCTAVisibility}
           className={`fixed right-4 z-50 rounded-full bg-blue-500 text-white p-4 shadow-lg transition-all ${
-            isCTAVisible ? 'bottom-[110px]' : 'bottom-4'
+            isCTAVisible ? 'bottom-[100px] md:bottom-4' : 'bottom-4'
           }`}
         >
-          <TbFilterSearch size={24} />
+          <TbFilterSearch size={12} />
         </button>
       )}
       {isCTAVisible && <CTASection />}
