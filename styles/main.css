@@ -671,11 +671,12 @@ footer {
   --lightness: 95%;
   /* background: hsla(var(--hsl), 0.1); */
 }
- 
+
+/*  
 .sliderH {
   height: 350px;
 
-}
+} */
 
 .image-gallery-image {
   height:350px;
