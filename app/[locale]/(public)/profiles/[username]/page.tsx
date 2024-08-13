@@ -3,48 +3,17 @@ import Tabs from './tabs'; // Импорт компонента Tabs
 import { fetchProfileDetails } from './fetchProfileDetails'; // Импорт функции для загрузки данных
 import { headers } from 'next/headers';
 import cookie from 'cookie';
-import { Separator } from '@/components/ui/separator';
-import Image from 'next/image';
-import { BiSolidCalendar, BiSolidCategory } from 'react-icons/bi';
-import { FaExclamation, FaTelegramPlane, FaThumbsUp } from 'react-icons/fa';
-import axios from 'axios';
-import {
-  MdOutlineHouseSiding,
-  MdOutlineKeyboardArrowRight,
-  MdOutlinePostAdd,
-  MdPhoneInTalk,
-} from 'react-icons/md';
-import { RiUserFollowFill } from 'react-icons/ri';
-import { TbPhotoX } from 'react-icons/tb';
+
 import { getServerSession } from 'next-auth';
-import { VscEye } from 'react-icons/vsc';
-import QRCode from 'react-qr-code';
-import { QRCodeModal } from '@/components/common/qrcode-modal';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+
 import type { Metadata, ResolvingMetadata } from 'next';
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { LiaSmsSolid } from 'react-icons/lia';
-import { ReportModal } from '@/components/common/report-modal';
+
 import BackButton from '@/components/home/back-button';
-import { FollowButtonGroup } from '@/components/home/profile/follow-button-group';
-import { ProfileImageGallery } from '@/components/home/profile/profile-image-gallery';
+
 import authOptions from '@/lib/authOptions';
 import '@/styles/editor.css';
 import { getTranslations } from 'next-intl/server';
-import Link from 'next/link';
-import MessageForm from '@/components/home/messsage-form';
-import getRoomId from '@/lib/server/chat/getRoomId';
-import { IoLanguage } from 'react-icons/io5';
-import CallModal from '@/components/common/call-modal';
-import { CiStreamOff } from 'react-icons/ci';
-import { CiStreamOn } from 'react-icons/ci';
+
 import ProfileInfo from './ProfileInfo';
 
 // Динамический импорт компонентов
