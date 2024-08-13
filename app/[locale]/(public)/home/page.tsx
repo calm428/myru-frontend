@@ -17,6 +17,7 @@ export default function HomePage() {
   const [isCTAVisible, setIsCTAVisible] = useState(true);
   const [isManualToggle, setIsManualToggle] = useState(false);
   const [isScrolledDown, setIsScrolledDown] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     setViewMode(searchParams.get('mode') || 'flow');
@@ -27,7 +28,12 @@ export default function HomePage() {
       if (window === undefined) return;
       const currentScrollY = window.scrollY || document.documentElement.scrollTop;
 
-      if (currentScrollY > 100) {
+      // Вводим зону комфорта в 10 пикселей
+      if (Math.abs(currentScrollY - lastScrollY) < 10) {
+        return;
+      }
+
+      if (currentScrollY > 1) {
         setIsScrolledDown(true);
         if (!isManualToggle) {
           setIsCTAVisible(false); // Скрыть CTASection при прокрутке вниз
@@ -37,6 +43,8 @@ export default function HomePage() {
         setIsCTAVisible(true); // Показать CTASection при прокрутке вверх
         setIsManualToggle(false); // Сбросить состояние ручного управления
       }
+
+      setLastScrollY(currentScrollY);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -44,7 +52,7 @@ export default function HomePage() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [isManualToggle]);
+  }, [isManualToggle, lastScrollY]);
 
   useEffect(() => {
     const saveScrollPosition = () => {
