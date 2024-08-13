@@ -7,16 +7,45 @@ import ProfileSection from '@/components/home/profile';
 import { scrollToTransition } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { TbFilterSearch } from "react-icons/tb"; // Импорт иконки
 
 export default function HomePage() {
   const searchParams = useSearchParams();
   const [viewMode, setViewMode] = useState<string>(
     searchParams.get('mode') || 'flow'
   );
+  const [isCTAVisible, setIsCTAVisible] = useState(true);
+  const [isManualToggle, setIsManualToggle] = useState(false);
+  const [isScrolledDown, setIsScrolledDown] = useState(false);
 
   useEffect(() => {
     setViewMode(searchParams.get('mode') || 'flow');
   }, [searchParams]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window === undefined) return;
+      const currentScrollY = window.scrollY || document.documentElement.scrollTop;
+
+      if (currentScrollY > 100) {
+        setIsScrolledDown(true);
+        if (!isManualToggle) {
+          setIsCTAVisible(false); // Скрыть CTASection при прокрутке вниз
+        }
+      } else {
+        setIsScrolledDown(false);
+        if (!isManualToggle) {
+          setIsCTAVisible(true); // Показать CTASection при прокрутке вверх
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isManualToggle]);
 
   useEffect(() => {
     const saveScrollPosition = () => {
@@ -46,18 +75,32 @@ export default function HomePage() {
     }
   }, []);
 
+  const toggleCTAVisibility = () => {
+    setIsCTAVisible(!isCTAVisible);
+    setIsManualToggle(true); // Устанавливаем вручную управляемый режим
+  };
+
   return (
     <div>
-    <CTASection />
-    <section className='container'>
-      <FilterListSection />
-      {viewMode === 'profile' ? (
-        <ProfileSection />
-      ) : viewMode === 'flow' ? (
-        <FlowSection />
-      ) : null}
-    </section>
+      {(!isCTAVisible || isScrolledDown) && (
+        <button
+          onClick={toggleCTAVisibility}
+          className={`fixed right-4 z-50 rounded-full bg-blue-500 text-white p-4 shadow-lg transition-all ${
+            isCTAVisible ? 'bottom-[110px]' : 'bottom-4'
+          }`}
+        >
+          <TbFilterSearch size={24} />
+        </button>
+      )}
+      {isCTAVisible && <CTASection />}
+      <section className='container'>
+        <FilterListSection />
+        {viewMode === 'profile' ? (
+          <ProfileSection />
+        ) : viewMode === 'flow' ? (
+          <FlowSection />
+        ) : null}
+      </section>
     </div>
-
   );
 }
