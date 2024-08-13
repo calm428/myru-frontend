@@ -312,18 +312,35 @@ export default async function ProfilePage({
                 </Link>
               </Button>
             )}
-            <CallModal
-              callee={{
-                username: profileDetails.username || '',
-                avatar: profileDetails.gallery?.[0]?.original || '',
-                id: profileDetails.id || '',
-                session: profileDetails.session
-              }}
-            >
-              <Button variant='outline' className='rounded-full' size='icon'>
-                <MdPhoneInTalk className='size-5' />
+            {userId ? (
+              !profileDetails.me && (
+                <CallModal
+                  callee={{
+                    username: profileDetails.username || '',
+                    avatar: profileDetails.gallery?.[0]?.original || '',
+                    id: profileDetails.id || '',
+                    session: profileDetails.session
+                  }}
+                >
+                  <Button variant='outline' className='rounded-full' size='icon'>
+                    <MdPhoneInTalk className='size-5' />
+                  </Button>
+                </CallModal>
+              )
+            ) : (
+              <Button
+                variant='outline'
+                className='rounded-full'
+                size='icon'
+                asChild
+              >
+                <Link
+                  href={`/auth/signin?callbackUrl=/profiles/${params.username}`}
+                >
+                  <MdPhoneInTalk className='size-5' />
+                </Link>
               </Button>
-            </CallModal>
+            )}
             {userId ? (
               !profileDetails.me &&
               <MessageForm
