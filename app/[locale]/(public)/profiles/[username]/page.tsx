@@ -46,6 +46,7 @@ import dynamic from 'next/dynamic';
 const ProfileDetailsComponent = dynamic(() => import('./clientComponent'), {
   ssr: false,
 });
+
 interface ProfileDetails {
   streaming: string[];
   id: string;
@@ -311,18 +312,35 @@ export default async function ProfilePage({
                 </Link>
               </Button>
             )}
-            <CallModal
-              callee={{
-                username: profileDetails.username || '',
-                avatar: profileDetails.gallery?.[0]?.original || '',
-                id: profileDetails.id || '',
-                session: profileDetails.session
-              }}
-            >
-              <Button variant='outline' className='rounded-full' size='icon'>
-                <MdPhoneInTalk className='size-5' />
+            {userId ? (
+              !profileDetails.me && (
+                <CallModal
+                  callee={{
+                    username: profileDetails.username || '',
+                    avatar: profileDetails.gallery?.[0]?.original || '',
+                    id: profileDetails.id || '',
+                    session: profileDetails.session
+                  }}
+                >
+                  <Button variant='outline' className='rounded-full' size='icon'>
+                    <MdPhoneInTalk className='size-5' />
+                  </Button>
+                </CallModal>
+              )
+            ) : (
+              <Button
+                variant='outline'
+                className='rounded-full'
+                size='icon'
+                asChild
+              >
+                <Link
+                  href={`/auth/signin?callbackUrl=/profiles/${params.username}`}
+                >
+                  <MdPhoneInTalk className='size-5' />
+                </Link>
               </Button>
-            </CallModal>
+            )}
             {userId ? (
               !profileDetails.me &&
               <MessageForm
@@ -530,12 +548,14 @@ export default async function ProfilePage({
             </div>
           </div>
           <div className='space-y-3'>
-            <div>
-              <div className='pb-2 text-lg font-semibold'>
-                {t('additional_info')}
+          {profileDetails.additionalinfo && (
+              <div>
+                <div className='pb-2 text-lg font-semibold'>
+                  {t('additional_info')}
+                </div>
+                <ProfileDetailsComponent profileDetails={profileDetails} />
               </div>
-              <ProfileDetailsComponent profileDetails={profileDetails} />
-            </div>
+          )}
           </div>
 
           <div className='mx-auto max-w-sm md:hidden'>
