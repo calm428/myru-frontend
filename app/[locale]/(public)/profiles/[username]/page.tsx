@@ -56,6 +56,27 @@ const ProfileDetailsComponent = dynamic(() => import('./clientComponent'), {
   ssr: false,
 });
 
+export async function generateMetadata({
+  params,
+}: {
+  params: { username: string; locale: string };
+}): Promise<Metadata> {
+  const { locale, username } = params;
+
+  // Получение данных профиля
+  const profileDetails = await fetchProfileDetails(locale, username, null);
+
+  return {
+    title: `@${profileDetails?.username || ''}`,
+    description: profileDetails?.bio || '',
+    metadataBase: new URL(process.env.NEXT_PUBLIC_WEBSITE_URL || ''),
+    openGraph: {
+      title: `@${profileDetails?.username || ''}`,
+      description: profileDetails?.bio || '',
+      images: profileDetails?.gallery.map((item: any) => item.original) || [],
+    },
+  };
+}
 
 export default async function ProfilePage({
   params,
@@ -281,7 +302,6 @@ export default async function ProfilePage({
         </div>
         <Separator />
         <div className='my-3 flex flex-row'>
-          <ExpandableContent>
           <div style={{ width: '-webkit-fill-available' }}>
             <div className='flex items-center gap-2'>
               <MdOutlineHouseSiding className='pb0-8 size-5' />
@@ -300,9 +320,7 @@ export default async function ProfilePage({
               ))}
             </div>
           </div>
-          </ExpandableContent>
 
-          <ExpandableContent>
           <div style={{ width: '-webkit-fill-available' }}>
             <div className='flex items-center gap-2'>
               <BiSolidCategory className='size-4' />
@@ -326,7 +344,6 @@ export default async function ProfilePage({
               )}
             </div>
           </div>
-          </ExpandableContent>
 
         </div>
         <Separator />
