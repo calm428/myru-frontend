@@ -115,7 +115,6 @@ export default function DashboardPage() {
             return (
                 <ReactAudioPlayer
                     src={fileUrl}
-                    
                     className="w-full h-auto mb-4"
                 />
             );
@@ -335,36 +334,49 @@ export default function DashboardPage() {
             {posts.map((post, index) => (
                 <div key={index} className="bg-secondary p-4 mb-4 rounded-lg space-y-4">
                     <div className="flex items-center space-x-4">
-                      <Avatar className='mr-3'>
-                        <AvatarImage
-                            src={`https://proxy.myru.online/100/https://img.myru.online/${userData?.avatar}`}
-                            alt={userData?.username}
-                        />
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="text-sm">
-                          <span className="font-semibold">{userData?.username}</span>
-                        </p>
-                        <p className="text-xs text-gray-400">{timeAgo(post.created_at)}</p>
-                      </div>
+                        <Avatar className='mr-3'>
+                            <AvatarImage
+                                src={`https://proxy.myru.online/100/https://img.myru.online/${userData?.avatar}`}
+                                alt={userData?.username}
+                            />
+                        </Avatar>
+                        <div className="flex-1">
+                            <p className="text-sm">
+                                <span className="font-semibold">{userData?.username}</span>
+                            </p>
+                            <p className="text-xs text-gray-400">{timeAgo(post.created_at)}</p>
+                        </div>
 
-                      {/* Dropdown menu for post options */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="text-gray-400 hover:text-gray-300">
-                            <FaEllipsisV />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEdit(post.id)}>
-                            Редактировать
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDelete(post.id)}>
-                            Удалить
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                        {/* Dropdown menu for post options */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button className="text-gray-400 hover:text-gray-300">
+                                    <FaEllipsisV />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEdit(post.id)}>
+                                    Редактировать
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDelete(post.id)}>
+                                    Удалить
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
+                    
+                    {/* Render files (photos, videos, etc.) first */}
+                    {post.files && post.files.length > 0 && (
+                        <div className="mt-4">
+                            {post.files.map((file, idx) => (
+                                <div key={idx}>
+                                    {renderFile(file)}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    
+                    {/* Render text content */}
                     {post.isEditing ? (
                         <div>
                             <Textarea
@@ -388,25 +400,15 @@ export default function DashboardPage() {
                             </button>
                         </div>
                     ) : (
-                        <p>{post.content}</p>
+                        <p className='break-all'>{post.content}</p>
                     )}
 
-                        {post.files && post.files.length > 0 && (
-                            <div className="mt-4">
-                                {post.files.map((file, idx) => (
-                                    <div key={idx}>
-                                        {renderFile(file)}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
                     <div className="flex justify-between text-gray-400">
-                      <div className="flex space-x-4">
-                        <span>👍 {post.likes}</span>
-                        <span>💬 {post.comments}</span>
-                        <span>🔄 {post.shares}</span>
-                      </div>
+                        <div className="flex space-x-4">
+                            <span>👍 {post.likes}</span>
+                            <span>💬 {post.comments}</span>
+                            <span>🔄 {post.shares}</span>
+                        </div>
                     </div>
                 </div>
             ))}
