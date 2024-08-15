@@ -7,6 +7,8 @@ import { PaxContext } from '@/context/context';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import toast from 'react-hot-toast';
 import { FaSpinner } from 'react-icons/fa';
+import ReactAudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
 
 import {
   DropdownMenu,
@@ -111,11 +113,11 @@ export default function DashboardPage() {
             );
         } else if (url.endsWith('.mp3') || url.endsWith('.wav')) {
             return (
-                <audio controls className="w-full h-auto mb-4">
-                    <source src={fileUrl} type="audio/mpeg" />
-                    <source src={fileUrl} type="audio/wav" />
-                    Your browser does not support the audio element.
-                </audio>
+                <ReactAudioPlayer
+                    src={fileUrl}
+                    
+                    className="w-full h-auto mb-4"
+                />
             );
         } else {
             return (
