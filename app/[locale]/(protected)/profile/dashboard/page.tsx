@@ -1,260 +1,414 @@
-'use client';
-
-import { MdDashboard } from 'react-icons/md';
-import React, { useEffect, useState } from 'react';
-import { Separator } from '@/components/ui/separator';
+"use client";
+import { useState, useContext, useEffect } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { Textarea } from '@/components/ui/textarea';
+import { FaCloudUploadAlt } from "react-icons/fa";
 import { PaxContext } from '@/context/context';
-import { ChevronRight } from 'lucide-react';
-import { useTranslations, useLocale } from 'next-intl';
-import Image from 'next/image';
-import { useSession } from 'next-auth/react';
-import Link from 'next/link';
-import { useContext } from 'react';
-import { FaTelegram, FaUser } from 'react-icons/fa';
-import { FaUserGear } from 'react-icons/fa6';
-import { MdAccountBalanceWallet, MdLockReset } from 'react-icons/md';
-import { RiArticleLine } from 'react-icons/ri';
-import { MdOutlineDriveFileRenameOutline } from 'react-icons/md';
-import { ChangeNamePopup } from '@/components/profiles/dashboard/change-name-popup';
-import { Button } from '@/components/ui/button';
-import io from 'socket.io-client';
-import axios from 'axios';
-import useSWR, {mutate} from 'swr';
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import toast from 'react-hot-toast';
+import { FaSpinner } from 'react-icons/fa';
 
-const services = [
-  {
-    icon: RiArticleLine,
-    title: 'publications',
-    description: 'dashboard_publications_description',
-    link: '/profile/posts',
-  },
-  {
-    icon: FaUser,
-    title: 'profile',
-    description: 'dashboard_profile_description',
-    link: '/profile/setting?tab=profile',
-  },
-  {
-    icon: MdAccountBalanceWallet,
-    title: 'accounting',
-    description: 'dashboard_accounting_description',
-    link: '/profile/setting?tab=accounting',
-  },
-];
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { FaEllipsisV } from 'react-icons/fa';
 
-const audits = [
-  {
-    icon: MdLockReset,
-    title: 'reset_password',
-    description: 'reset_password_description',
-    link: '/auth/forgot-password',
-  },
-  {
-    icon: FaUserGear,
-    title: 'edit_your_user_account_settings',
-    description: 'edit_your_user_account_settings_description',
-    link: '/profile/setting?tab=profile',
-  },
-  {
-    icon: RiArticleLine,
-    title: 'post_publication',
-    description: 'post_publication_description',
-    link: '/profile/posts',
-  },
-  {
-    icon: FaTelegram,
-    title: 'telegram_profile_setup',
-    description: 'telegram_profile_setup_description',
-    link: '/profile/setting?tab=telegram',
-  },
-];
+type FilePost = {
+    id: string;
+    url: string;
+    filename: string;
+};
 
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+type Post = {
+    id: string;
+    username: string;
+    avatar: string;
+    content: string;
+    created_at: string;
+    likes: any[];  // Исправьте тип для соответствия структуре данных
+    comments: any[];  // Исправьте тип для соответствия структуре данных
+    shares: any[];  // Если есть `shares`, также укажите его тип как массив
+    files: FilePost[];
+    isEditing?: boolean; 
+    isSaving?: boolean; // Добавляем состояние сохранения
 
+};
 
-export default function DashboardPage() {
-  // const socket = io("http://localhost:3001");
-  // const { data: session } = useSession();
-  // const userId = session?.user?.name || '';
-  // console.log(userId)
-  
-  // useEffect(() => {
-  //   socket.on('connect', () => {
-  //     console.log('connected to socket')
-  //     socket.emit('register', 'userId');
-  //   });
-  //   socket.on('callMade', async (data) => {
-  //     // Here you would handle incoming calls
-  //     // For simplicity, we auto-answer them
-  //     const { offer } = data;
+function timeAgo(date: any) {
+    const now = new Date();
+    const diff = now.getTime() - new Date(date).getTime();
 
-  //     // This is where you'd handle the WebRTC answer
-  //     console.log("Call received, offer:", offer);
-  //     // setCallMade(true);
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(days / 365);
 
-  //     // Simplified - in real scenario, you create an answer and send it back
-  //     socket.emit('makeAnswer', { answer: "dummy-answer", to: data.socket });
-  //   });
+    if (years > 0) {
+        return `${years} ${years === 1 ? 'год' : 'лет'} назад`;
+    } else if (months > 0) {
+        return `${months} ${months === 1 ? 'месяц' : 'месяцев'} назад`;
+    } else if (days > 0) {
+        return `${days} ${days === 1 ? 'день' : 'дней'} назад`;
+    } else if (hours > 0) {
+        return `${hours} ${hours === 1 ? 'час' : 'часов'} назад`;
+    } else if (minutes > 0) {
+        return `${minutes} ${minutes === 1 ? 'минута' : 'минут'} назад`;
+    } else {
+        return `${seconds} ${seconds === 1 ? 'секунда' : 'секунд'} назад`;
+    }
+}
 
-  //   socket.on('answerMade', (data) => {
-  //     console.log("Answer received", data);
-  //     // Handle the answer
-  //   });
-  //   return () => {
-  //     socket.off('connect');
-  //     socket.off('notification');
-  //     socket.off('disconnect');
-  //     // If necessary, explicitly disconnect (might not be needed depending on use case)
-  //     // socket.disconnect();
-  //   };
+export default function DashboardPage() { 
+    const { user: userData } = useContext(PaxContext);
+    const [content, setContent] = useState(''); // Состояние для текста поста
+    const [files, setFiles] = useState<File[]>([]); // Состояние для файлов
+    const [isLoading, setIsLoading] = useState(false); // Состояние для управления загрузкой
+    const [posts, setPosts] = useState<Post[]>([]); // Состояние для хранения записей
+    const [skip, setSkip] = useState<number>(0); // Состояние для пропуска записей
+    const [hasMore, setHasMore] = useState<boolean>(true); // Состояние для проверки наличия еще постов
 
-  // }, []);
-  const locale = useLocale();
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFiles = Array.from(e.target.files || []);
+        setFiles(prevFiles => [...prevFiles, ...selectedFiles]);
+    };
 
-  const {
-    data: fetchedData,
-    error,
-    mutate: profileMutate,
-  } = useSWR(`/api/profiles/me?language=${locale}`, fetcher);
-
-  const t = useTranslations('main');
-  const { user } = useContext(PaxContext);
-
-  return (
-    <div className='mb-[100px] pb-4 px-4 md:mb-[0px]'>
-      <Separator className='mb-4' />
-      <div className='mb-0 grid grid-cols-2 md:mb-0'>
-        <div className='col-span-2 grid gap-3 md:grid-cols-2'>
-          <div className='relative flex justify-between rounded-lg bg-white p-6 dark:bg-black md:col-span-2 shadow-md'>
-            <div>
-            <div className='mt-0 space-y-2 w-full'>
-            {fetchedData?.streaming !== null && (
-            <div className='mt-0 space-y-2 pb-4'>
-                {fetchedData?.streaming?.length > 0 ? (
-                  fetchedData?.streaming?.map((stream: any, index: number) => (
-                  <Link href={`/stream/${stream.RoomID}/host`} className='flex items-center justify-center gap-2'>
-                    <div key={index} className='rounded-lg bg-blue-500 p-4 w-full'>
-                      <div className='text-md'>Ваш эфир создан: {stream.Title}</div>
-                      <div className='text-sm'>Отркыть</div>
-                    </div>
-                    </Link>
-                  ))
-                ) : (
-                  <div className='text-sm text-muted-foreground'></div>
-                )}
+    const renderFile = (file: any) => {
+        const { url, filename } = file;
+        const sanitizedUrl = url.replace('../server-data/img-store/', '');
+        const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
+        
+        if (url.endsWith('.jpeg') || url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.gif')) {
+            return (
+                <img src={fileUrl} alt={filename} className="w-full h-auto rounded-lg mb-4 max-w-md" />
+            );
+        } else if (url.endsWith('.mp4') || url.endsWith('.mkv')) {
+            return (
+                <video controls className="w-full h-auto rounded-lg mb-4">
+                    <source src={fileUrl} type="video/mp4" />
+                    <source src={fileUrl} type="video/x-matroska" />
+                    Your browser does not support the video tag.
+                </video>
+            );
+        } else if (url.endsWith('.pdf')) {
+            return (
+                <div className="mb-4">
+                    <embed src={fileUrl} type="application/pdf" width="100%" height="500px" />
+                    <a href={fileUrl} download className="text-blue-500 hover:underline mt-2 block">
+                        Скачать {filename}
+                    </a>
                 </div>
-              )}
-              </div>
-              <div className='flex flex-col cursor-pointer items-start text-2xl font-semibold'>
-                {t('hello')} {user?.username}
-                <ChangeNamePopup>
-                  <Button variant='link' size='icon' className='inline w-full'>
-                    <div className='flex gap-2'>
-                      <div>Cменить имя</div>
-                      <MdOutlineDriveFileRenameOutline className='text-2xl' />
-                      </div>
-                  </Button>
-                </ChangeNamePopup>
-              </div>
-              <div className='text-sm text-muted-foreground'>
-                {t('view_all_alerts_description')}
-              </div>
-              <div className='relative mt-8 flex items-center gap-2'>
-                {/* <Separator
-                  orientation='vertical'
-                  className='relative mx-2 h-14 w-[1px]'
-                /> */}
-                <div className='cursor-pointer space-y-4 text-center'>
-                  <Link
-                    href={`/profile/posts?callback=${encodeURIComponent('/profile/dashboard')}`}
-                    className='cursor-pointer space-y-4 text-center'
-                  >
-                    <div className='text-center text-sm text-muted-foreground'>
-                      {t('publications')}
-                    </div>
-                    <div className='text-center text-3xl font-extrabold'>
-                      {user?.totalposts || 0}
-                    </div>
-                  </Link>
-                </div>
-                <Separator
-                  orientation='vertical'
-                  className='relative mx-2 h-14 w-[1px]'
-                />
-                <Link
-                  href={`/profile/relationships?callback=${encodeURIComponent('/profile/dashboard')}`}
-                  className='cursor-pointer space-y-4 text-center'
-                >
-                  <div className='text-center text-sm text-muted-foreground'>
-                    {t('followers')}
-                  </div>
-                  <div className='text-center text-3xl font-extrabold'>
-                    {user?.followers || 0}
-                  </div>
-                </Link>
-              </div>
-            </div>
-            <div className='hidden md:block'>
-              <Image
-                src={'/images/analytic.svg'}
-                alt='analytic'
-                width={196}
-                height={147}
+            );
+        } else if (url.endsWith('.doc') || url.endsWith('.docx') || url.endsWith('.xls') || url.endsWith('.xlsx')) {
+            return (
+                <a href={fileUrl} download className="text-blue-500 hover:underline">
+                    {filename}
+                </a>
+            );
+        } else if (url.endsWith('.mp3') || url.endsWith('.wav')) {
+            return (
+                <audio controls className="w-full h-auto mb-4">
+                    <source src={fileUrl} type="audio/mpeg" />
+                    <source src={fileUrl} type="audio/wav" />
+                    Your browser does not support the audio element.
+                </audio>
+            );
+        } else {
+            return (
+                <a href={fileUrl} download className="text-blue-500 hover:underline">
+                    {filename}
+                </a>
+            );
+        }
+    };
+    
+
+    const handleSubmit = async () => {
+        if (!content && files.length === 0) {
+            alert("Пожалуйста, добавьте текст или файл.");
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const formData = new FormData();
+            formData.append('content', content); // Добавляем текст
+
+            files.forEach(file => {
+                formData.append('files', file); // Добавляем файлы
+            });
+
+            const res = await fetch('/api/post/add', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to create post');
+            }
+
+            toast.success('Пост создан'), {
+                position: 'top-right',
+            }
+
+            setContent(''); // Очистка поля текста
+            setFiles([]); // Очистка списка файлов
+            setSkip(0); // Сброс skip после создания нового поста
+            fetchPosts(true); // Загрузка обновленных постов
+        } catch (error) {
+            alert('Ошибка при создании поста');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleEdit = (postId: string) => {
+        setPosts(prevPosts =>
+            prevPosts.map(post =>
+                post.id === postId ? { ...post, isEditing: true } : { ...post, isEditing: false }
+            )
+        );
+    };
+
+    const handleSaveEdit = async (postId: string, editedContent: string) => {
+        setPosts(prevPosts =>
+            prevPosts.map(post =>
+                post.id === postId ? { ...post, isSaving: true } : post
+            )
+        );
+    
+        try {
+            const res = await fetch(`/api/post/update/${postId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ content: editedContent }),
+            });
+    
+            if (!res.ok) {
+                throw new Error('Failed to update post');
+            }
+    
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    post.id === postId
+                        ? { ...post, content: editedContent, isEditing: false, isSaving: false }
+                        : post
+                )
+            );
+            toast.success('Пост обновлен', { position: 'top-right' });
+        } catch (error) {
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    post.id === postId ? { ...post, isSaving: false } : post
+                )
+            );
+            toast.error('Ошибка при обновлении поста', { position: 'top-right' });
+        }
+    };
+
+    const handleDelete = async (postId: string) => {
+        try {
+            const res = await fetch(`/api/post/delete/${postId}`, {
+                method: 'DELETE',
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to delete post');
+            }
+
+            setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+            toast.success('Пост удален', { position: 'top-right' });
+        } catch (error) {
+            toast.error('Ошибка при удалении поста', { position: 'top-right' });
+        }
+    };
+
+    // Функция для получения записей с сервера
+    const fetchPosts = async (isNewRequest = false) => {
+        try {
+            const res = await fetch(`/api/post/get?skip=${isNewRequest ? 0 : skip}&limit=10`);
+            if (!res.ok) {
+                throw new Error('Failed to fetch posts');
+            }
+            const result = await res.json();
+    
+            const postsData = result.data.map((post: Post) => ({
+                ...post,
+                likes: post.likes.length || 0,  // Обработка массива лайков
+                comments: post.comments.length || 0,  // Обработка массива комментариев
+                shares: post.shares?.length || 0,  // Обработка массива шеров (если он есть)
+            }));
+    
+            // Обновляем состояние постов
+            if (isNewRequest) {
+                setPosts(postsData);
+            } else {
+                setPosts(prevPosts => {
+                    const newPosts = postsData.filter((post: Post) => 
+                        !prevPosts.some(existingPost => existingPost.id === post.id)
+                    );
+                    return [...prevPosts, ...newPosts];
+                });
+            }
+    
+            setSkip(prevSkip => prevSkip + 10);
+    
+            // Проверка, если больше нет постов для загрузки
+            if (postsData.length < 10) {
+                setHasMore(false); // Отключаем загрузку новых постов, если загружены все
+            }
+        } catch (error) {
+            console.error('Ошибка при получении записей:', error);
+        }
+    };
+    
+    useEffect(() => {
+        fetchPosts(true);
+    }, []);
+
+    return (
+        <div className="mx-auto bg-white dark:bg-secondary/60 text-black dark:text-white p-4 rounded-lg space-y-6 mb-8">
+          {/* Post creation section */}
+          <div className="bg-secondary p-4 rounded-lg">
+            <div className="flex items-center space-x-4">
+              <Textarea
+                placeholder="Ваш пост здесь.."
+                className="w-full bg-transparent focus:outline-none text-gray-400 placeholder-gray-500 text-[16px]"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
               />
             </div>
-          </div>
-          <div className='space-y-2'>
-            {services.map((service, index) => (
-              <Link
-                key={index}
-                href={service.link}
-                className='flex flex-col rounded-lg bg-white p-4 dark:bg-black/40 shadow-md'
-              >
-                <div className='flex size-8 items-center justify-center rounded-full bg-primary/10'>
-                  <service.icon className='size-4 text-primary' />
-                </div>
-                <div className='text-md my-2 font-semibold'>
-                  {t(service.title as keyof IntlMessages['main'])}
-                </div>
-                <div className='text-xs'>
-                  {t(service.description as keyof IntlMessages['main'])}
-                </div>
-              </Link>
-            ))}
-          </div>
-          <div className='flex size-full max-h-full flex-col rounded-lg bg-white p-4 dark:bg-black/40 shadow-md'>
-            <div>
-              <div className='text-lg font-semibold'>{t('configure')}</div>
-              <div className='text-xs'>{t('configure_description')}</div>
-            </div>
-            <Separator className='my-2' />
-            <div className='size-full '>
-              <div>
-                {audits.map((audit, index) => (
-                  <Link href={audit.link} key={index}>
-                    <div className='flex cursor-pointer items-center gap-3 rounded-lg p-2'>
-                      <div className='flex size-8 min-w-8 items-center justify-center rounded-full bg-primary/10'>
-                        <audit.icon className='size-4 text-primary' />
-                      </div>
-                      <div>
-                        <div className='text-md my-2 line-clamp-1 font-semibold'>
-                          {t(audit.title as keyof IntlMessages['main'])}
-                        </div>
-                        <div className='line-clamp-1 text-xs'>
-                          {t(audit.description as keyof IntlMessages['main'])}
-                        </div>
-                      </div>
-                      <ChevronRight className='ml-auto size-4' />
-                    </div>
-                    <Separator className='my-1' />
-                  </Link>
-                ))}
+            <div className="flex justify-between items-center mt-4">
+              <div className="flex space-x-6 text-gray-400">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <FaCloudUploadAlt />
+                  <span>Файлы</span>
+                  <input 
+                    type="file" 
+                    multiple 
+                    onChange={handleFileChange} 
+                    className="hidden"
+                  />
+                </label>
               </div>
+              <button 
+                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg"
+                onClick={handleSubmit}
+                disabled={isLoading}
+              >
+                {isLoading ? 'Загрузка...' : 'Поделиться'}
+              </button>
             </div>
+
+            {/* Display attached files */}
+            {files.length > 0 && (
+                <div className="mt-4">
+                    <h4 className="text-sm font-medium text-gray-300">Прикрепленные файлы:</h4>
+                    <ul className="list-disc list-inside text-gray-400 mt-2">
+                        {files.map((file, index) => (
+                            <li key={index}>
+                                {file.name}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
           </div>
+    
+          {/* Post display section with InfiniteScroll */}
+          <InfiniteScroll
+            dataLength={posts.length}
+            next={() => fetchPosts()}
+            hasMore={hasMore}
+            loader={<h4>Загрузка...</h4>}
+            endMessage={<p>Больше нет постов</p>}
+          >
+            {posts.map((post, index) => (
+                <div key={index} className="bg-secondary p-4 mb-4 rounded-lg space-y-4">
+                    <div className="flex items-center space-x-4">
+                      <Avatar className='mr-3'>
+                        <AvatarImage
+                            src={`https://proxy.myru.online/100/https://img.myru.online/${userData?.avatar}`}
+                            alt={userData?.username}
+                        />
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="text-sm">
+                          <span className="font-semibold">{userData?.username}</span>
+                        </p>
+                        <p className="text-xs text-gray-400">{timeAgo(post.created_at)}</p>
+                      </div>
+
+                      {/* Dropdown menu for post options */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="text-gray-400 hover:text-gray-300">
+                            <FaEllipsisV />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleEdit(post.id)}>
+                            Редактировать
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDelete(post.id)}>
+                            Удалить
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                    {post.isEditing ? (
+                        <div>
+                            <Textarea
+                                className="w-full bg-transparent focus:outline-none text-gray-400 placeholder-gray-500 text-[16px]"
+                                value={post.content}
+                                onChange={(e) =>
+                                    setPosts(prevPosts =>
+                                        prevPosts.map(p =>
+                                            p.id === post.id ? { ...p, content: e.target.value } : p
+                                        )
+                                    )
+                                }
+                            />
+                            <button 
+                                className={`bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg mt-2 flex items-center ${post.isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                onClick={() => handleSaveEdit(post.id, post.content)}
+                                disabled={post.isSaving}
+                            >
+                                {post.isSaving ? <FaSpinner className="animate-spin mr-2" /> : null}
+                                {post.isSaving ? 'Сохранение...' : 'Сохранить'}
+                            </button>
+                        </div>
+                    ) : (
+                        <p>{post.content}</p>
+                    )}
+
+                        {post.files && post.files.length > 0 && (
+                            <div className="mt-4">
+                                {post.files.map((file, idx) => (
+                                    <div key={idx}>
+                                        {renderFile(file)}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                    <div className="flex justify-between text-gray-400">
+                      <div className="flex space-x-4">
+                        <span>👍 {post.likes}</span>
+                        <span>💬 {post.comments}</span>
+                        <span>🔄 {post.shares}</span>
+                      </div>
+                    </div>
+                </div>
+            ))}
+          </InfiniteScroll>
         </div>
-        <div></div>
-      </div>
-    </div>
-  );
+    );
 }
