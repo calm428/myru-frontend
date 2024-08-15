@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 import { FaSpinner } from 'react-icons/fa';
 import ReactAudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
+import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
 
 import {
   DropdownMenu,
@@ -82,7 +83,7 @@ export default function DashboardPage() {
     const renderFile = (file: any) => {
         const { url, filename } = file;
         const sanitizedUrl = url.replace('../server-data/img-store/', '');
-        const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
+        const fileUrl = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
         
         if (url.endsWith('.jpeg') || url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.gif')) {
             return (
@@ -99,16 +100,15 @@ export default function DashboardPage() {
         } else if (url.endsWith('.pdf')) {
             return (
                 <div className="mb-4">
-                    <embed src={fileUrl} type="application/pdf" width="100%" height="500px" />
                     <a href={fileUrl} download className="text-blue-500 hover:underline mt-2 block">
-                        Скачать {filename}
+                        Скачать файл{filename}
                     </a>
                 </div>
             );
         } else if (url.endsWith('.doc') || url.endsWith('.docx') || url.endsWith('.xls') || url.endsWith('.xlsx')) {
             return (
                 <a href={fileUrl} download className="text-blue-500 hover:underline">
-                    {filename}
+                        Скачать файл{filename}
                 </a>
             );
         } else if (url.endsWith('.mp3') || url.endsWith('.wav')) {
