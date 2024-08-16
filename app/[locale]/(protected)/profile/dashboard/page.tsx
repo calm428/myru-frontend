@@ -9,7 +9,6 @@ import toast from 'react-hot-toast';
 import { FaSpinner } from 'react-icons/fa';
 import ReactAudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
-import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
 
 import {
   DropdownMenu,
