@@ -69,8 +69,6 @@ export function SignUpCard() {
 
     try {
       const res = await axios.post(`/api/auth/signup?language=${locale}`, {
-        firstname: data.firstname,
-        lastname: data.lastname,
         email: data.email,
         password: data.password,
         confirmPassword: data.confirmPassword,
