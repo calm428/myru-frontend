@@ -52,8 +52,6 @@ export function SignUpCard() {
   type UserFormValue = z.infer<typeof formSchema>;
 
   const defaultValues = {
-    firstname: '',
-    lastname: '',
     email: '',
     password: '',
     confirmPassword: '',
