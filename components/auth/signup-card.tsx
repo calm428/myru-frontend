@@ -33,8 +33,6 @@ export function SignUpCard() {
 
   const formSchema = z
     .object({
-      firstname: z.string().min(1, t('firstname_is_required')),
-      lastname: z.string().min(1, t('lastname_is_required')),
       email: z.string().email(t('invalid_email')),
       password: z.string().min(8, t('password_must_be_at_least_8_characters')),
       confirmPassword: z
