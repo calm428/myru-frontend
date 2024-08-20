@@ -511,23 +511,25 @@ export default function DashboardPage() {
                 }
                 // Обработка обновления лайка
                 if (data?.command === 'likeUpdate' && data?.data?.postId) {
-                    setPosts(prevPosts =>
-                        prevPosts.map(post => {
-                            if (post.id === data.data.postId) {
-                                const likesArray = Array.isArray(post.likes) ? post.likes : [];
-                                const isLiked = data.data.isLiked;
-                                const updatedLikes = isLiked
-                                    ? [...likesArray, data.data.userId] 
-                                    : likesArray.filter((id: string) => id !== data.data.userId);
-                                return { 
-                                    ...post, 
-                                    likes: updatedLikes,
-                                    likeCount: updatedLikes.length // Обновляем likeCount
-                                };
-                            }
-                            return post;
-                        })
-                    );
+                    // setPosts(prevPosts =>
+                    //     prevPosts.map(post => {
+                    //         if (post.id === data.data.postId) {
+                    //             const likesArray = Array.isArray(post.likes) ? post.likes : [];
+                    //             const isLiked = data.data.isLiked;
+                    //             const updatedLikes = isLiked
+                    //                 ? [...likesArray, data.data.userId] 
+                    //                 : likesArray.filter((id: string) => id !== data.data.userId);
+                    //             return { 
+                    //                 ...post, 
+                    //                 likes: updatedLikes,
+                    //                 likeCount: updatedLikes.length // Обновляем likeCount
+                    //             };
+                    //         }
+                    //         return post;
+                    //     })
+                    // );
+                    fetchPosts(true);
+
                 }
 
                 // Обработка нового поста
@@ -714,7 +716,7 @@ export default function DashboardPage() {
                                 > 
                                 💬 {post.commentCount}
                                 </span>
-                            <span>🔄 {post.shares}</span>
+                            {/* <span>🔄 {post.shares}</span> */}
                         </div>
                     </div>
                 </div>
