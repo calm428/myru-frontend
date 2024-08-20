@@ -10,6 +10,7 @@ import { FaSpinner } from 'react-icons/fa';
 import ReactAudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import useSWR, { mutate } from 'swr';
+import Link from 'next/link';
 
 import {
     Dialog,
@@ -46,6 +47,56 @@ type Comment = {
     created_at: string;
 };
 
+type User = {
+    ID: string;
+    Seller: boolean;
+    Trial: boolean;
+    Name: string;
+    Email: string;
+    Password: string;
+    Role: string;
+    Provider: string;
+    Photo: string;
+    Verified: boolean;
+    Banned: boolean;
+    Plan: string;
+    Signed: boolean;
+    ExpiredPlanAt: string | null;
+    Tcid: number;
+    DeviceIOS: string;
+    DeviceIOSVOIP: string;
+    TotalFollowers: number;
+    VerificationCode: string;
+    PasswordResetToken: string;
+    TelegramActivated: boolean;
+    TelegramToken: string;
+    TelegramName: string | null;
+    PasswordResetAt: string;
+    Billing: any | null;
+    Profile: any | null;
+    filled: boolean;
+    Session: string;
+    Storage: string;
+    Tid: number;
+    Blogs: any | null;
+    CreatedAt: string;
+    UpdatedAt: string;
+    OnlineHours: any[];
+    TotalOnlineHours: any[];
+    TotalOnlineStreamingHours: any[];
+    OfflineHours: number;
+    TotalRestBlogs: number;
+    TotalBlogs: number;
+    Rating: number;
+    LimitStorage: number;
+    last_online: string;
+    online: boolean;
+    domains: any | null;
+    Followings: any[] | null;
+    Followers: any[] | null;
+    IsBot: boolean;
+};
+
 type Post = {
     id: string;
     username: string;
@@ -58,7 +109,9 @@ type Post = {
     shares: any[];
     files: FilePost[];
     isEditing?: boolean; 
-    isSaving?: boolean; 
+    isSaving?: boolean;
+    user: User;  // Добавляем свойство user
+ 
 };
 
 function timeAgo(date: any) {
@@ -165,11 +218,13 @@ export default function DashboardPage() {
     const renderFile = (file: any) => {
         const { url, filename } = file;
         const sanitizedUrl = url.replace('../server-data/img-store/', '');
-        const fileUrl = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
-        
+        const fileUrlImage = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
+        const fileUrlIAudio = `https://img.myru.online/${sanitizedUrl}`;
+        const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
+
         if (url.endsWith('.jpeg') || url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.gif')) {
             return (
-                <img src={fileUrl} alt={filename} className="w-full h-auto rounded-lg mb-4 max-w-md" />
+                <img src={fileUrlImage} alt={fileUrlImage} className="w-full h-auto rounded-lg mb-4 max-w-md" />
             );
         } else if (url.endsWith('.mp4') || url.endsWith('.mkv')) {
             return (
@@ -190,13 +245,13 @@ export default function DashboardPage() {
         } else if (url.endsWith('.doc') || url.endsWith('.docx') || url.endsWith('.xls') || url.endsWith('.xlsx')) {
             return (
                 <a href={fileUrl} download className="text-blue-500 hover:underline">
-                        Скачать файл{filename}
+                        Скачать файл {filename}
                 </a>
             );
         } else if (url.endsWith('.mp3') || url.endsWith('.wav')) {
             return (
                 <ReactAudioPlayer
-                    src={fileUrl}
+                    src={fileUrlIAudio}
                     className="w-full h-auto mb-4"
                 />
             );
@@ -371,7 +426,7 @@ export default function DashboardPage() {
 
     const fetchPosts = async (isNewRequest = false) => {
         try {
-            const res = await fetch(`/api/post/get?skip=${isNewRequest ? 0 : skip}&limit=10`);
+            const res = await fetch(`/api/post/getfeed?skip=${isNewRequest ? 0 : skip}&limit=10`);
             if (!res.ok) {
                 throw new Error('Failed to fetch posts');
             }
@@ -384,7 +439,7 @@ export default function DashboardPage() {
                 commentCount: post.comments.length,
                 shares: post.shares?.length || 0,  
             }));
-    
+            console.log(postsData)
             if (isNewRequest) {
                 setPosts(postsData);
             } else {
@@ -485,17 +540,24 @@ export default function DashboardPage() {
             {posts.map((post, index) => (
                 <div key={index} className="bg-secondary p-4 mb-4 rounded-lg space-y-4">
                     <div className="flex items-center space-x-4">
+
                         <Avatar className='mr-3'>
+                        <Link href={`/profiles/${post?.user?.Name}`} passHref>
+
                             <AvatarImage
-                                src={`https://proxy.myru.online/100/https://img.myru.online/${userData?.avatar}`}
-                                alt={userData?.username}
+                                src={`https://proxy.myru.online/100/https://img.myru.online/${post?.user?.Photo}`}
+                                alt={post?.user?.Photo}
                             />
+                        </Link>
                         </Avatar>
                         <div className="flex-1">
+                        <Link href={`/profiles/${post?.user?.Name}`} passHref>
+
                             <p className="text-sm">
-                                <span className="font-semibold">{userData?.username}</span>
+                                <span className="font-semibold">{post?.user?.Name}</span>
                             </p>
                             <p className="text-xs text-gray-400">{timeAgo(post.created_at)}</p>
+                        </Link>
                         </div>
 
                         <DropdownMenu>
