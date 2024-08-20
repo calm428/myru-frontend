@@ -9,6 +9,8 @@ import toast from 'react-hot-toast';
 import { FaSpinner } from 'react-icons/fa';
 import ReactAudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
+import useSWR, { mutate } from 'swr';
+
 import {
     Dialog,
     DialogClose,
@@ -52,6 +54,7 @@ type Post = {
     created_at: string;
     likes: any[];
     comments: any[]; 
+    commentCount: number;  // Новое поле для количества комментариев
     shares: any[];
     files: FilePost[];
     isEditing?: boolean; 
@@ -90,8 +93,10 @@ const Skeleton = ({ className }: { className?: string }) => {
     );
 };
 
+
+
 export default function DashboardPage() { 
-    const { user: userData } = useContext(PaxContext);
+    const { user: userData, socket } = useContext(PaxContext);
     const [content, setContent] = useState(''); 
     const [files, setFiles] = useState<File[]>([]);
     const [isLoading, setIsLoading] = useState(false); 
@@ -102,6 +107,7 @@ export default function DashboardPage() {
     const [comments, setComments] = useState<Comment[]>([]); 
     const [newComment, setNewComment] = useState<string>(''); 
     const [isCommentLoading, setIsCommentLoading] = useState<boolean>(false);
+    const [isLiking, setIsLiking] = useState<boolean>(false);
 
     const handleCommentClick = async (post: Post) => {
         setSelectedPost(post);
@@ -127,6 +133,31 @@ export default function DashboardPage() {
             toast.success('Комментарий удален', { position: 'top-right' });
         } catch (error) {
             toast.error('Ошибка при удалении комментария', { position: 'top-right' });
+        }
+    };
+
+    const handleToggleLike = async (postId: string) => {
+        setIsLiking(true);
+        try {
+            const res = await fetch(`/api/post/${postId}/likes`, {
+                method: 'POST',
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to toggle like');
+            }
+
+            const updatedPost = await res.json();
+
+            setPosts(prevPosts => prevPosts.map(post => 
+                post.id === postId ? { ...post, likes: updatedPost.likes } : post
+            ));
+
+            toast.success('Лайк обновлен', { position: 'top-right' });
+        } catch (error) {
+            toast.error('Ошибка при обновлении лайка', { position: 'top-right' });
+        } finally {
+            setIsLiking(false);
         }
     };
 
@@ -215,7 +246,17 @@ export default function DashboardPage() {
             const comment = await res.json();
             await fetchComments(selectedPost?.id || '');
 
-            setComments(prevComments => [...prevComments, comment]);
+
+            if (socket && selectedPost) {
+                socket.send(JSON.stringify({
+                    command: 'newComment',
+                    postId: selectedPost.id,
+                    comment: comment
+                }));
+            }
+    
+
+            // setComments(prevComments => [...prevComments, comment]);
             setNewComment('');
             toast.success('Комментарий добавлен', { position: 'top-right' });
         } catch (error) {
@@ -369,6 +410,23 @@ export default function DashboardPage() {
         fetchPosts(true);
     }, []);
 
+    useEffect(() => {
+        if (socket) {
+            socket.onmessage = async (received) => {
+                const data = JSON.parse(received.data);
+                if (data?.command === 'newComment' && data?.data?.postId) {
+                    setPosts(prevPosts =>
+                        prevPosts.map(post =>
+                            post.id === data?.data?.postId 
+                            ? { ...post, commentCount: post.commentCount + 1 } // Увеличиваем счетчик комментариев
+                            : post
+                        )
+                    );
+                }
+            };
+        }
+    }, [socket]);
+
     return (
         <div className="mx-auto bg-white dark:bg-secondary/60 text-black dark:text-white p-4 rounded-lg space-y-6 mb-8">
           {/* Post creation section */}
@@ -495,13 +553,18 @@ export default function DashboardPage() {
 
                     <div className="flex justify-between text-gray-400">
                         <div className="flex space-x-4">
-                            <span>👍 {post.likes}</span>
+                            <span 
+                                className="cursor-pointer" 
+                                onClick={() => handleToggleLike(post.id)}
+                            >
+                                👍 {post.likes}
+                            </span>
                             <span
                                     className="cursor-pointer"
                                     onClick={() => handleCommentClick(post)}
                                 > 
-                                    💬 {post.comments}
-                            </span>
+                                💬 {post.commentCount}
+                                </span>
                             <span>🔄 {post.shares}</span>
                         </div>
                     </div>

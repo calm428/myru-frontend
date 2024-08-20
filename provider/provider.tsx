@@ -84,7 +84,6 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
     };
 
     _socket.onmessage = (received) => {
-      console.log('Socket message: ', received.data);
       try {
         const data = JSON.parse(received.data);
 
@@ -97,7 +96,6 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
         }
 
         if (data?.session) {
-          console.log('Socket message: ', data?.session);
           setCookie(null, 'session', data?.session, {
             path: '/',
           });

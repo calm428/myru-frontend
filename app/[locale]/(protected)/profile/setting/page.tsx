@@ -37,7 +37,6 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { FaTelegram } from 'react-icons/fa';
 import { FaUser } from 'react-icons/fa6';
-import { MdAccountBalanceWallet } from 'react-icons/md';
 import { RiUserSettingsFill } from 'react-icons/ri';
 import { RxCopy } from 'react-icons/rx';
 import 'react-quill/dist/quill.snow.css';
@@ -55,11 +54,14 @@ import { GrHostMaintenance } from "react-icons/gr";
 import { IoMdPhotos } from "react-icons/io";
 import { MdDashboardCustomize } from "react-icons/md";
 import { useTheme } from 'next-themes';
-import CustomControl from './customControl'; 
-import { SelectProvider } from './selectContext'; // Импортируем SelectProvider
+import CustomControl from '@/components/utils/customControl'; 
+import { SelectProvider } from '@/components/utils/selectContext'; 
 import Loader from '@/components/ui/loader';
 import { IoIosCloseCircleOutline, IoMdAdd } from "react-icons/io";
 import { Loader2 } from 'lucide-react';
+import { ChangeNamePopup } from '@/components/profiles/dashboard/change-name-popup';
+import Image from 'next/image';
+import { MdAccountBalanceWallet, MdOutlineDriveFileRenameOutline } from 'react-icons/md';
 
 const ReactQuill =
   typeof window === 'object' ? require('react-quill') : () => false;
@@ -237,7 +239,8 @@ export default function SettingPage() {
   };
 
   const t = useTranslations('main');
-  const { userMutate } = useContext(PaxContext);
+  const { user, userMutate } = useContext(PaxContext);
+  
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -314,6 +317,9 @@ export default function SettingPage() {
     `/api/profiles/balance/get`, 
     fetcher        
   );
+
+
+
 
   // if (!fetchedTransaction && !transactionFetchError) return <div>Loading...</div>;
 
@@ -811,6 +817,84 @@ export default function SettingPage() {
   return (
     <div className='pb-4 px-4'>
 
+    <div className='relative flex justify-between rounded-lg bg-white p-6 dark:bg-black md:col-span-2 shadow-md'>
+      <div>
+      <div className='mt-0 space-y-2 w-full'>
+      {fetchedData?.streaming !== null && (
+      <div className='mt-0 space-y-2 pb-4'>
+          {fetchedData?.streaming?.length > 0 ? (
+            fetchedData?.streaming?.map((stream: any, index: number) => (
+            <Link href={`/stream/${stream.RoomID}/host`} className='flex items-center justify-center gap-2'>
+              <div key={index} className='rounded-lg bg-blue-500 p-4 w-full'>
+                <div className='text-md'>Ваш эфир создан: {stream.Title}</div>
+                <div className='text-sm'>Отркыть</div>
+              </div>
+              </Link>
+            ))
+          ) : (
+            <div className='text-sm text-muted-foreground'></div>
+          )}
+          </div>
+        )}
+      </div>
+      <div className='flex flex-col cursor-pointer items-start text-2xl font-semibold'>
+        {t('hello')} {user?.username}
+        <ChangeNamePopup>
+          <Button variant='link' size='icon' className='inline w-full'>
+            <div className='flex gap-2'>
+              <div>Cменить имя</div>
+              <MdOutlineDriveFileRenameOutline className='text-2xl' />
+              </div>
+          </Button>
+        </ChangeNamePopup>
+      </div>
+      {/* <div className='text-sm text-muted-foreground'>
+        {t('view_all_alerts_description')}
+      </div> */}
+      <div className='relative mt-8 flex items-center gap-2'>
+        {/* <Separator
+          orientation='vertical'
+          className='relative mx-2 h-14 w-[1px]'
+        /> */}
+        <div className='cursor-pointer space-y-4 text-center'>
+          <Link
+            href={`/profile/posts?callback=${encodeURIComponent('/profile/dashboard')}`}
+            className='cursor-pointer space-y-4 text-center'
+          >
+            <div className='text-center text-sm text-muted-foreground'>
+              {t('publications')}
+            </div>
+            <div className='text-center text-3xl font-extrabold'>
+              {user?.totalposts || 0}
+            </div>
+          </Link>
+        </div>
+        <Separator
+          orientation='vertical'
+          className='relative mx-2 h-14 w-[1px]'
+        />
+        <Link
+          href={`/profile/relationships?callback=${encodeURIComponent('/profile/dashboard')}`}
+          className='cursor-pointer space-y-4 text-center'
+        >
+          <div className='text-center text-sm text-muted-foreground'>
+            {t('followers')}
+          </div>
+          <div className='text-center text-3xl font-extrabold'>
+            {user?.followers || 0}
+          </div>
+        </Link>
+      </div>
+      </div>
+      <div className='hidden md:block'>
+        <Image
+          src={'/images/analytic.svg'}
+          alt='analytic'
+          width={196}
+          height={147}
+        />
+      </div>
+    </div>
       <NewPostModal
         openModal={openModal}
         setOpenModal={setOpenModal}
