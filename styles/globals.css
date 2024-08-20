@@ -1877,7 +1877,7 @@ iframe {
   position: relative;
   width: 100%;
   max-width: 800px;
-  margin: auto;
+  /* margin: auto; */
   background-color: black;
   border-radius: 8px;
   overflow: hidden;
