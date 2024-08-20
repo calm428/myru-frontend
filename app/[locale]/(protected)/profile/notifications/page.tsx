@@ -160,7 +160,7 @@ export default function Notifications() {
             >
               <div className="flex flex-col">
                 <h2 className="text-xl font-semibold">{notification.title}</h2>
-                <p className="text-gray-700 dark:text-white">{notification.message}</p>
+                <p className="text-gray-700 dark:text-white break-all">{notification.message}</p>
                 <Link href={notification.url} rel="noopener noreferrer"
                   className={`py-4 rounded-lg flex justify-between items-center ${notification.read ? 'text-blue-500 dark:text-blue-500' : 'text-gray-700 dark:text-white'}`}
                   passHref>
