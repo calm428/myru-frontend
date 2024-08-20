@@ -127,6 +127,48 @@ export function PostCard({
 
     setIsExtendsLoading(false);
   };
+
+  function timeLeft(date: any) {
+    const now = new Date();
+    const expireDate = new Date(date);
+    const diff = expireDate.getTime() - now.getTime();
+
+    if (diff <= 0) {
+        return 'Истекло';
+    }
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(days / 365);
+
+    function getPlural(n: number, one: string, few: string, many: string) {
+        if (n % 10 === 1 && n % 100 !== 11) {
+            return one;
+        } else if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) {
+            return few;
+        } else {
+            return many;
+        }
+    }
+
+    if (years > 0) {
+        return `Через ${years} ${getPlural(years, 'год', 'года', 'лет')}`;
+    } else if (months > 0) {
+        return `Через ${months} ${getPlural(months, 'месяц', 'месяца', 'месяцев')}`;
+    } else if (days > 0) {
+        return `Через ${days} ${getPlural(days, 'день', 'дня', 'дней')}`;
+    } else if (hours > 0) {
+        return `Через ${hours} ${getPlural(hours, 'час', 'часа', 'часов')}`;
+    } else if (minutes > 0) {
+        return `Через ${minutes} ${getPlural(minutes, 'минуту', 'минуты', 'минут')}`;
+    } else {
+        return `Через ${seconds} ${getPlural(seconds, 'секунду', 'секунды', 'секунд')}`;
+    }
+  }
+
   return (
     <div className='mb-4 shadow-md p-3'>
       <div className='relative flex w-full flex-col gap-4 md:h-full md:flex-row'>
@@ -236,7 +278,7 @@ export function PostCard({
           ></div>
           <div className='my-2 flex items-center gap-3 text-sm'>
             <div>
-              {t('expire_at')}: {expireDate}
+              {t('expire_at')}: {timeLeft(expireDate)}
             </div>
             <Popover>
               <PopoverTrigger>
