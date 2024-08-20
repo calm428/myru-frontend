@@ -363,10 +363,20 @@ export default function DashboardPage() {
             //     position: 'top-right',
             // });
 
+            const newPost = await res.json(); // Получаем данные нового поста из ответа сервера
+
+            if (socket) {
+                socket.send(JSON.stringify({
+                    command: 'newPost',
+                    post: newPost
+                }));
+            }
+    
+
             setContent('');
             setFiles([]);
-            setSkip(0);
-            fetchPosts(true);
+            // setSkip(0);
+            // fetchPosts(true);
         } catch (error) {
             alert('Ошибка при создании поста');
         } finally {
@@ -511,6 +521,12 @@ export default function DashboardPage() {
                             return post;
                         })
                     );
+                }
+
+                // Обработка нового поста
+                if (data?.command === 'newPost') {
+                    fetchPosts(true);
+                    // setPosts(prevPosts => [data.post, ...prevPosts]);
                 }
             };
         }
