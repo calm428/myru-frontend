@@ -45,7 +45,6 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ success: true, message: 'Comment deleted successfully' });
   } catch (error) {
-    console.log(error)
     return NextResponse.json(
       { error: 'Failed to delete comment' },
       { status: 500 }
