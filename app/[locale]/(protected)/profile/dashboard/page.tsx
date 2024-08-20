@@ -104,6 +104,7 @@ type Post = {
     content: string;
     created_at: string;
     likes: any[];
+    likeCount: number;  // Новое поле для количества лайков
     comments: any[]; 
     commentCount: number;  // Новое поле для количества комментариев
     shares: any[];
@@ -125,18 +126,28 @@ function timeAgo(date: any) {
     const months = Math.floor(days / 30);
     const years = Math.floor(days / 365);
 
+    function getPlural(n: number, one: string, few: string, many: string) {
+        if (n % 10 === 1 && n % 100 !== 11) {
+            return one;
+        } else if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) {
+            return few;
+        } else {
+            return many;
+        }
+    }
+
     if (years > 0) {
-        return `${years} ${years === 1 ? 'год' : 'лет'} назад`;
+        return `${years} ${getPlural(years, 'год', 'года', 'лет')} назад`;
     } else if (months > 0) {
-        return `${months} ${months === 1 ? 'месяц' : 'месяцев'} назад`;
+        return `${months} ${getPlural(months, 'месяц', 'месяца', 'месяцев')} назад`;
     } else if (days > 0) {
-        return `${days} ${days === 1 ? 'день' : 'дней'} назад`;
+        return `${days} ${getPlural(days, 'день', 'дня', 'дней')} назад`;
     } else if (hours > 0) {
-        return `${hours} ${hours === 1 ? 'час' : 'часов'} назад`;
+        return `${hours} ${getPlural(hours, 'час', 'часа', 'часов')} назад`;
     } else if (minutes > 0) {
-        return `${minutes} ${minutes === 1 ? 'минута' : 'минут'} назад`;
+        return `${minutes} ${getPlural(minutes, 'минута', 'минуты', 'минут')} назад`;
     } else {
-        return `${seconds} ${seconds === 1 ? 'секунда' : 'секунд'} назад`;
+        return `${seconds} ${getPlural(seconds, 'секунда', 'секунды', 'секунд')} назад`;
     }
 }
 
@@ -206,7 +217,7 @@ export default function DashboardPage() {
                 post.id === postId ? { ...post, likes: updatedPost.likes } : post
             ));
 
-            toast.success('Лайк обновлен', { position: 'top-right' });
+            // toast.success('Лайк обновлен', { position: 'top-right' });
         } catch (error) {
             toast.error('Ошибка при обновлении лайка', { position: 'top-right' });
         } finally {
@@ -346,9 +357,9 @@ export default function DashboardPage() {
                 throw new Error('Failed to create post');
             }
 
-            toast.success('Пост создан', {
-                position: 'top-right',
-            });
+            // toast.success('Пост создан', {
+            //     position: 'top-right',
+            // });
 
             setContent('');
             setFiles([]);
@@ -396,7 +407,7 @@ export default function DashboardPage() {
                         : post
                 )
             );
-            toast.success('Пост обновлен', { position: 'top-right' });
+            // toast.success('Пост обновлен', { position: 'top-right' });
         } catch (error) {
             setPosts(prevPosts =>
                 prevPosts.map(post =>
@@ -435,6 +446,7 @@ export default function DashboardPage() {
             const postsData = result.data.map((post: Post) => ({
                 ...post,
                 likes: post.likes.length || 0,  
+                likeCount: post.likes.length || 0,  // Инициализируем likeCount
                 comments: post.comments.length || 0,  
                 commentCount: post.comments.length,
                 shares: post.shares?.length || 0,  
@@ -476,6 +488,26 @@ export default function DashboardPage() {
                             ? { ...post, commentCount: post.commentCount + 1 } // Увеличиваем счетчик комментариев
                             : post
                         )
+                    );
+                }
+                // Обработка обновления лайка
+                if (data?.command === 'likeUpdate' && data?.data?.postId) {
+                    setPosts(prevPosts =>
+                        prevPosts.map(post => {
+                            if (post.id === data.data.postId) {
+                                const likesArray = Array.isArray(post.likes) ? post.likes : [];
+                                const isLiked = data.data.isLiked;
+                                const updatedLikes = isLiked
+                                    ? [...likesArray, data.data.userId] 
+                                    : likesArray.filter((id: string) => id !== data.data.userId);
+                                return { 
+                                    ...post, 
+                                    likes: updatedLikes,
+                                    likeCount: updatedLikes.length // Обновляем likeCount
+                                };
+                            }
+                            return post;
+                        })
                     );
                 }
             };
@@ -534,7 +566,15 @@ export default function DashboardPage() {
             dataLength={posts.length}
             next={() => fetchPosts()}
             hasMore={hasMore}
-            loader={<h4>Загрузка...</h4>}
+            loader={
+                <div className="flex flex-col space-y-4">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-6 w-5/6" />
+                    <Skeleton className="h-6 w-2/3" />
+                    <Skeleton className="h-6 w-1/2" />
+                </div>
+            }
             endMessage={<p>Больше нет постов</p>}
           >
             {posts.map((post, index) => (
@@ -622,7 +662,7 @@ export default function DashboardPage() {
                                 className="cursor-pointer" 
                                 onClick={() => handleToggleLike(post.id)}
                             >
-                                👍 {post.likes}
+                                👍 {post.likeCount} 
                             </span>
                             <span
                                     className="cursor-pointer"
