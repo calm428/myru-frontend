@@ -13,7 +13,15 @@ import useSWR, { mutate } from 'swr';
 import Link from 'next/link';
 import CustomPlayer from '@/components/utils/customPlayer';
 import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
-
+import Image from 'next/image';
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+  } from '@/components/ui/carousel';
+  
 import {
     Dialog,
     DialogClose,
@@ -228,49 +236,64 @@ export default function DashboardPage() {
     };
 
 
-    const renderFile = (file: any) => {
+    const renderFile = (file: any, index: number) => {
         const { url, filename } = file;
         const sanitizedUrl = url.replace('../server-data/img-store/', '');
         const fileUrlImage = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
         const fileUrlIAudio = `https://img.myru.online/${sanitizedUrl}`;
         const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
-
+        
         if (url.endsWith('.jpeg') || url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.gif')) {
             return (
-                <img src={fileUrlImage} alt={fileUrlImage} className="w-full h-auto rounded-lg mb-4 max-w-md" />
+                <CarouselItem key={index}>
+                    <div className='relative h-72 w-full'>
+                        <Image
+                            src={fileUrlImage}
+                            alt={filename}
+                            layout="fill"
+                            objectFit="cover"
+                        />
+                    </div>
+                </CarouselItem>
             );
-        } else if (url.endsWith('.mp4') || url.endsWith('.mkv')  || url.endsWith('.mov')) {
+        } else if (url.endsWith('.mp4') || url.endsWith('.mkv') || url.endsWith('.mov')) {
             return (
-                <CustomPlayer
-                    url={fileUrl}
-                />
+                <div key={index} className='relative h-72 w-full mb-4'>
+                    <CustomPlayer url={fileUrl} />
+                </div>
             );
         } else if (url.endsWith('.pdf')) {
             return (
-                <div className="mb-4">
+                <div key={index} className="mb-4">
                     <a href={fileUrl} download className="text-blue-500 hover:underline mt-2 block">
-                        Скачать файл{filename}
+                        Скачать файл {filename}
                     </a>
                 </div>
             );
         } else if (url.endsWith('.doc') || url.endsWith('.docx') || url.endsWith('.xls') || url.endsWith('.xlsx')) {
             return (
-                <a href={fileUrl} download className="text-blue-500 hover:underline">
+                <div key={index}>
+                    <a href={fileUrl} download className="text-blue-500 hover:underline">
                         Скачать файл {filename}
-                </a>
+                    </a>
+                </div>
             );
         } else if (url.endsWith('.mp3') || url.endsWith('.wav')) {
             return (
-                <ReactAudioPlayer
-                    src={fileUrlIAudio}
-                    className="max-w-[400px] h-auto mb-4"
-                />
+                <div key={index}>
+                    <ReactAudioPlayer
+                        src={fileUrlIAudio}
+                        className="max-w-[400px] h-auto mb-4"
+                    />
+                </div>
             );
         } else {
             return (
-                <a href={fileUrl} download className="text-blue-500 hover:underline">
-                    {filename}
-                </a>
+                <div key={index}>
+                    <a href={fileUrl} download className="text-blue-500 hover:underline">
+                        {filename}
+                    </a>
+                </div>
             );
         }
     };
@@ -619,7 +642,7 @@ export default function DashboardPage() {
                     <Skeleton className="h-6 w-1/2" />
                 </div>
             }
-            endMessage={<p>Больше нет постов</p>}
+            endMessage={<p className='text-center'>Больше нет постов</p>}
           >
             {posts.map((post, index) => (
                 <div key={index} className="bg-secondary p-4 mb-4 rounded-lg space-y-4">
@@ -665,14 +688,26 @@ export default function DashboardPage() {
                     </div>
                     
                     {post.files && post.files.length > 0 && (
-                        <div className="mt-4">
-                            {post.files.map((file, idx) => (
-                                <div key={idx}>
-                                    {renderFile(file)}
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    <div className="mt-4">
+                        {/* Слайдер для изображений */}
+                        <Carousel className='w-full md:w-52'>
+                            <CarouselContent>
+                                {post.files
+                                    .filter(file => file.url.endsWith('.jpeg') || file.url.endsWith('.jpg') || file.url.endsWith('.png') || file.url.endsWith('.gif'))
+                                    .map((file, idx) => renderFile(file, idx))
+                                }
+                            </CarouselContent>
+                            <CarouselPrevious className='left-3' />
+                            <CarouselNext className='right-3' />
+                        </Carousel>
+
+                        {/* Отображение остальных файлов */}
+                        {post.files
+                            .filter(file => !file.url.endsWith('.jpeg') && !file.url.endsWith('.jpg') && !file.url.endsWith('.png') && !file.url.endsWith('.gif'))
+                            .map((file, idx) => renderFile(file, idx))
+                        }
+                    </div>
+                )}
                     
                     {post.isEditing ? (
                         <div>
