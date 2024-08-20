@@ -239,12 +239,10 @@ export default function DashboardPage() {
             return (
                 <img src={fileUrlImage} alt={fileUrlImage} className="w-full h-auto rounded-lg mb-4 max-w-md" />
             );
-        } else if (url.endsWith('.mp4') || url.endsWith('.mkv')) {
+        } else if (url.endsWith('.mp4') || url.endsWith('.mkv')  || url.endsWith('.mov')) {
             return (
                 <CustomPlayer
-                 
                     url={fileUrl}
-
                 />
             );
         } else if (url.endsWith('.pdf')) {
