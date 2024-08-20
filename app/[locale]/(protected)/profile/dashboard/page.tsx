@@ -263,7 +263,7 @@ export default function DashboardPage() {
             return (
                 <ReactAudioPlayer
                     src={fileUrlIAudio}
-                    className="max-w-xl h-auto mb-4"
+                    className="max-w-[400px] h-auto mb-4"
                 />
             );
         } else {

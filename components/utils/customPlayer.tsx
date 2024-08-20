@@ -53,7 +53,7 @@ const CustomPlayer: React.FC<CustomPlayerProps> = ({ url }) => {
   };
 
   return (
-    <div className="custom-player-wrapper" ref={playerContainerRef}>
+    <div className="custom-player-wrapper w-full h-full md:w-[400px] md:h-[400px]" ref={playerContainerRef}>
       <ReactPlayer
         ref={playerRef}
         url={url}
