@@ -1950,3 +1950,7 @@ iframe {
     margin: 10px 0;
   }
 }
+
+video::-webkit-media-controls-fullscreen-button {
+  display: none;
+}

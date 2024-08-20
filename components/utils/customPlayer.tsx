@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
 
@@ -52,6 +52,15 @@ const CustomPlayer: React.FC<CustomPlayerProps> = ({ url }) => {
         <button onClick={togglePlayPause} className="play-pause-btn">
           {playing ? <FaPause /> : <FaPlay />}
         </button>
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={played}
+          onChange={handleSeekChange}
+          className="seek-slider"
+        />
         <button onClick={toggleMute} className="mute-btn">
           {muted ? <FaVolumeMute /> : <FaVolumeUp />}
         </button>
@@ -63,15 +72,6 @@ const CustomPlayer: React.FC<CustomPlayerProps> = ({ url }) => {
           value={volume}
           onChange={handleVolumeChange}
           className="volume-slider"
-        />
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={played}
-          onChange={handleSeekChange}
-          className="seek-slider"
         />
       </div>
     </div>
