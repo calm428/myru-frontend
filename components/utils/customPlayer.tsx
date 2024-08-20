@@ -47,6 +47,14 @@ const CustomPlayer: React.FC<CustomPlayerProps> = ({ url }) => {
         height="100%"
         controls={false} // Отключаем встроенные элементы управления
         onProgress={handleProgress}
+        playsinline
+        config={{
+            file: {
+              attributes: {
+                playsInline: true,
+              },
+            },
+          }}
       />
       <div className="custom-controls">
         <button onClick={togglePlayPause} className="play-pause-btn">
