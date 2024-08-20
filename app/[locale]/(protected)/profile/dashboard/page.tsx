@@ -440,7 +440,14 @@ export default function DashboardPage() {
                 throw new Error('Failed to delete post');
             }
 
-            setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+            if (socket) {
+                socket.send(JSON.stringify({
+                    command: 'deletePost',
+                    postId: postId
+                }));
+            }
+
+            // setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
             toast.success('Пост удален', { position: 'top-right' });
         } catch (error) {
             toast.error('Ошибка при удалении поста', { position: 'top-right' });
@@ -527,6 +534,25 @@ export default function DashboardPage() {
                 if (data?.command === 'newPost') {
                     fetchPosts(true);
                     // setPosts(prevPosts => [data.post, ...prevPosts]);
+                }
+
+                if (data?.command === 'deletePost') {
+                    fetchPosts(true);
+                    // setPosts(prevPosts => [data.post, ...prevPosts]);
+                }
+
+                if (data?.command === 'deleteComment' && data?.data?.postId && data?.data?.commentId) {
+                    fetchPosts(true);
+                }
+                
+                if (data?.command === 'updatePost' && data?.data?.postId) {
+                    setPosts(prevPosts =>
+                        prevPosts.map(post =>
+                            post.id === data.data.postId
+                            ? { ...post, content: data.data.content }
+                            : post
+                        )
+                    );
                 }
             };
         }
