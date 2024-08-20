@@ -559,7 +559,8 @@ export default function DashboardPage() {
                             <p className="text-xs text-gray-400">{timeAgo(post.created_at)}</p>
                         </Link>
                         </div>
-
+                        {post.user.ID === userData?.id && (
+                        <>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <button className="text-gray-400 hover:text-gray-300">
@@ -575,6 +576,8 @@ export default function DashboardPage() {
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
+                        </>
+                        )}
                     </div>
                     
                     {post.files && post.files.length > 0 && (
