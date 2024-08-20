@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import ReactPlayer from 'react-player';
-import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
+import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute, FaExpand, FaCompress } from 'react-icons/fa';
 
 interface CustomPlayerProps {
   url: string;
@@ -8,10 +8,12 @@ interface CustomPlayerProps {
 
 const CustomPlayer: React.FC<CustomPlayerProps> = ({ url }) => {
   const playerRef = useRef<ReactPlayer>(null);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(0.8);
   const [played, setPlayed] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const togglePlayPause = () => {
     setPlaying(!playing);
@@ -35,8 +37,23 @@ const CustomPlayer: React.FC<CustomPlayerProps> = ({ url }) => {
     setPlayed(state.played);
   };
 
+  const toggleFullscreen = () => {
+    const element = playerContainerRef.current;
+
+    if (!isFullscreen) {
+      if (element?.requestFullscreen) {
+        element.requestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+    setIsFullscreen(!isFullscreen);
+  };
+
   return (
-    <div className="custom-player-wrapper">
+    <div className="custom-player-wrapper" ref={playerContainerRef}>
       <ReactPlayer
         ref={playerRef}
         url={url}
@@ -49,14 +66,14 @@ const CustomPlayer: React.FC<CustomPlayerProps> = ({ url }) => {
         onProgress={handleProgress}
         playsinline
         config={{
-            file: {
-              attributes: {
-                playsInline: true,
-              },
+          file: {
+            attributes: {
+              playsInline: true,
             },
-          }}
+          },
+        }}
       />
-      <div className="custom-controls">
+      <div className="custom-controls flex !flex-row gap-4 !items-center">
         <button onClick={togglePlayPause} className="play-pause-btn">
           {playing ? <FaPause /> : <FaPlay />}
         </button>
@@ -81,6 +98,9 @@ const CustomPlayer: React.FC<CustomPlayerProps> = ({ url }) => {
           onChange={handleVolumeChange}
           className="volume-slider"
         />
+        <button onClick={toggleFullscreen} className="fullscreen-btn">
+          {isFullscreen ? <FaCompress /> : <FaExpand />}
+        </button>
       </div>
     </div>
   );
