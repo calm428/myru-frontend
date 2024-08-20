@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReactPlayer from 'react-player';
 import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
 
@@ -11,6 +11,7 @@ const CustomPlayer: React.FC<CustomPlayerProps> = ({ url }) => {
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(0.8);
+  const [played, setPlayed] = useState(0);
 
   const togglePlayPause = () => {
     setPlaying(!playing);
@@ -24,6 +25,16 @@ const CustomPlayer: React.FC<CustomPlayerProps> = ({ url }) => {
     setVolume(parseFloat(event.target.value));
   };
 
+  const handleSeekChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newPlayed = parseFloat(event.target.value);
+    setPlayed(newPlayed);
+    playerRef.current?.seekTo(newPlayed);
+  };
+
+  const handleProgress = (state: { played: number }) => {
+    setPlayed(state.played);
+  };
+
   return (
     <div className="custom-player-wrapper">
       <ReactPlayer
@@ -35,6 +46,7 @@ const CustomPlayer: React.FC<CustomPlayerProps> = ({ url }) => {
         width="100%"
         height="100%"
         controls={false} // Отключаем встроенные элементы управления
+        onProgress={handleProgress}
       />
       <div className="custom-controls">
         <button onClick={togglePlayPause} className="play-pause-btn">
@@ -51,6 +63,15 @@ const CustomPlayer: React.FC<CustomPlayerProps> = ({ url }) => {
           value={volume}
           onChange={handleVolumeChange}
           className="volume-slider"
+        />
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={played}
+          onChange={handleSeekChange}
+          className="seek-slider"
         />
       </div>
     </div>
