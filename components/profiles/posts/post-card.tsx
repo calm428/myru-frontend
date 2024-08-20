@@ -271,7 +271,7 @@ export function PostCard({
               </PopoverContent>
             </Popover>
           </div>
-          <div className='mt-auto flex gap-2'>
+          <div className='mt-auto flex flex-wrap gap-2'>
             {cities.map((city) => (
               <Badge
                 variant='outline'
