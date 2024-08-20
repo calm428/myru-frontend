@@ -11,6 +11,8 @@ import ReactAudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import useSWR, { mutate } from 'swr';
 import Link from 'next/link';
+import CustomPlayer from '@/components/utils/customPlayer';
+import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
 
 import {
     Dialog,
@@ -239,11 +241,11 @@ export default function DashboardPage() {
             );
         } else if (url.endsWith('.mp4') || url.endsWith('.mkv')) {
             return (
-                <video controls className="w-full h-auto rounded-lg mb-4">
-                    <source src={fileUrl} type="video/mp4" />
-                    <source src={fileUrl} type="video/x-matroska" />
-                    Your browser does not support the video tag.
-                </video>
+                <CustomPlayer
+                 
+                    url={fileUrl}
+
+                />
             );
         } else if (url.endsWith('.pdf')) {
             return (
