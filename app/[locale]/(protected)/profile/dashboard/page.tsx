@@ -14,6 +14,8 @@ import Link from 'next/link';
 import CustomPlayer from '@/components/utils/customPlayer';
 import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
 import Image from 'next/image';
+import LongText from './longText';
+
 import {
     Carousel,
     CarouselContent,
@@ -732,7 +734,7 @@ export default function DashboardPage() {
                             </button>
                         </div>
                     ) : (
-                        <p className='break-all'>{post.content}</p>
+                        <LongText text={post.content} maxLength={300} />
                     )}
 
                     <div className="flex justify-between text-gray-400">
