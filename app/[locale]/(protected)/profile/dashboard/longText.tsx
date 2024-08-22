@@ -16,7 +16,7 @@ const LongText: React.FC<LongTextProps> = ({ text, maxLength = 100 }) => {
 
     return (
         <div>
-            <p className="break-all">
+            <p>
                 {isExpanded ? text : `${shortText}${text.length > maxLength ? '...' : ''}`}
             </p>
             {text.length > maxLength && (
@@ -24,7 +24,7 @@ const LongText: React.FC<LongTextProps> = ({ text, maxLength = 100 }) => {
                     onClick={toggleExpansion}
                     className="text-blue-500 hover:underline mt-2"
                 >
-                    {isExpanded ? 'Скрыть' : 'Раскрыть'}
+                    {isExpanded ? 'Скрыть' : 'Подробнее'}
                 </button>
             )}
         </div>
