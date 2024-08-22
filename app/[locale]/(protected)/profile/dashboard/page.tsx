@@ -690,26 +690,105 @@ export default function DashboardPage() {
                     </div>
                     
                     {post.files && post.files.length > 0 && (
-                    <div className="mt-4">
-                        {/* Слайдер для изображений */}
-                        <Carousel className='w-full md:w-52'>
-                            <CarouselContent>
-                                {post.files
-                                    .filter(file => file.url.endsWith('.jpeg') || file.url.endsWith('.jpg') || file.url.endsWith('.png') || file.url.endsWith('.gif'))
-                                    .map((file, idx) => renderFile(file, idx))
-                                }
-                            </CarouselContent>
-                            <CarouselPrevious className='left-3' />
-                            <CarouselNext className='right-3' />
-                        </Carousel>
+                        <div className="mt-4">
+                            {post.files.filter(file =>
+                                file.url.endsWith('.jpeg') || 
+                                file.url.endsWith('.jpg') || 
+                                file.url.endsWith('.png') || 
+                                file.url.endsWith('.gif') || 
+                                file.url.endsWith('.mp4') || 
+                                file.url.endsWith('.mkv') || 
+                                file.url.endsWith('.mov')
+                            ).length > 1 ? (
+                                <Carousel className='w-full md:max-w-md'>
+                                    <CarouselContent>
+                                        {post.files
+                                            .filter(file => 
+                                                file.url.endsWith('.jpeg') || 
+                                                file.url.endsWith('.jpg') || 
+                                                file.url.endsWith('.png') || 
+                                                file.url.endsWith('.gif') || 
+                                                file.url.endsWith('.mp4') || 
+                                                file.url.endsWith('.mkv') || 
+                                                file.url.endsWith('.mov')
+                                            )
+                                            .map((file, idx) => {
+                                                const { url, filename } = file;
+                                                const sanitizedUrl = url.replace('../server-data/img-store/', '');
+                                                const fileUrlImage = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
+                                                const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
 
-                        {/* Отображение остальных файлов */}
-                        {post.files
-                            .filter(file => !file.url.endsWith('.jpeg') && !file.url.endsWith('.jpg') && !file.url.endsWith('.png') && !file.url.endsWith('.gif'))
-                            .map((file, idx) => renderFile(file, idx))
-                        }
-                    </div>
-                )}
+                                                if (url.endsWith('.jpeg') || url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.gif')) {
+                                                    return (
+                                                        <CarouselItem key={idx}>
+                                                            <div className='relative h-80 max-h-md w-full'>
+                                                                <Image
+                                                                    src={fileUrlImage}
+                                                                    alt={filename}
+                                                                    layout="fill"
+                                                                    objectFit="cover"
+                                                                />
+                                                            </div>
+                                                        </CarouselItem>
+                                                    );
+                                                } else if (url.endsWith('.mp4') || url.endsWith('.mkv') || url.endsWith('.mov')) {
+                                                    return (
+                                                        <CarouselItem key={idx}>
+                                                            <div className='relative h-full w-full'>
+                                                                <CustomPlayer url={fileUrl} />
+                                                            </div>
+                                                        </CarouselItem>
+                                                    );
+                                                }
+                                            })
+                                        }
+                                    </CarouselContent>
+                                    <CarouselPrevious className='left-3' />
+                                    <CarouselNext className='right-3' />
+                                </Carousel>
+                            ) : (
+                                post.files.map((file, idx) => {
+                                    const { url, filename } = file;
+                                    const sanitizedUrl = url.replace('../server-data/img-store/', '');
+                                    const fileUrlImage = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
+                                    const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
+
+                                    if (url.endsWith('.jpeg') || url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.gif')) {
+                                        return (
+                                            <div key={idx} className='relative h-80 max-h-md max-w-md'>
+                                                <Image
+                                                    src={fileUrlImage}
+                                                    alt={filename}
+                                                    layout="fill"
+                                                    objectFit="cover"
+                                                />
+                                            </div>
+                                        );
+                                    } else if (url.endsWith('.mp4') || url.endsWith('.mkv') || url.endsWith('.mov')) {
+                                        return (
+                                            <div key={idx} className='relative h-full w-full'>
+                                                <CustomPlayer url={fileUrl} />
+                                            </div>
+                                        );
+                                    }
+                                })
+                            )}
+
+                            {/* Отображение остальных файлов */}
+                            {post.files
+                                .filter(file => 
+                                    !file.url.endsWith('.jpeg') && 
+                                    !file.url.endsWith('.jpg') && 
+                                    !file.url.endsWith('.png') && 
+                                    !file.url.endsWith('.gif') && 
+                                    !file.url.endsWith('.mp4') && 
+                                    !file.url.endsWith('.mkv') && 
+                                    !file.url.endsWith('.mov')
+                                )
+                                .map((file, idx) => renderFile(file, idx))
+                            }
+                        </div>
+                    )}
                     
                     {post.isEditing ? (
                         <div>
@@ -793,7 +872,7 @@ export default function DashboardPage() {
                                             <p className="text-xs text-gray-400">{timeAgo(comment.created_at)}</p>
                                         </div>
                                     </div>
-                                    <p className="mt-2 text-sm break-all">{comment.content}</p>
+                                    <p className="mt-2 text-sm">{comment.content}</p>
                                     {(comment.user?.Name === userData?.username || selectedPost?.username === userData?.username) && (
                                         <button
                                             className="text-red-500 hover:text-red-600 text-xs"
