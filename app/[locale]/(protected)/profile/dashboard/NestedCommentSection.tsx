@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'; // Используем useSearchParams для работы с URL параметрами
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -61,6 +61,7 @@ export default function NestedCommentSection({
   onBack,
 }: NestedCommentSectionProps) {
   const router = useRouter();
+  const searchParams = useSearchParams(); // Получаем параметры URL
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>('');
   const [isCommentLoading, setIsCommentLoading] = useState<boolean>(false);
@@ -70,10 +71,17 @@ export default function NestedCommentSection({
     null
   );
   const [message, setMessage] = useState('');
+  const pathname = usePathname();
 
+  // Загружаем комментарии при загрузке компонента или смене поста
   useEffect(() => {
-    fetchComments(post.id);
-  }, [post.id]);
+    const postIdFromParams = searchParams.get('postId');
+    if (postIdFromParams) {
+      fetchComments(postIdFromParams);
+    } else {
+      fetchComments(post.id);
+    }
+  }, [post.id, searchParams]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -131,6 +139,16 @@ export default function NestedCommentSection({
   const handleReply = (comment: Comment) => {
     setQuote({ name: comment.user.Name, content: comment.content });
     setReplyVisible(comment.id);
+  };
+
+  const handleBackClick = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete('comments');
+    params.delete('postId');
+
+    // Обновляем URL без перезагрузки страницы
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    onBack(); // Вызываем функцию обратного вызова, переданную от родителя
   };
 
   const handleDeleteComment = async (commentId: string) => {
@@ -218,7 +236,7 @@ export default function NestedCommentSection({
     const handleGesture = () => {
       if (touchEndX - touchStartX > 50) {
         // Свайп вправо
-        onBack();
+        handleBackClick();
       }
     };
 
@@ -229,13 +247,10 @@ export default function NestedCommentSection({
       document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [onBack]);
+  }, [handleBackClick]);
 
   return (
     <div>
-      {/* <button onClick={onBack} className="mb-4 bg-blue-500 text-white px-4 py-2 rounded fixed z-10">
-                Назад
-            </button> */}
       <div className='px-4'>
         <div className='mb-4 flex min-h-screen w-full flex-col	items-center	justify-end justify-items-center'>
           {isCommentLoading ? (
@@ -280,18 +295,11 @@ export default function NestedCommentSection({
                   <button
                     type='button'
                     aria-label='back'
-                    onClick={onBack}
+                    onClick={handleBackClick}
                     className='flex h-8 w-8 items-center justify-center rounded-full text-white focus:outline-none dark:text-white'
                   >
                     <IoMdArrowBack size={16} />
                   </button>
-                  {/* <button
-                  type='button'
-                  aria-label='Attach files'
-                  className='flex h-8 w-8 items-center justify-center rounded-full text-white focus:outline-none dark:text-white'
-                >
-                  <FaPaperclip size={18} />
-                </button> */}
                 </div>
                 <div className='flex min-w-0 flex-1 flex-col'>
                   <textarea
