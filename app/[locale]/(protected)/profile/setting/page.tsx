@@ -31,7 +31,7 @@ import axios from 'axios';
 import { signOut } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -62,6 +62,11 @@ import { Loader2 } from 'lucide-react';
 import { ChangeNamePopup } from '@/components/profiles/dashboard/change-name-popup';
 import Image from 'next/image';
 import { MdAccountBalanceWallet, MdOutlineDriveFileRenameOutline } from 'react-icons/md';
+import { MdDashboard, MdSettings, MdPostAdd } from 'react-icons/md';
+import { IconType } from 'react-icons';
+import { GiVideoConference } from "react-icons/gi";
+import { IoIosNotifications } from "react-icons/io";
+import CTASection from '@/components/profiles/cta';
 
 const ReactQuill =
   typeof window === 'object' ? require('react-quill') : () => false;
@@ -813,10 +818,70 @@ export default function SettingPage() {
       setIsUpgradeLoading(false);
     }
   };
-  
-  return (
-    <div className='pb-4 px-4'>
 
+
+
+  
+  type ProfileConfig = {
+    [key: string]: {
+      icon: IconType;
+      titleKey: string;
+      descriptionKey: string;
+    };
+  };
+  
+  const profileConfig: ProfileConfig = {
+    '/profile/posts': {
+      icon: MdPostAdd,
+      titleKey: 'my_posts',
+      descriptionKey: 'my_posts_description',
+    },
+    '/profile/setting': {
+      icon: MdSettings,
+      titleKey: 'settings',
+      descriptionKey: 'setting_description',
+    },
+    '/profile': {
+      icon: MdDashboard,
+      titleKey: 'dashboard',
+      descriptionKey: 'dashboard_description',
+    },
+    '/profile/conference': {
+      icon: GiVideoConference,
+      titleKey: 'conference',
+      descriptionKey: 'conference_description',
+    },
+    '/profile/notifications': {
+      icon: IoIosNotifications,
+      titleKey: 'notifications',
+      descriptionKey: 'conference_description',
+    }
+  };
+
+  
+  const getConfigForPath = (path: string) => {
+    // Удаляем префикс локали из пути
+    const pathWithoutLocale = path.replace(/^\/(ru|es|ka)/, '');
+
+    return profileConfig[pathWithoutLocale] || profileConfig['/profile'];
+  };
+  
+  const pathname = usePathname();
+  const config = getConfigForPath(pathname);
+
+
+  return (
+    
+    <div className='pb-4 px-4'>
+        <div className='px-0 py-4'>
+          <CTASection
+            //@ts-ignore
+            title={t(config.titleKey)}
+            //@ts-ignore
+            description={t(config.descriptionKey)}
+            icon={config.icon}
+          />
+        </div>
     <div className='relative flex justify-between rounded-lg bg-white p-6 dark:bg-black md:col-span-2 shadow-md'>
       <div>
       <div className='mt-0 space-y-2 w-full'>

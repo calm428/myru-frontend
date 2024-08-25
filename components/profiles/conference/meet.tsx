@@ -23,7 +23,7 @@ export default memo(
         <Separator className='mb-4' />
         <div className='mb-[100px] flex h-[calc(100vh_-_13rem)] w-full flex-col rounded-xl bg-background p-4 md:mb-[0px] md:h-[calc(100vh_-_15rem)]'>
           <div className='flex size-full flex-col justify-center'>
-            <div className='mb-48 mt-auto space-y-4'>
+            <div className='mb-auto mt-auto space-y-4'>
               <div>
                 <div className='w-full pt-8 text-center text-2xl font-semibold md:text-3xl'>
                   {t('premium')} <span className='text-primary'></span>{' '}

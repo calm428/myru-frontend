@@ -67,15 +67,7 @@ export default function ProfilePageLayout({ children }: Props) {
     <div className='flex w-full'>
       <Sidebar />
       <main className='mb-0 mt-0 w-full bg-secondary/60 md:mb-0 pb-8'>
-        <div className='px-4 py-4'>
-          <CTASection
-            //@ts-ignore
-            title={t(config.titleKey)}
-            //@ts-ignore
-            description={t(config.descriptionKey)}
-            icon={config.icon}
-          />
-        </div>
+
         {children}
       </main>
     </div>
