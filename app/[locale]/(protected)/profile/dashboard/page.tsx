@@ -15,7 +15,7 @@ import CustomPlayer from '@/components/utils/customPlayer';
 import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
 import Image from 'next/image';
 import LongText from './longText';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { timeAgo } from '@/helpers/utils';
 import NestedCommentSection from './NestedCommentSection';
 import { FaReply, FaTimes, FaPaperclip, FaArrowRight } from 'react-icons/fa';
@@ -142,14 +142,55 @@ export default function DashboardPage() {
   const [isLiking, setIsLiking] = useState<boolean>(false);
 
   const router = useRouter(); // useRouter from 'next/navigation'
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const handleCommentClick = async (post: Post) => {
+  useEffect(() => {
+    if (selectedPost) {
+      const params = new URLSearchParams(searchParams);
+      params.set('comments', 'open');
+      params.set('postId', selectedPost.id);
+
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }
+  }, [selectedPost]);
+
+  const handleCommentClick = (post: Post) => {
     sessionStorage.setItem('scrollPosition', window.scrollY.toString());
-    setSelectedPost(post);
+
+    // Обновляем состояние компонента сразу
+    const params = new URLSearchParams(searchParams);
+    params.set('comments', 'open');
+    params.set('postId', post.id);
+    // Обновляем URL
+    const newUrl = `${pathname}?${params.toString()}`;
+
+    router.replace(newUrl, { scroll: false });
   };
+
+  useEffect(() => {
+    // Логика загрузки комментариев, если параметр присутствует
+    if (searchParams.get('comments') === 'open') {
+      // Ваша логика для загрузки комментариев
+      console.log('Загрузка комментариев...');
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    // Проверяем, есть ли в URL параметр `postId`, и если есть, открываем соответствующий пост
+    const postIdFromParams = searchParams.get('postId');
+    if (postIdFromParams) {
+      const post = posts.find((p) => p.id === postIdFromParams);
+      if (post) {
+        setSelectedPost(post);
+      } else {
+      }
+    }
+  }, [searchParams, posts]);
 
   const handleBackToPosts = () => {
     setSelectedPost(null);
+
     const savedScrollPosition = sessionStorage.getItem('scrollPosition');
     if (savedScrollPosition) {
       setTimeout(() => {
@@ -288,7 +329,7 @@ export default function DashboardPage() {
   };
 
   const handleSubmit = async () => {
-    if (!content && files.length === 0) {
+    if (!content.trim() && files.length === 0) {
       alert('Пожалуйста, добавьте текст или файл.');
       return;
     }
@@ -312,11 +353,7 @@ export default function DashboardPage() {
         throw new Error('Failed to create post');
       }
 
-      // toast.success('Пост создан', {
-      //     position: 'top-right',
-      // });
-
-      const newPost = await res.json(); // Получаем данные нового поста из ответа сервера
+      const newPost = await res.json();
 
       if (socket) {
         socket.send(
@@ -329,8 +366,6 @@ export default function DashboardPage() {
 
       setContent('');
       setFiles([]);
-      // setSkip(0);
-      // fetchPosts(true);
     } catch (error) {
       alert('Ошибка при создании поста');
     } finally {
@@ -570,10 +605,14 @@ export default function DashboardPage() {
                   </div>
                   <button
                     onClick={handleSubmit}
-                    disabled={isLoading || !content.trim()}
+                    disabled={
+                      isLoading || (!content.trim() && files.length === 0)
+                    }
                     aria-label='Поделиться'
                     className={`mb-1 me-1 flex h-8 w-8 items-center justify-center rounded-full bg-black text-white transition-opacity hover:opacity-70 focus:outline-none dark:bg-white dark:text-black ${
-                      !content.trim() ? 'cursor-not-allowed opacity-50' : ''
+                      !content.trim() && files.length === 0
+                        ? 'cursor-not-allowed opacity-50'
+                        : ''
                     }`}
                   >
                     {isLoading ? (
@@ -619,7 +658,7 @@ export default function DashboardPage() {
                 className='mb-4 space-y-4 rounded-none bg-secondary p-4'
               >
                 <div className='flex items-center space-x-4'>
-                  <Avatar className='mr-3'>
+                  <Avatar className='mr-0'>
                     <Link href={`/profiles/${post?.user?.Name}`} passHref>
                       <AvatarImage
                         src={`https://proxy.myru.online/100/https://img.myru.online/${post?.user?.Photo}`}
