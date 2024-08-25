@@ -1,8 +1,8 @@
-"use client";
+'use client';
 import { useState, useContext, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Textarea } from '@/components/ui/textarea';
-import { FaCloudUploadAlt } from "react-icons/fa";
+import { FaCloudUploadAlt } from 'react-icons/fa';
 import { PaxContext } from '@/context/context';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import toast from 'react-hot-toast';
@@ -16,25 +16,17 @@ import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
 import Image from 'next/image';
 import LongText from './longText';
 import { useRouter } from 'next/navigation';
+import { timeAgo } from '@/helpers/utils';
+import NestedCommentSection from './NestedCommentSection';
+import { FaReply, FaTimes, FaPaperclip, FaArrowRight } from 'react-icons/fa';
 
 import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-  } from '@/components/ui/carousel';
-  
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-  } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
 
 import {
   DropdownMenu,
@@ -44,890 +36,815 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { FaEllipsisV } from 'react-icons/fa';
 
-type CollapseState = {
-    [key: number]: boolean;
-  };
-
 type FilePost = {
-    id: string;
-    url: string;
-    filename: string;
+  id: string;
+  url: string;
+  filename: string;
 };
 
 type Comment = {
-    id: string;
-    content: string;
-    user: {
-        Name: string;
-        Photo: string;
-    };
-    created_at: string;
+  id: string;
+  content: string;
+  user: {
+    Name: string;
+    Photo: string;
+  };
+  created_at: string;
 };
 
 type User = {
-    ID: string;
-    Seller: boolean;
-    Trial: boolean;
-    Name: string;
-    Email: string;
-    Password: string;
-    Role: string;
-    Provider: string;
-    Photo: string;
-    Verified: boolean;
-    Banned: boolean;
-    Plan: string;
-    Signed: boolean;
-    ExpiredPlanAt: string | null;
-    Tcid: number;
-    DeviceIOS: string;
-    DeviceIOSVOIP: string;
-    TotalFollowers: number;
-    VerificationCode: string;
-    PasswordResetToken: string;
-    TelegramActivated: boolean;
-    TelegramToken: string;
-    TelegramName: string | null;
-    PasswordResetAt: string;
-    Billing: any | null;
-    Profile: any | null;
-    filled: boolean;
-    Session: string;
-    Storage: string;
-    Tid: number;
-    Blogs: any | null;
-    CreatedAt: string;
-    UpdatedAt: string;
-    OnlineHours: any[];
-    TotalOnlineHours: any[];
-    TotalOnlineStreamingHours: any[];
-    OfflineHours: number;
-    TotalRestBlogs: number;
-    TotalBlogs: number;
-    Rating: number;
-    LimitStorage: number;
-    last_online: string;
-    online: boolean;
-    domains: any | null;
-    Followings: any[] | null;
-    Followers: any[] | null;
-    IsBot: boolean;
+  ID: string;
+  Seller: boolean;
+  Trial: boolean;
+  Name: string;
+  Email: string;
+  Password: string;
+  Role: string;
+  Provider: string;
+  Photo: string;
+  Verified: boolean;
+  Banned: boolean;
+  Plan: string;
+  Signed: boolean;
+  ExpiredPlanAt: string | null;
+  Tcid: number;
+  DeviceIOS: string;
+  DeviceIOSVOIP: string;
+  TotalFollowers: number;
+  VerificationCode: string;
+  PasswordResetToken: string;
+  TelegramActivated: boolean;
+  TelegramToken: string;
+  TelegramName: string | null;
+  PasswordResetAt: string;
+  Billing: any | null;
+  Profile: any | null;
+  filled: boolean;
+  Session: string;
+  Storage: string;
+  Tid: number;
+  Blogs: any | null;
+  CreatedAt: string;
+  UpdatedAt: string;
+  OnlineHours: any[];
+  TotalOnlineHours: any[];
+  TotalOnlineStreamingHours: any[];
+  OfflineHours: number;
+  TotalRestBlogs: number;
+  TotalBlogs: number;
+  Rating: number;
+  LimitStorage: number;
+  last_online: string;
+  online: boolean;
+  domains: any | null;
+  Followings: any[] | null;
+  Followers: any[] | null;
+  IsBot: boolean;
 };
 
 type Post = {
-    id: string;
-    username: string;
-    avatar: string;
-    content: string;
-    created_at: string;
-    likes: any[];
-    likeCount: number;  // Новое поле для количества лайков
-    comments: any[]; 
-    commentCount: number;  // Новое поле для количества комментариев
-    shares: any[];
-    files: FilePost[];
-    isEditing?: boolean; 
-    isSaving?: boolean;
-    user: User;  // Добавляем свойство user
- 
+  id: string;
+  username: string;
+  avatar: string;
+  content: string;
+  created_at: string;
+  likes: any[];
+  likeCount: number; // Новое поле для количества лайков
+  comments: any[];
+  commentCount: number; // Новое поле для количества комментариев
+  shares: any[];
+  files: FilePost[];
+  isEditing?: boolean;
+  isSaving?: boolean;
+  user: User; // Добавляем свойство user
 };
-
-function timeAgo(date: any) {
-    const now = new Date();
-    const diff = now.getTime() - new Date(date).getTime();
-
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(days / 365);
-
-    function getPlural(n: number, one: string, few: string, many: string) {
-        if (n % 10 === 1 && n % 100 !== 11) {
-            return one;
-        } else if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) {
-            return few;
-        } else {
-            return many;
-        }
-    }
-
-    if (years > 0) {
-        return `${years} ${getPlural(years, 'год', 'года', 'лет')} назад`;
-    } else if (months > 0) {
-        return `${months} ${getPlural(months, 'месяц', 'месяца', 'месяцев')} назад`;
-    } else if (days > 0) {
-        return `${days} ${getPlural(days, 'день', 'дня', 'дней')} назад`;
-    } else if (hours > 0) {
-        return `${hours} ${getPlural(hours, 'час', 'часа', 'часов')} назад`;
-    } else if (minutes > 0) {
-        return `${minutes} ${getPlural(minutes, 'минута', 'минуты', 'минут')} назад`;
-    } else {
-        return `${seconds} ${getPlural(seconds, 'секунда', 'секунды', 'секунд')} назад`;
-    }
-}
 
 const Skeleton = ({ className }: { className?: string }) => {
-    return (
-        <div className={`animate-pulse bg-gray-300 dark:bg-gray-700 rounded ${className}`}></div>
-    );
+  return (
+    <div
+      className={`animate-pulse rounded bg-gray-300 dark:bg-gray-700 ${className}`}
+    ></div>
+  );
 };
 
+export default function DashboardPage() {
+  const { user: userData, socket } = useContext(PaxContext);
+  const [content, setContent] = useState('');
+  const [files, setFiles] = useState<File[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [skip, setSkip] = useState<number>(0);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState<string>('');
+  const [isCommentLoading, setIsCommentLoading] = useState<boolean>(false);
+  const [isLiking, setIsLiking] = useState<boolean>(false);
 
+  const router = useRouter(); // useRouter from 'next/navigation'
 
-export default function DashboardPage() { 
-    const { user: userData, socket } = useContext(PaxContext);
-    const [content, setContent] = useState(''); 
-    const [files, setFiles] = useState<File[]>([]);
-    const [isLoading, setIsLoading] = useState(false); 
-    const [posts, setPosts] = useState<Post[]>([]);
-    const [skip, setSkip] = useState<number>(0); 
-    const [hasMore, setHasMore] = useState<boolean>(true);
-    const [selectedPost, setSelectedPost] = useState<Post | null>(null); 
-    const [comments, setComments] = useState<Comment[]>([]); 
-    const [newComment, setNewComment] = useState<string>(''); 
-    const [isCommentLoading, setIsCommentLoading] = useState<boolean>(false);
-    const [isLiking, setIsLiking] = useState<boolean>(false);
+  const handleCommentClick = async (post: Post) => {
+    sessionStorage.setItem('scrollPosition', window.scrollY.toString());
+    setSelectedPost(post);
+  };
 
-    const router = useRouter(); // useRouter from 'next/navigation'
+  const handleBackToPosts = () => {
+    setSelectedPost(null);
+    const savedScrollPosition = sessionStorage.getItem('scrollPosition');
+    if (savedScrollPosition) {
+      setTimeout(() => {
+        window.scrollTo(0, parseInt(savedScrollPosition, 10));
+        sessionStorage.removeItem('scrollPosition');
+      }, 0);
+    }
+  };
 
-  
-    const handleCommentClick = async (post: Post) => {
-        router.push(`/profile/dashboard/comments/${post.id}`); // Navigate to the comments page
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
+  };
 
-        // setSelectedPost(post);
-        // await fetchComments(post.id);
-    };
-    
+  const handleToggleLike = async (postId: string) => {
+    setIsLiking(true);
+    try {
+      const res = await fetch(`/api/post/${postId}/likes`, {
+        method: 'POST',
+      });
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFiles = Array.from(e.target.files || []);
-        setFiles(prevFiles => [...prevFiles, ...selectedFiles]);
-    };
+      if (!res.ok) {
+        throw new Error('Failed to toggle like');
+      }
 
-    const handleDeleteComment = async (postId: string, commentId: string) => {
-        try {
-            const res = await fetch(`/api/comment/${postId}/delete/${commentId}`, {
-                method: 'DELETE',
-            });
-    
-            if (!res.ok) {
-                throw new Error('Failed to delete comment');
-            }
-    
-            setComments(prevComments => prevComments.filter(comment => comment.id !== commentId));
-            toast.success('Комментарий удален', { position: 'top-right' });
-        } catch (error) {
-            toast.error('Ошибка при удалении комментария', { position: 'top-right' });
-        }
-    };
+      const updatedPost = await res.json();
 
-    const handleToggleLike = async (postId: string) => {
-        setIsLiking(true);
-        try {
-            const res = await fetch(`/api/post/${postId}/likes`, {
-                method: 'POST',
-            });
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId ? { ...post, likes: updatedPost.likes } : post
+        )
+      );
 
-            if (!res.ok) {
-                throw new Error('Failed to toggle like');
-            }
+      // toast.success('Лайк обновлен', { position: 'top-right' });
+    } catch (error) {
+      toast.error('Ошибка при обновлении лайка', { position: 'top-right' });
+    } finally {
+      setIsLiking(false);
+    }
+  };
 
-            const updatedPost = await res.json();
+  const renderFile = (file: any, index: number) => {
+    const { url, filename } = file;
+    const sanitizedUrl = url.replace('../server-data/img-store/', '');
+    const fileUrlImage = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
+    const fileUrlIAudio = `https://img.myru.online/${sanitizedUrl}`;
+    const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
 
-            setPosts(prevPosts => prevPosts.map(post => 
-                post.id === postId ? { ...post, likes: updatedPost.likes } : post
-            ));
+    if (
+      url.endsWith('.jpeg') ||
+      url.endsWith('.jpg') ||
+      url.endsWith('.png') ||
+      url.endsWith('.gif')
+    ) {
+      return (
+        <CarouselItem key={index}>
+          <div className='relative h-72 w-full'>
+            <Image
+              src={fileUrlImage}
+              alt={filename}
+              layout='fill'
+              objectFit='cover'
+            />
+          </div>
+        </CarouselItem>
+      );
+    } else if (
+      url.endsWith('.mp4') ||
+      url.endsWith('.mkv') ||
+      url.endsWith('.mov')
+    ) {
+      return (
+        <div key={index} className='relative mb-4 h-72 w-full'>
+          <CustomPlayer url={fileUrl} />
+        </div>
+      );
+    } else if (url.endsWith('.pdf')) {
+      return (
+        <div key={index} className='mb-4'>
+          <a
+            href={fileUrl}
+            download
+            className='mt-2 block text-blue-500 hover:underline'
+          >
+            Скачать файл {filename}
+          </a>
+        </div>
+      );
+    } else if (
+      url.endsWith('.doc') ||
+      url.endsWith('.docx') ||
+      url.endsWith('.xls') ||
+      url.endsWith('.xlsx')
+    ) {
+      return (
+        <div key={index}>
+          <a href={fileUrl} download className='text-blue-500 hover:underline'>
+            Скачать файл {filename}
+          </a>
+        </div>
+      );
+    } else if (url.endsWith('.mp3') || url.endsWith('.wav')) {
+      return (
+        <div key={index}>
+          <ReactAudioPlayer
+            src={fileUrlIAudio}
+            className='mb-4 h-auto max-w-[400px]'
+          />
+        </div>
+      );
+    } else {
+      return (
+        <div key={index}>
+          <a href={fileUrl} download className='text-blue-500 hover:underline'>
+            {filename}
+          </a>
+        </div>
+      );
+    }
+  };
 
-            // toast.success('Лайк обновлен', { position: 'top-right' });
-        } catch (error) {
-            toast.error('Ошибка при обновлении лайка', { position: 'top-right' });
-        } finally {
-            setIsLiking(false);
-        }
-    };
+  const fetchComments = async (postId: string) => {
+    try {
+      setIsCommentLoading(true);
+      const res = await fetch(`/api/post/${postId}/comments`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch comments');
+      }
+      const result = await res.json();
+      setComments(result.data); // Установка массива комментариев из `data`
+    } catch (error) {
+      console.error('Ошибка при получении комментариев:', error);
+    } finally {
+      setIsCommentLoading(false);
+    }
+  };
 
+  const handleSubmit = async () => {
+    if (!content && files.length === 0) {
+      alert('Пожалуйста, добавьте текст или файл.');
+      return;
+    }
 
-    const renderFile = (file: any, index: number) => {
-        const { url, filename } = file;
-        const sanitizedUrl = url.replace('../server-data/img-store/', '');
-        const fileUrlImage = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
-        const fileUrlIAudio = `https://img.myru.online/${sanitizedUrl}`;
-        const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
-        
-        if (url.endsWith('.jpeg') || url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.gif')) {
-            return (
-                <CarouselItem key={index}>
-                    <div className='relative h-72 w-full'>
-                        <Image
-                            src={fileUrlImage}
-                            alt={filename}
-                            layout="fill"
-                            objectFit="cover"
-                        />
-                    </div>
-                </CarouselItem>
-            );
-        } else if (url.endsWith('.mp4') || url.endsWith('.mkv') || url.endsWith('.mov')) {
-            return (
-                <div key={index} className='relative h-72 w-full mb-4'>
-                    <CustomPlayer url={fileUrl} />
-                </div>
-            );
-        } else if (url.endsWith('.pdf')) {
-            return (
-                <div key={index} className="mb-4">
-                    <a href={fileUrl} download className="text-blue-500 hover:underline mt-2 block">
-                        Скачать файл {filename}
-                    </a>
-                </div>
-            );
-        } else if (url.endsWith('.doc') || url.endsWith('.docx') || url.endsWith('.xls') || url.endsWith('.xlsx')) {
-            return (
-                <div key={index}>
-                    <a href={fileUrl} download className="text-blue-500 hover:underline">
-                        Скачать файл {filename}
-                    </a>
-                </div>
-            );
-        } else if (url.endsWith('.mp3') || url.endsWith('.wav')) {
-            return (
-                <div key={index}>
-                    <ReactAudioPlayer
-                        src={fileUrlIAudio}
-                        className="max-w-[400px] h-auto mb-4"
-                    />
-                </div>
-            );
-        } else {
-            return (
-                <div key={index}>
-                    <a href={fileUrl} download className="text-blue-500 hover:underline">
-                        {filename}
-                    </a>
-                </div>
-            );
-        }
-    };
+    setIsLoading(true);
 
-    const fetchComments = async (postId: string) => {
-        try {
-            setIsCommentLoading(true);
-            const res = await fetch(`/api/post/${postId}/comments`);
-            if (!res.ok) {
-                throw new Error('Failed to fetch comments');
-            }
-            const result = await res.json();
-            setComments(result.data); // Установка массива комментариев из `data`
-        } catch (error) {
-            console.error('Ошибка при получении комментариев:', error);
-        } finally {
-            setIsCommentLoading(false);
+    try {
+      const formData = new FormData();
+      formData.append('content', content);
 
-        }
-    };
+      files.forEach((file) => {
+        formData.append('files', file);
+      });
 
-    const handleAddComment = async () => {
-        if (!newComment.trim()) return;
+      const res = await fetch('/api/post/add', {
+        method: 'POST',
+        body: formData,
+      });
 
-        setIsCommentLoading(true);
-        try {
-            const res = await fetch(`/api/post/${selectedPost?.id}/comments`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ content: newComment }),
-            });
+      if (!res.ok) {
+        throw new Error('Failed to create post');
+      }
 
-            if (!res.ok) {
-                throw new Error('Failed to add comment');
-            }
+      // toast.success('Пост создан', {
+      //     position: 'top-right',
+      // });
 
-            const comment = await res.json();
-            await fetchComments(selectedPost?.id || '');
+      const newPost = await res.json(); // Получаем данные нового поста из ответа сервера
 
-
-            if (socket && selectedPost) {
-                socket.send(JSON.stringify({
-                    command: 'newComment',
-                    postId: selectedPost.id,
-                    comment: comment
-                }));
-            }
-    
-
-            // setComments(prevComments => [...prevComments, comment]);
-            setNewComment('');
-            toast.success('Комментарий добавлен', { position: 'top-right' });
-        } catch (error) {
-            toast.error('Ошибка при добавлении комментария', { position: 'top-right' });
-        } finally {
-            setIsCommentLoading(false);
-        }
-    };
-
-    const handleSubmit = async () => {
-        if (!content && files.length === 0) {
-            alert("Пожалуйста, добавьте текст или файл.");
-            return;
-        }
-
-        setIsLoading(true);
-
-        try {
-            const formData = new FormData();
-            formData.append('content', content); 
-
-            files.forEach(file => {
-                formData.append('files', file);
-            });
-
-            const res = await fetch('/api/post/add', {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (!res.ok) {
-                throw new Error('Failed to create post');
-            }
-
-            // toast.success('Пост создан', {
-            //     position: 'top-right',
-            // });
-
-            const newPost = await res.json(); // Получаем данные нового поста из ответа сервера
-
-            if (socket) {
-                socket.send(JSON.stringify({
-                    command: 'newPost',
-                    post: newPost
-                }));
-            }
-    
-
-            setContent('');
-            setFiles([]);
-            // setSkip(0);
-            // fetchPosts(true);
-        } catch (error) {
-            alert('Ошибка при создании поста');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleEdit = (postId: string) => {
-        setPosts(prevPosts =>
-            prevPosts.map(post =>
-                post.id === postId ? { ...post, isEditing: true } : { ...post, isEditing: false }
-            )
+      if (socket) {
+        socket.send(
+          JSON.stringify({
+            command: 'newPost',
+            post: newPost,
+          })
         );
-    };
+      }
 
-    const handleSaveEdit = async (postId: string, editedContent: string) => {
-        setPosts(prevPosts =>
-            prevPosts.map(post =>
-                post.id === postId ? { ...post, isSaving: true } : post
-            )
-        );
-    
-        try {
-            const res = await fetch(`/api/post/update/${postId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ content: editedContent }),
-            });
-    
-            if (!res.ok) {
-                throw new Error('Failed to update post');
-            }
-    
-            setPosts(prevPosts =>
-                prevPosts.map(post =>
-                    post.id === postId
-                        ? { ...post, content: editedContent, isEditing: false, isSaving: false }
-                        : post
-                )
-            );
-            // toast.success('Пост обновлен', { position: 'top-right' });
-        } catch (error) {
-            setPosts(prevPosts =>
-                prevPosts.map(post =>
-                    post.id === postId ? { ...post, isSaving: false } : post
-                )
-            );
-            toast.error('Ошибка при обновлении поста', { position: 'top-right' });
-        }
-    };
+      setContent('');
+      setFiles([]);
+      // setSkip(0);
+      // fetchPosts(true);
+    } catch (error) {
+      alert('Ошибка при создании поста');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const handleDelete = async (postId: string) => {
-        try {
-            const res = await fetch(`/api/post/delete/${postId}`, {
-                method: 'DELETE',
-            });
+  const handleEdit = (postId: string) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === postId
+          ? { ...post, isEditing: true }
+          : { ...post, isEditing: false }
+      )
+    );
+  };
 
-            if (!res.ok) {
-                throw new Error('Failed to delete post');
-            }
+  const handleSaveEdit = async (postId: string, editedContent: string) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === postId ? { ...post, isSaving: true } : post
+      )
+    );
 
-            if (socket) {
-                socket.send(JSON.stringify({
-                    command: 'deletePost',
-                    postId: postId
-                }));
-            }
+    try {
+      const res = await fetch(`/api/post/update/${postId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: editedContent }),
+      });
 
-            // setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
-            toast.success('Пост удален', { position: 'top-right' });
-        } catch (error) {
-            toast.error('Ошибка при удалении поста', { position: 'top-right' });
-        }
-    };
+      if (!res.ok) {
+        throw new Error('Failed to update post');
+      }
 
-    const fetchPosts = async (isNewRequest = false) => {
-        try {
-            const res = await fetch(`/api/post/getfeed?skip=${isNewRequest ? 0 : skip}&limit=10`);
-            if (!res.ok) {
-                throw new Error('Failed to fetch posts');
-            }
-            const result = await res.json();
-    
-            const postsData = result.data.map((post: Post) => ({
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? {
                 ...post,
-                likes: post.likes.length || 0,  
-                likeCount: post.likes.length || 0,  // Инициализируем likeCount
-                comments: post.comments.length || 0,  
-                commentCount: post.comments.length,
-                shares: post.shares?.length || 0,  
-            }));
-            console.log(postsData)
-            if (isNewRequest) {
-                setPosts(postsData);
-            } else {
-                setPosts(prevPosts => {
-                    const newPosts = postsData.filter((post: Post) => 
-                        !prevPosts.some(existingPost => existingPost.id === post.id)
-                    );
-                    return [...prevPosts, ...newPosts];
-                });
-            }
-    
-            setSkip(prevSkip => prevSkip + 10);
-    
-            if (postsData.length < 10) {
-                setHasMore(false); 
-            }
-        } catch (error) {
-            console.error('Ошибка при получении записей:', error);
+                content: editedContent,
+                isEditing: false,
+                isSaving: false,
+              }
+            : post
+        )
+      );
+      // toast.success('Пост обновлен', { position: 'top-right' });
+    } catch (error) {
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId ? { ...post, isSaving: false } : post
+        )
+      );
+      toast.error('Ошибка при обновлении поста', { position: 'top-right' });
+    }
+  };
+
+  const handleDelete = async (postId: string) => {
+    try {
+      const res = await fetch(`/api/post/delete/${postId}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to delete post');
+      }
+
+      if (socket) {
+        socket.send(
+          JSON.stringify({
+            command: 'deletePost',
+            postId: postId,
+          })
+        );
+      }
+
+      // setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+      toast.success('Пост удален', { position: 'top-right' });
+    } catch (error) {
+      toast.error('Ошибка при удалении поста', { position: 'top-right' });
+    }
+  };
+
+  const fetchPosts = async (isNewRequest = false) => {
+    try {
+      const res = await fetch(
+        `/api/post/getfeed?skip=${isNewRequest ? 0 : skip}&limit=10`
+      );
+      if (!res.ok) {
+        throw new Error('Failed to fetch posts');
+      }
+      const result = await res.json();
+
+      const postsData = result.data.map((post: Post) => ({
+        ...post,
+        likes: post.likes.length || 0,
+        likeCount: post.likes.length || 0, // Инициализируем likeCount
+        comments: post.comments.length || 0,
+        commentCount: post.comments.length,
+        shares: post.shares?.length || 0,
+      }));
+      console.log(postsData);
+      if (isNewRequest) {
+        setPosts(postsData);
+      } else {
+        setPosts((prevPosts) => {
+          const newPosts = postsData.filter(
+            (post: Post) =>
+              !prevPosts.some((existingPost) => existingPost.id === post.id)
+          );
+          return [...prevPosts, ...newPosts];
+        });
+      }
+
+      setSkip((prevSkip) => prevSkip + 10);
+
+      if (postsData.length < 10) {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error('Ошибка при получении записей:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts(true);
+  }, []);
+
+  useEffect(() => {
+    if (socket) {
+      socket.onmessage = async (received) => {
+        const data = JSON.parse(received.data);
+        if (data?.command === 'newComment' && data?.data?.postId) {
+          setPosts((prevPosts) =>
+            prevPosts.map((post) =>
+              post.id === data?.data?.postId
+                ? { ...post, commentCount: post.commentCount + 1 } // Увеличиваем счетчик комментариев
+                : post
+            )
+          );
         }
-    };
-    
-    useEffect(() => {
-        fetchPosts(true);
-    }, []);
-
-    useEffect(() => {
-        if (socket) {
-            socket.onmessage = async (received) => {
-                const data = JSON.parse(received.data);
-                if (data?.command === 'newComment' && data?.data?.postId) {
-                    setPosts(prevPosts =>
-                        prevPosts.map(post =>
-                            post.id === data?.data?.postId 
-                            ? { ...post, commentCount: post.commentCount + 1 } // Увеличиваем счетчик комментариев
-                            : post
-                        )
-                    );
-                }
-                // Обработка обновления лайка
-                if (data?.command === 'likeUpdate' && data?.data?.postId) {
-                    // setPosts(prevPosts =>
-                    //     prevPosts.map(post => {
-                    //         if (post.id === data.data.postId) {
-                    //             const likesArray = Array.isArray(post.likes) ? post.likes : [];
-                    //             const isLiked = data.data.isLiked;
-                    //             const updatedLikes = isLiked
-                    //                 ? [...likesArray, data.data.userId] 
-                    //                 : likesArray.filter((id: string) => id !== data.data.userId);
-                    //             return { 
-                    //                 ...post, 
-                    //                 likes: updatedLikes,
-                    //                 likeCount: updatedLikes.length // Обновляем likeCount
-                    //             };
-                    //         }
-                    //         return post;
-                    //     })
-                    // );
-                    fetchPosts(true);
-
-                }
-
-                // Обработка нового поста
-                if (data?.command === 'newPost') {
-                    fetchPosts(true);
-                    // setPosts(prevPosts => [data.post, ...prevPosts]);
-                }
-
-                if (data?.command === 'deletePost') {
-                    fetchPosts(true);
-                    // setPosts(prevPosts => [data.post, ...prevPosts]);
-                }
-
-                if (data?.command === 'deleteComment' && data?.data?.postId && data?.data?.commentId) {
-                    fetchPosts(true);
-                }
-                
-                if (data?.command === 'updatePost' && data?.data?.postId) {
-                    setPosts(prevPosts =>
-                        prevPosts.map(post =>
-                            post.id === data.data.postId
-                            ? { ...post, content: data.data.content }
-                            : post
-                        )
-                    );
-                }
-            };
+        // Обработка обновления лайка
+        if (data?.command === 'likeUpdate' && data?.data?.postId) {
+          // setPosts(prevPosts =>
+          //     prevPosts.map(post => {
+          //         if (post.id === data.data.postId) {
+          //             const likesArray = Array.isArray(post.likes) ? post.likes : [];
+          //             const isLiked = data.data.isLiked;
+          //             const updatedLikes = isLiked
+          //                 ? [...likesArray, data.data.userId]
+          //                 : likesArray.filter((id: string) => id !== data.data.userId);
+          //             return {
+          //                 ...post,
+          //                 likes: updatedLikes,
+          //                 likeCount: updatedLikes.length // Обновляем likeCount
+          //             };
+          //         }
+          //         return post;
+          //     })
+          // );
+          fetchPosts(true);
         }
-    }, [socket]);
 
-    return (
-        <div className="mx-auto bg-white dark:bg-secondary/60 text-black dark:text-white p-4 rounded-lg space-y-6 mb-8">
-          {/* Post creation section */}
-          <div className="bg-secondary p-4 rounded-lg">
-            <div className="flex items-center space-x-4">
-              <Textarea
-                placeholder="Ваш пост здесь.."
-                className="w-full bg-transparent focus:outline-none text-gray-400 placeholder-gray-500 text-[16px]"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-              />
-            </div>
-            <div className="flex justify-between items-center mt-4">
-              <div className="flex space-x-6 text-gray-400">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <FaCloudUploadAlt />
-                  <span>Файлы</span>
-                  <input 
-                    type="file" 
-                    multiple 
-                    onChange={handleFileChange} 
-                    className="hidden"
-                  />
-                </label>
-              </div>
-              <button 
-                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg"
-                onClick={handleSubmit}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Загрузка...' : 'Поделиться'}
-              </button>
-            </div>
+        // Обработка нового поста
+        if (data?.command === 'newPost') {
+          fetchPosts(true);
+          // setPosts(prevPosts => [data.post, ...prevPosts]);
+        }
 
-            {files.length > 0 && (
-                <div className="mt-4">
-                    <h4 className="text-sm font-medium text-gray-300">Прикрепленные файлы:</h4>
-                    <ul className="list-disc list-inside text-gray-400 mt-2">
-                        {files.map((file, index) => (
-                            <li key={index}>
-                                {file.name}
-                            </li>
-                        ))}
-                    </ul>
+        if (data?.command === 'deletePost') {
+          fetchPosts(true);
+          // setPosts(prevPosts => [data.post, ...prevPosts]);
+        }
+
+        if (
+          data?.command === 'deleteComment' &&
+          data?.data?.postId &&
+          data?.data?.commentId
+        ) {
+          fetchPosts(true);
+        }
+
+        if (data?.command === 'updatePost' && data?.data?.postId) {
+          setPosts((prevPosts) =>
+            prevPosts.map((post) =>
+              post.id === data.data.postId
+                ? { ...post, content: data.data.content }
+                : post
+            )
+          );
+        }
+      };
+    }
+  }, [socket]);
+
+  return (
+    <div className='mb-8 min-h-screen max-w-3xl space-y-6 rounded-lg bg-white p-0 text-black dark:bg-secondary/60 dark:text-white'>
+      {/* Post creation section */}
+
+      {!selectedPost ? (
+        <div>
+          <div className='fixed bottom-[60px] z-10  flex w-full max-w-3xl flex-col rounded-none bg-secondary p-4 md:bottom-[0px] '>
+            <div className='flex items-center space-x-4'>
+              <div className='flex w-full flex-col gap-1.5 rounded-[26px] bg-gray-600 p-1.5 transition-colors dark:bg-gray-700'>
+                <div className='flex items-end gap-1.5 md:gap-2'>
+                  <div className='relative flex items-center'>
+                    <button
+                      type='button'
+                      aria-label='Attach files'
+                      className='flex h-8 w-8 items-center justify-center rounded-full text-white focus:outline-none dark:text-white'
+                      onClick={() =>
+                        document.getElementById('file-input')?.click()
+                      }
+                    >
+                      <FaPaperclip size={18} />
+                    </button>
+                    <input
+                      type='file'
+                      id='file-input'
+                      multiple
+                      onChange={handleFileChange}
+                      className='hidden'
+                    />
+                  </div>
+                  <div className='flex min-w-0 flex-1 flex-col'>
+                    <textarea
+                      rows={1}
+                      placeholder='Ваш пост здесь..'
+                      className='m-0 max-h-52 max-h-[25vh] resize-none border-0 bg-transparent px-0 text-gray-900 focus:ring-0 focus-visible:ring-0 dark:text-white'
+                      style={{ height: '30px', overflowY: 'hidden' }}
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={isLoading || !content.trim()}
+                    aria-label='Поделиться'
+                    className={`mb-1 me-1 flex h-8 w-8 items-center justify-center rounded-full bg-black text-white transition-opacity hover:opacity-70 focus:outline-none dark:bg-white dark:text-black ${
+                      !content.trim() ? 'cursor-not-allowed opacity-50' : ''
+                    }`}
+                  >
+                    {isLoading ? (
+                      <FaSpinner className='animate-spin' size={16} />
+                    ) : (
+                      <FaArrowRight size={16} />
+                    )}
+                  </button>
                 </div>
+              </div>
+            </div>
+            {files.length > 0 && (
+              <div className='mt-4'>
+                <h4 className='text-sm font-medium text-gray-300'>
+                  Прикрепленные файлы:
+                </h4>
+                <ul className='mt-2 list-inside list-disc text-gray-400'>
+                  {files.map((file, index) => (
+                    <li key={index}>{file.name}</li>
+                  ))}
+                </ul>
+              </div>
             )}
           </div>
-    
           <InfiniteScroll
             dataLength={posts.length}
             next={() => fetchPosts()}
             hasMore={hasMore}
             loader={
-                <div className="flex flex-col space-y-4">
-                    <Skeleton className="h-6 w-3/4" />
-                    <Skeleton className="h-6 w-full" />
-                    <Skeleton className="h-6 w-5/6" />
-                    <Skeleton className="h-6 w-2/3" />
-                    <Skeleton className="h-6 w-1/2" />
-                </div>
+              <div className='flex flex-col space-y-4 px-4 py-4'>
+                <Skeleton className='h-6 w-3/4' />
+                <Skeleton className='h-6 w-full' />
+                <Skeleton className='h-6 w-5/6' />
+                <Skeleton className='h-6 w-2/3' />
+                <Skeleton className='h-6 w-1/2' />
+              </div>
             }
             endMessage={<p className='text-center'>Больше нет постов</p>}
           >
             {posts.map((post, index) => (
-                <div key={index} className="bg-secondary p-4 mb-4 rounded-lg space-y-4">
-                    <div className="flex items-center space-x-4">
-
-                        <Avatar className='mr-3'>
-                        <Link href={`/profiles/${post?.user?.Name}`} passHref>
-
-                            <AvatarImage
-                                src={`https://proxy.myru.online/100/https://img.myru.online/${post?.user?.Photo}`}
-                                alt={post?.user?.Photo}
-                            />
-                        </Link>
-                        </Avatar>
-                        <div className="flex-1">
-                        <Link href={`/profiles/${post?.user?.Name}`} passHref>
-
-                            <p className="text-sm">
-                                <span className="font-semibold">{post?.user?.Name}</span>
-                            </p>
-                            <p className="text-xs text-gray-400">{timeAgo(post.created_at)}</p>
-                        </Link>
-                        </div>
-                        {post.user.ID === userData?.id && (
-                        <>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <button className="text-gray-400 hover:text-gray-300">
-                                    <FaEllipsisV />
-                                </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleEdit(post.id)}>
-                                    Редактировать
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleDelete(post.id)}>
-                                    Удалить
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        </>
-                        )}
-                    </div>
-                    
-                    {post.files && post.files.length > 0 && (
-                        <div className="mt-4">
-                            {post.files.filter(file =>
-                                file.url.endsWith('.jpeg') || 
-                                file.url.endsWith('.jpg') || 
-                                file.url.endsWith('.png') || 
-                                file.url.endsWith('.gif') || 
-                                file.url.endsWith('.mp4') || 
-                                file.url.endsWith('.mkv') || 
-                                file.url.endsWith('.mov')
-                            ).length > 1 ? (
-                                <Carousel className='w-full md:max-w-md'>
-                                    <CarouselContent>
-                                        {post.files
-                                            .filter(file => 
-                                                file.url.endsWith('.jpeg') || 
-                                                file.url.endsWith('.jpg') || 
-                                                file.url.endsWith('.png') || 
-                                                file.url.endsWith('.gif') || 
-                                                file.url.endsWith('.mp4') || 
-                                                file.url.endsWith('.mkv') || 
-                                                file.url.endsWith('.mov')
-                                            )
-                                            .map((file, idx) => {
-                                                const { url, filename } = file;
-                                                const sanitizedUrl = url.replace('../server-data/img-store/', '');
-                                                const fileUrlImage = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
-                                                const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
-
-                                                if (url.endsWith('.jpeg') || url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.gif')) {
-                                                    return (
-                                                        <CarouselItem key={idx}>
-                                                            <div className='relative h-80 max-h-md w-full'>
-                                                                <Image
-                                                                    src={fileUrlImage}
-                                                                    alt={filename}
-                                                                    layout="fill"
-                                                                    objectFit="cover"
-                                                                />
-                                                            </div>
-                                                        </CarouselItem>
-                                                    );
-                                                } else if (url.endsWith('.mp4') || url.endsWith('.mkv') || url.endsWith('.mov')) {
-                                                    return (
-                                                        <CarouselItem key={idx}>
-                                                            <div className='relative h-full w-full'>
-                                                                <CustomPlayer url={fileUrl} />
-                                                            </div>
-                                                        </CarouselItem>
-                                                    );
-                                                }
-                                            })
-                                        }
-                                    </CarouselContent>
-                                    <CarouselPrevious className='left-3' />
-                                    <CarouselNext className='right-3' />
-                                </Carousel>
-                            ) : (
-                                post.files.map((file, idx) => {
-                                    const { url, filename } = file;
-                                    const sanitizedUrl = url.replace('../server-data/img-store/', '');
-                                    const fileUrlImage = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
-                                    const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
-
-                                    if (url.endsWith('.jpeg') || url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.gif')) {
-                                        return (
-                                            <div key={idx} className='relative h-80 max-h-md max-w-md'>
-                                                <Image
-                                                    src={fileUrlImage}
-                                                    alt={filename}
-                                                    layout="fill"
-                                                    objectFit="cover"
-                                                />
-                                            </div>
-                                        );
-                                    } else if (url.endsWith('.mp4') || url.endsWith('.mkv') || url.endsWith('.mov')) {
-                                        return (
-                                            <div key={idx} className='relative h-full w-full'>
-                                                <CustomPlayer url={fileUrl} />
-                                            </div>
-                                        );
-                                    }
-                                })
-                            )}
-
-                            {/* Отображение остальных файлов */}
-                            {post.files
-                                .filter(file => 
-                                    !file.url.endsWith('.jpeg') && 
-                                    !file.url.endsWith('.jpg') && 
-                                    !file.url.endsWith('.png') && 
-                                    !file.url.endsWith('.gif') && 
-                                    !file.url.endsWith('.mp4') && 
-                                    !file.url.endsWith('.mkv') && 
-                                    !file.url.endsWith('.mov')
-                                )
-                                .map((file, idx) => renderFile(file, idx))
-                            }
-                        </div>
-                    )}
-                    
-                    {post.isEditing ? (
-                        <div>
-                            <Textarea
-                                className="w-full bg-transparent focus:outline-none text-gray-400 placeholder-gray-500 text-[16px]"
-                                value={post.content}
-                                onChange={(e) =>
-                                    setPosts(prevPosts =>
-                                        prevPosts.map(p =>
-                                            p.id === post.id ? { ...p, content: e.target.value } : p
-                                        )
-                                    )
-                                }
-                            />
-                            <button 
-                                className={`bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg mt-2 flex items-center ${post.isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                onClick={() => handleSaveEdit(post.id, post.content)}
-                                disabled={post.isSaving}
-                            >
-                                {post.isSaving ? <FaSpinner className="animate-spin mr-2" /> : null}
-                                {post.isSaving ? 'Сохранение...' : 'Сохранить'}
-                            </button>
-                        </div>
-                    ) : (
-                        <LongText text={post.content} maxLength={300} />
-                    )}
-
-                    <div className="flex justify-between text-gray-400">
-                        <div className="flex space-x-4">
-                            <span 
-                                className="cursor-pointer" 
-                                onClick={() => handleToggleLike(post.id)}
-                            >
-                                👍 {post.likeCount} 
-                            </span>
-                            <span
-                                    className="cursor-pointer"
-                                    onClick={() => handleCommentClick(post)}
-                                > 
-                                💬 {post.commentCount}
-                                </span>
-                            {/* <span>🔄 {post.shares}</span> */}
-                        </div>
-                    </div>
+              <div
+                key={index}
+                className='mb-4 space-y-4 rounded-none bg-secondary p-4'
+              >
+                <div className='flex items-center space-x-4'>
+                  <Avatar className='mr-3'>
+                    <Link href={`/profiles/${post?.user?.Name}`} passHref>
+                      <AvatarImage
+                        src={`https://proxy.myru.online/100/https://img.myru.online/${post?.user?.Photo}`}
+                        alt={post?.user?.Photo}
+                      />
+                    </Link>
+                  </Avatar>
+                  <div className='flex-1'>
+                    <Link href={`/profiles/${post?.user?.Name}`} passHref>
+                      <p className='text-sm'>
+                        <span className='font-semibold'>
+                          {post?.user?.Name}
+                        </span>
+                      </p>
+                      <p className='text-xs text-gray-400'>
+                        {timeAgo(post.created_at)}
+                      </p>
+                    </Link>
+                  </div>
+                  {post.user.ID === userData?.id && (
+                    <>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className='text-gray-400 hover:text-gray-300'>
+                            <FaEllipsisV />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align='end'>
+                          <DropdownMenuItem onClick={() => handleEdit(post.id)}>
+                            Редактировать
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDelete(post.id)}
+                          >
+                            Удалить
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </>
+                  )}
                 </div>
+
+                {post.files && post.files.length > 0 && (
+                  <div className='mt-4'>
+                    {post.files.filter(
+                      (file) =>
+                        file.url.endsWith('.jpeg') ||
+                        file.url.endsWith('.jpg') ||
+                        file.url.endsWith('.png') ||
+                        file.url.endsWith('.gif') ||
+                        file.url.endsWith('.mp4') ||
+                        file.url.endsWith('.mkv') ||
+                        file.url.endsWith('.mov')
+                    ).length > 1 ? (
+                      <Carousel className='w-full md:max-w-md'>
+                        <CarouselContent>
+                          {post.files
+                            .filter(
+                              (file) =>
+                                file.url.endsWith('.jpeg') ||
+                                file.url.endsWith('.jpg') ||
+                                file.url.endsWith('.png') ||
+                                file.url.endsWith('.gif') ||
+                                file.url.endsWith('.mp4') ||
+                                file.url.endsWith('.mkv') ||
+                                file.url.endsWith('.mov')
+                            )
+                            .map((file, idx) => {
+                              const { url, filename } = file;
+                              const sanitizedUrl = url.replace(
+                                '../server-data/img-store/',
+                                ''
+                              );
+                              const fileUrlImage = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
+                              const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
+
+                              if (
+                                url.endsWith('.jpeg') ||
+                                url.endsWith('.jpg') ||
+                                url.endsWith('.png') ||
+                                url.endsWith('.gif')
+                              ) {
+                                return (
+                                  <CarouselItem key={idx}>
+                                    <div className='max-h-md relative h-80 w-full'>
+                                      <Image
+                                        src={fileUrlImage}
+                                        alt={filename}
+                                        layout='fill'
+                                        objectFit='cover'
+                                      />
+                                    </div>
+                                  </CarouselItem>
+                                );
+                              } else if (
+                                url.endsWith('.mp4') ||
+                                url.endsWith('.mkv') ||
+                                url.endsWith('.mov')
+                              ) {
+                                return (
+                                  <CarouselItem key={idx}>
+                                    <div className='relative h-full w-full'>
+                                      <CustomPlayer url={fileUrl} />
+                                    </div>
+                                  </CarouselItem>
+                                );
+                              }
+                            })}
+                        </CarouselContent>
+                        <CarouselPrevious className='left-3' />
+                        <CarouselNext className='right-3' />
+                      </Carousel>
+                    ) : (
+                      post.files.map((file, idx) => {
+                        const { url, filename } = file;
+                        const sanitizedUrl = url.replace(
+                          '../server-data/img-store/',
+                          ''
+                        );
+                        const fileUrlImage = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
+                        const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
+
+                        if (
+                          url.endsWith('.jpeg') ||
+                          url.endsWith('.jpg') ||
+                          url.endsWith('.png') ||
+                          url.endsWith('.gif')
+                        ) {
+                          return (
+                            <div
+                              key={idx}
+                              className='max-h-md relative h-80 max-w-md'
+                            >
+                              <Image
+                                src={fileUrlImage}
+                                alt={filename}
+                                layout='fill'
+                                objectFit='cover'
+                              />
+                            </div>
+                          );
+                        } else if (
+                          url.endsWith('.mp4') ||
+                          url.endsWith('.mkv') ||
+                          url.endsWith('.mov')
+                        ) {
+                          return (
+                            <div key={idx} className='relative h-full w-full'>
+                              <CustomPlayer url={fileUrl} />
+                            </div>
+                          );
+                        }
+                      })
+                    )}
+
+                    {/* Отображение остальных файлов */}
+                    {post.files
+                      .filter(
+                        (file) =>
+                          !file.url.endsWith('.jpeg') &&
+                          !file.url.endsWith('.jpg') &&
+                          !file.url.endsWith('.png') &&
+                          !file.url.endsWith('.gif') &&
+                          !file.url.endsWith('.mp4') &&
+                          !file.url.endsWith('.mkv') &&
+                          !file.url.endsWith('.mov')
+                      )
+                      .map((file, idx) => renderFile(file, idx))}
+                  </div>
+                )}
+
+                {post.isEditing ? (
+                  <div>
+                    <Textarea
+                      className='w-full bg-transparent text-[16px] text-gray-400 placeholder-gray-500 focus:outline-none'
+                      value={post.content}
+                      onChange={(e) =>
+                        setPosts((prevPosts) =>
+                          prevPosts.map((p) =>
+                            p.id === post.id
+                              ? { ...p, content: e.target.value }
+                              : p
+                          )
+                        )
+                      }
+                    />
+                    <button
+                      className={`mt-2 flex items-center rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 ${post.isSaving ? 'cursor-not-allowed opacity-50' : ''}`}
+                      onClick={() => handleSaveEdit(post.id, post.content)}
+                      disabled={post.isSaving}
+                    >
+                      {post.isSaving ? (
+                        <FaSpinner className='mr-2 animate-spin' />
+                      ) : null}
+                      {post.isSaving ? 'Сохранение...' : 'Сохранить'}
+                    </button>
+                  </div>
+                ) : (
+                  <LongText text={post.content} maxLength={300} />
+                )}
+
+                <div className='flex justify-between text-gray-400'>
+                  <div className='flex space-x-4'>
+                    <span
+                      className='cursor-pointer'
+                      onClick={() => handleToggleLike(post.id)}
+                    >
+                      👍 {post.likeCount}
+                    </span>
+                    <span
+                      className='cursor-pointer'
+                      onClick={() => handleCommentClick(post)}
+                    >
+                      💬 {post.commentCount}
+                    </span>
+                    {/* <span>🔄 {post.shares}</span> */}
+                  </div>
+                </div>
+              </div>
             ))}
           </InfiniteScroll>
-        
-        {selectedPost && (
-            <Dialog open={!!selectedPost} 
-            onOpenChange={(isOpen) => {
-                if (!isOpen) {
-                    setSelectedPost(null);
-                    setComments([]); // Очищаем комментарии при закрытии модального окна
-                }
-            }}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Комментарии</DialogTitle>
-                    </DialogHeader>
-                    <ScrollArea className='md:overflow-y-scroll'>
-                        {isCommentLoading ? (
-                            <>
-                                <Skeleton className="h-6 mb-4 w-1/2" />
-                                <Skeleton className="h-4 mb-2 w-full" />
-                                <Skeleton className="h-4 mb-2 w-full" />
-                                <Skeleton className="h-4 mb-2 w-3/4" />
-                            </>
-                        ) : comments.length > 0 ? (
-                            comments.map((comment, index) => (
-                                <div key={index} className="p-2 mb-2 border-b border-gray-200">
-                                    <div className="flex items-center space-x-4">
-                                        <Avatar className="mr-3">
-                                            <AvatarImage
-                                                src={`https://proxy.myru.online/50/https://img.myru.online/${comment.user?.Photo}`}
-                                                alt={comment.user?.Name}
-                                            />
-                                        </Avatar>
-                                        <div>
-                                            <p className="font-semibold text-sm">{comment.user?.Name}</p>
-                                            <p className="text-xs text-gray-400">{timeAgo(comment.created_at)}</p>
-                                        </div>
-                                    </div>
-                                    <p className="mt-2 text-sm break-all">{comment.content}</p>
-                                    {(comment.user?.Name === userData?.username || selectedPost?.username === userData?.username) && (
-                                        <button
-                                            className="text-red-500 hover:text-red-600 text-xs"
-                                            onClick={() => handleDeleteComment(selectedPost.id, comment.id)}
-                                            >
-                                            Удалить
-                                        </button>
-                                    )}
-                                </div>
-                            ))
-                        ) : (
-                            <p className="text-gray-400 text-sm">Нет комментариев.</p>
-                        )}
-                    </ScrollArea>
-                    <DialogFooter className="flex flex-wrap items-end space-y-2">
-                    
-                        <div className='flex gap-4'>
-                        <button
-                            onClick={handleAddComment}
-                            disabled={isCommentLoading}
-                            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg"
-                        >
-                            {isCommentLoading ? 'Добавление...' : 'Добавить комментарий'}
-                        </button>
-                        <button
-                            onClick={() => {
-                                setSelectedPost(null);
-                                setComments([]); // Очищаем комментарии при закрытии модального окна
-                            }}
-                            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg"
-                        >
-                            Закрыть
-                        </button>
-                        </div>
-                        <Textarea
-                            placeholder="Напишите комментарий..."
-                            value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            className="w-full bg-transparent focus:outline-none text-gray-400 placeholder-gray-500 text-[16px]"
-                        />
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        )}
         </div>
-    );
+      ) : (
+        <NestedCommentSection post={selectedPost} onBack={handleBackToPosts} />
+      )}
+    </div>
+  );
 }
