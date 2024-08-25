@@ -252,66 +252,68 @@ export default function NestedCommentSection({
               Нет комментариев.
             </p>
           )}
-        </div>
-        <div className='sticky bottom-[70px] mb-4 ml-[-5px] mt-6 w-full pl-[10px] pr-[10px] md:bottom-[30px]'>
-          {quote && (
-            <ScrollArea>
-              <div className='mb-4 flex items-start space-x-2 rounded-lg border-l-4 border-blue-500 bg-gray-100 p-4 dark:bg-gray-800'>
-                <FaReply className='text-blue-500 dark:text-blue-400' />
-                <div>
-                  <p className='font-bold text-blue-500 dark:text-blue-400'>
-                    В ответ {quote.name}
-                  </p>
-                  <p className='text-black dark:text-white'>{quote.content}</p>
+          <div className='sticky bottom-[70px] ml-[0px] mt-0 w-full p-4 pl-[0px] pr-[0px] md:bottom-[30px]'>
+            {quote && (
+              <ScrollArea>
+                <div className='mb-4 flex items-start space-x-2 rounded-lg border-l-4 border-blue-500 bg-gray-100 p-4 dark:bg-gray-800'>
+                  <FaReply className='text-blue-500 dark:text-blue-400' />
+                  <div>
+                    <p className='font-bold text-blue-500 dark:text-blue-400'>
+                      В ответ {quote.name}
+                    </p>
+                    <p className='text-black dark:text-white'>
+                      {quote.content}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setQuote(null)}
+                    className='ml-auto text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                  >
+                    <FaTimes />
+                  </button>
                 </div>
-                <button
-                  onClick={() => setQuote(null)}
-                  className='ml-auto text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                >
-                  <FaTimes />
-                </button>
-              </div>
-            </ScrollArea>
-          )}
-          <div className='flex w-full flex-col gap-1.5 rounded-[26px] bg-gray-600 p-1.5 transition-colors dark:bg-gray-700'>
-            <div className='flex items-end gap-1.5 md:gap-2'>
-              <div className='relative flex items-center'>
-                <button
-                  type='button'
-                  aria-label='back'
-                  onClick={onBack}
-                  className='flex h-8 w-8 items-center justify-center rounded-full text-white focus:outline-none dark:text-white'
-                >
-                  <IoMdArrowBack size={16} />
-                </button>
-                {/* <button
+              </ScrollArea>
+            )}
+            <div className='flex w-full flex-col gap-1.5 rounded-[26px] bg-gray-600 p-1.5 transition-colors dark:bg-gray-700'>
+              <div className='flex items-end gap-1.5 md:gap-2'>
+                <div className='relative flex items-center'>
+                  <button
+                    type='button'
+                    aria-label='back'
+                    onClick={onBack}
+                    className='flex h-8 w-8 items-center justify-center rounded-full text-white focus:outline-none dark:text-white'
+                  >
+                    <IoMdArrowBack size={16} />
+                  </button>
+                  {/* <button
                   type='button'
                   aria-label='Attach files'
                   className='flex h-8 w-8 items-center justify-center rounded-full text-white focus:outline-none dark:text-white'
                 >
                   <FaPaperclip size={18} />
                 </button> */}
+                </div>
+                <div className='flex min-w-0 flex-1 flex-col'>
+                  <textarea
+                    rows={1}
+                    placeholder='Ваш комментарий'
+                    className='m-0 max-h-52 max-h-[25vh] resize-none border-0 bg-transparent px-0 text-gray-900 focus:ring-0 focus-visible:ring-0 dark:text-white'
+                    style={{ height: '30px', overflowY: 'hidden' }}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                  />
+                </div>
+                <button
+                  onClick={handleAddComment}
+                  disabled={!message.trim()}
+                  aria-label='Добавить комментарий'
+                  className={`mb-1 me-1 flex h-8 w-8 items-center justify-center rounded-full bg-black text-white transition-opacity hover:opacity-70 focus:outline-none dark:bg-white dark:text-black ${
+                    !message.trim() ? 'cursor-not-allowed opacity-50' : ''
+                  }`}
+                >
+                  <FaArrowRight size={16} />
+                </button>
               </div>
-              <div className='flex min-w-0 flex-1 flex-col'>
-                <textarea
-                  rows={1}
-                  placeholder='Добавить комментарий'
-                  className='m-0 max-h-52 max-h-[25vh] resize-none border-0 bg-transparent px-0 text-gray-900 focus:ring-0 focus-visible:ring-0 dark:text-white'
-                  style={{ height: '30px', overflowY: 'hidden' }}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                />
-              </div>
-              <button
-                onClick={handleAddComment}
-                disabled={!message.trim()}
-                aria-label='Добавить комментарий'
-                className={`mb-1 me-1 flex h-8 w-8 items-center justify-center rounded-full bg-black text-white transition-opacity hover:opacity-70 focus:outline-none dark:bg-white dark:text-black ${
-                  !message.trim() ? 'cursor-not-allowed opacity-50' : ''
-                }`}
-              >
-                <FaArrowRight size={16} />
-              </button>
             </div>
           </div>
         </div>
