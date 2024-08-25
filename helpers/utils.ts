@@ -216,3 +216,39 @@ export async function copyToClipboard(text: string) {
     throw err;
   }
 }
+
+export function timeAgo(date: string): string {
+  const now = new Date();
+  const diff = now.getTime() - new Date(date).getTime();
+
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(days / 365);
+
+  function getPlural(n: number, one: string, few: string, many: string): string {
+      if (n % 10 === 1 && n % 100 !== 11) {
+          return one;
+      } else if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) {
+          return few;
+      } else {
+          return many;
+      }
+  }
+
+  if (years > 0) {
+      return `${years} ${getPlural(years, 'год', 'года', 'лет')} назад`;
+  } else if (months > 0) {
+      return `${months} ${getPlural(months, 'месяц', 'месяца', 'месяцев')} назад`;
+  } else if (days > 0) {
+      return `${days} ${getPlural(days, 'день', 'дня', 'дней')} назад`;
+  } else if (hours > 0) {
+      return `${hours} ${getPlural(hours, 'час', 'часа', 'часов')} назад`;
+  } else if (minutes > 0) {
+      return `${minutes} ${getPlural(minutes, 'минута', 'минуты', 'минут')} назад`;
+  } else {
+      return `${seconds} ${getPlural(seconds, 'секунда', 'секунды', 'секунд')} назад`;
+  }
+}
