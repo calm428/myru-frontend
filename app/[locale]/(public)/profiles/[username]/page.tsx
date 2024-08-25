@@ -20,8 +20,9 @@ import ProfileInfo from './ProfileInfo';
 const Wall = dynamic(() => import('./Wall'), { ssr: false });
 const Offers = dynamic(() => import('./Offers'), { ssr: false });
 
-const ExpandableContent = dynamic(() => import('./ProfileDetailsDynamic'), { ssr: false });
-
+const ExpandableContent = dynamic(() => import('./ProfileDetailsDynamic'), {
+  ssr: false,
+});
 
 const ProfileDetailsComponent = dynamic(() => import('./clientComponent'), {
   ssr: false,
@@ -68,36 +69,37 @@ export default async function ProfilePage({
   // Получаем данные профиля на сервере
   const profileDetails = await fetchProfileDetails(locale, username, userId);
 
-
   if (!profileDetails) {
     return <div>Failed to load profile. Please try again later.</div>;
   }
 
   // Определяем вкладки
   const tabs = [
-    { 
-      label: 'Инфо', 
-      component: <ProfileInfo 
-      profileDetails={profileDetails} 
-      userId={userId} 
-      t={t} 
-      params={params} 
-    /> 
+    {
+      label: 'Инфо',
+      component: (
+        <ProfileInfo
+          profileDetails={profileDetails}
+          userId={userId}
+          t={t}
+          params={params}
+        />
+      ),
     },
-    { 
-      label: 'Лента', 
-      component: <Wall />
+    {
+      label: 'Лента',
+      component: <Wall />,
     },
-    { 
-      label: 'Предложения', 
-      component: <Offers />
+    {
+      label: 'Предложения',
+      component: <Offers />,
     },
   ];
 
   return (
     <section className='container py-4'>
-      <div className='pb-4'>
-      <BackButton callback={searchParams['callback']} />
+      <div className='pb-0'>
+        <BackButton callback={searchParams['callback']} />
       </div>
       <div className='flex'>
         <div className='md:col-span-2 xl:col-span-3'>
