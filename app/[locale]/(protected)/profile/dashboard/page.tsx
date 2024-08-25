@@ -15,6 +15,7 @@ import CustomPlayer from '@/components/utils/customPlayer';
 import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
 import Image from 'next/image';
 import LongText from './longText';
+import { useRouter } from 'next/navigation';
 
 import {
     Carousel,
@@ -42,6 +43,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { FaEllipsisV } from 'react-icons/fa';
+
+type CollapseState = {
+    [key: number]: boolean;
+  };
 
 type FilePost = {
     id: string;
@@ -185,10 +190,16 @@ export default function DashboardPage() {
     const [isCommentLoading, setIsCommentLoading] = useState<boolean>(false);
     const [isLiking, setIsLiking] = useState<boolean>(false);
 
+    const router = useRouter(); // useRouter from 'next/navigation'
+
+  
     const handleCommentClick = async (post: Post) => {
-        setSelectedPost(post);
-        await fetchComments(post.id);
+        router.push(`/profile/dashboard/comments/${post.id}`); // Navigate to the comments page
+
+        // setSelectedPost(post);
+        // await fetchComments(post.id);
     };
+    
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFiles = Array.from(e.target.files || []);
@@ -872,7 +883,7 @@ export default function DashboardPage() {
                                             <p className="text-xs text-gray-400">{timeAgo(comment.created_at)}</p>
                                         </div>
                                     </div>
-                                    <p className="mt-2 text-sm">{comment.content}</p>
+                                    <p className="mt-2 text-sm break-all">{comment.content}</p>
                                     {(comment.user?.Name === userData?.username || selectedPost?.username === userData?.username) && (
                                         <button
                                             className="text-red-500 hover:text-red-600 text-xs"
