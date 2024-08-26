@@ -340,6 +340,9 @@ export default function DashboardPage() {
       const formData = new FormData();
       formData.append('content', content);
 
+      const hashtags = content.match(/#[\wа-яА-ЯёЁ]+/g) || [];
+      formData.append('tags', hashtags.join(',')); // Отправка хэштегов на сервер
+
       files.forEach((file) => {
         formData.append('files', file);
       });
@@ -452,10 +455,10 @@ export default function DashboardPage() {
     }
   };
 
-  const fetchPosts = async (isNewRequest = false) => {
+  const fetchPosts = async (isNewRequest = false, tag = '') => {
     try {
       const res = await fetch(
-        `/api/post/getfeed?skip=${isNewRequest ? 0 : skip}&limit=10`
+        `/api/post/getfeed?skip=${isNewRequest ? 0 : skip}&limit=10${tag ? `&tag=${encodeURIComponent(tag)}` : ''}`
       );
       if (!res.ok) {
         throw new Error('Failed to fetch posts');
@@ -491,6 +494,12 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Ошибка при получении записей:', error);
     }
+  };
+
+  const handleTagClick = (tag: any) => {
+    // Сбрасываем пагинацию и загружаем посты по тегу
+    setSkip(0);
+    fetchPosts(true, tag);
   };
 
   useEffect(() => {
@@ -563,6 +572,22 @@ export default function DashboardPage() {
       };
     }
   }, [socket]);
+
+  const renderContentWithHashtags = (text: any) => {
+    return text.split(' ').map((word: any, index: any) =>
+      word.startsWith('#') ? (
+        <span
+          key={index}
+          className='cursor-pointer text-blue-500 hover:underline'
+          onClick={() => handleTagClick(word.slice(1))}
+        >
+          {word}{' '}
+        </span>
+      ) : (
+        word + ' '
+      )
+    );
+  };
 
   return (
     <div className='mb-8 min-h-screen max-w-3xl space-y-6 rounded-lg bg-white p-0 text-black dark:bg-secondary/60 dark:text-white'>
@@ -857,7 +882,10 @@ export default function DashboardPage() {
                     </button>
                   </div>
                 ) : (
-                  <LongText text={post.content} maxLength={300} />
+                  <LongText
+                    text={renderContentWithHashtags(post.content)}
+                    maxLength={300}
+                  />
                 )}
 
                 <div className='flex justify-between text-gray-400'>
