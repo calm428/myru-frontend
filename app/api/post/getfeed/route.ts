@@ -20,14 +20,25 @@ export async function GET(req: NextRequest) {
 
   try {
     const url = new URL(`${process.env.API_URL}/api/post/feed`);
-    
-    // Получение параметров пагинации из запроса
+
+    // Получение параметров пагинации и тега из запроса
     const limit = req.nextUrl.searchParams.get('limit') || '10';
     const skip = req.nextUrl.searchParams.get('skip') || '0';
+    let tag = req.nextUrl.searchParams.get('tag');
+
+    // Если тег есть, убедитесь, что он начинается с #
+    if (tag && !tag.startsWith('#')) {
+      tag = `#${tag}`;
+    }
 
     // Добавление параметров в URL
     url.searchParams.append('limit', limit);
     url.searchParams.append('skip', skip);
+
+    // Добавляем тег в запрос, если он есть
+    if (tag) {
+      url.searchParams.append('tag', tag);
+    }
 
     // Отправка запроса на сервер для получения записей
     const res = await fetch(url.toString(), {
@@ -44,17 +55,17 @@ export async function GET(req: NextRequest) {
     const data = await res.json();
 
     // Проверка, если больше нет постов для загрузки
-    const hasMore = (parseInt(skip, 10) + parseInt(limit, 10)) < data.meta.total;
+    const hasMore = parseInt(skip, 10) + parseInt(limit, 10) < data.meta.total;
 
-    return NextResponse.json({ 
-      success: true, 
-      data: data.data, 
+    return NextResponse.json({
+      success: true,
+      data: data.data,
       meta: {
         total: data.meta.total,
         skip: parseInt(skip, 10),
         limit: parseInt(limit, 10),
         hasMore,
-      } 
+      },
     });
   } catch (error) {
     return NextResponse.json(
