@@ -1683,7 +1683,7 @@ export default function SettingPage() {
                         ),
                       })}
                     </div>
-                    <div className='flex items-center justify-between rounded-lg bg-black/5 p-4 dark:bg-white/10'>
+                    <div className='flex items-center justify-between rounded-lg bg-black/5 p-4 dark:bg-white/10 break-all'>
                       <div>{profile?.telegram?.token}</div>
                       <div>
                         <Button
