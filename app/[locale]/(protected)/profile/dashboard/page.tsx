@@ -6,7 +6,7 @@ import { FaCloudUploadAlt } from 'react-icons/fa';
 import { PaxContext } from '@/context/context';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import toast from 'react-hot-toast';
-import { FaSpinner, FaSearch } from 'react-icons/fa';
+import { FaSpinner, FaSearch, FaTrashAlt } from 'react-icons/fa';
 import ReactAudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import useSWR, { mutate } from 'swr';
@@ -211,6 +211,10 @@ export default function DashboardPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
 
   const handleToggleLike = async (postId: string) => {
@@ -618,7 +622,7 @@ export default function DashboardPage() {
           value={searchTerm}
           onChange={handleSearchChange}
         />
-        <FaSearch className='absolute left-4 top-1/2 -translate-y-1/2 transform text-gray-500' />
+        <FaSearch className='absolute left-4  top-1/2 -translate-y-1/2 transform text-gray-500' />
       </div> */}
       {!selectedPost ? (
         <div>
@@ -687,7 +691,16 @@ export default function DashboardPage() {
                 </h4>
                 <ul className='mt-2 list-inside list-disc text-gray-400'>
                   {files.map((file, index) => (
-                    <li key={index}>{file.name}</li>
+                    <li key={index} className='flex items-center'>
+                      <span className='flex-1'>{file.name}</span>
+                      <button
+                        onClick={() => handleRemoveFile(index)}
+                        className='ml-2 flex items-center justify-center rounded-full text-red-500 hover:text-red-700'
+                        aria-label='Удалить файл'
+                      >
+                        <FaTrashAlt size={16} />
+                      </button>
+                    </li>
                   ))}
                 </ul>
               </div>
