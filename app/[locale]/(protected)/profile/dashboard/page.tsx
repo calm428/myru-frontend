@@ -6,7 +6,7 @@ import { FaCloudUploadAlt } from 'react-icons/fa';
 import { PaxContext } from '@/context/context';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import toast from 'react-hot-toast';
-import { FaSpinner } from 'react-icons/fa';
+import { FaSpinner, FaSearch } from 'react-icons/fa';
 import ReactAudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import useSWR, { mutate } from 'swr';
@@ -19,6 +19,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { timeAgo } from '@/helpers/utils';
 import NestedCommentSection from './NestedCommentSection';
 import { FaReply, FaTimes, FaPaperclip, FaArrowRight } from 'react-icons/fa';
+import AudioRecorder from '@/components/utils/mediaRecorder';
 
 import {
   Carousel,
@@ -140,10 +141,17 @@ export default function DashboardPage() {
   const [newComment, setNewComment] = useState<string>('');
   const [isCommentLoading, setIsCommentLoading] = useState<boolean>(false);
   const [isLiking, setIsLiking] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const router = useRouter(); // useRouter from 'next/navigation'
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setSkip(0);
+    fetchPosts(true, searchTerm);
+  };
 
   useEffect(() => {
     if (selectedPost) {
@@ -589,10 +597,29 @@ export default function DashboardPage() {
     );
   };
 
+  const handleRecordingComplete = (audioBlob: Blob) => {
+    console.log('Размер файла:', audioBlob.size);
+    console.log('Тип файла:', audioBlob.type);
+
+    const wavFile = new File([audioBlob], 'recording.wav', {
+      type: 'audio/wav',
+    });
+    setFiles((prevFiles) => [...prevFiles, wavFile]);
+  };
+
   return (
     <div className='mb-8 min-h-screen max-w-3xl space-y-6 rounded-lg bg-white p-0 text-black dark:bg-secondary/60 dark:text-white'>
       {/* Post creation section */}
-
+      <div className='relative'>
+        <input
+          type='text'
+          placeholder='Поиск по тегам...'
+          className='w-full rounded-full border border-gray-300 px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500'
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
+        <FaSearch className='absolute left-4 top-1/2 -translate-y-1/2 transform text-gray-500' />
+      </div>
       {!selectedPost ? (
         <div>
           <div className='fixed bottom-[60px] z-10  flex w-full max-w-3xl flex-col rounded-none bg-secondary p-4 md:bottom-[0px] '>
@@ -628,6 +655,10 @@ export default function DashboardPage() {
                       onChange={(e) => setContent(e.target.value)}
                     />
                   </div>
+                  <AudioRecorder
+                    onRecordingComplete={handleRecordingComplete}
+                  />
+
                   <button
                     onClick={handleSubmit}
                     disabled={
