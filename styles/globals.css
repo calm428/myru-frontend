@@ -62,6 +62,93 @@
   }
 }
 
+.audio-recorder {
+  display: flex;
+  align-items: center;
+  padding-bottom: 7px;
+}
+
+.recording-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.recording-time {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.recording-visualizer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recording-dot {
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.recording-wave {
+  width: 100px;
+  height: 5px;
+  background: repeating-linear-gradient(
+    90deg,
+    #ccc,
+    #ccc 10px,
+    #333 10px,
+    #333 20px
+  );
+  animation: wave 1.5s infinite linear;
+}
+
+@keyframes wave {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 20px 0;
+  }
+}
+
+.microphone-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0; /* убираем лишние отступы */
+  background: none; /* убираем фон кнопки */
+  border: none; /* убираем границу кнопки */
+  cursor: pointer;
+  margin: 0; /* убираем внешние отступы */
+}
+
+.microphone-button svg {
+  vertical-align: middle; /* для дополнительного выравнивания */
+}
+.comment-section-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.comment-input-container {
+  margin-top: auto;
+}
+
 .border-gardient-h {
   @apply border-gardient-header;
 }
@@ -207,7 +294,8 @@
   }
 
   .bg-primary {
-    background: linear-gradient(90deg, #73a3ff, #397bfa 100%), linear-gradient(7deg, #7b2bcc 21.22%, #2296f3 88.72%);
+    background: linear-gradient(90deg, #73a3ff, #397bfa 100%),
+      linear-gradient(7deg, #7b2bcc 21.22%, #2296f3 88.72%);
   }
 
   .text-gradient {
@@ -215,7 +303,8 @@
       90deg,
       #575757 0%,
       rgba(82, 93, 90, 0.98) 36.43%,
-      #73a3ff, #397bfa
+      #73a3ff,
+      #397bfa
     );
     background-clip: text;
     -webkit-background-clip: text;
@@ -227,7 +316,8 @@
       90deg,
       #fff 0%,
       rgba(255, 255, 255, 0.98) 36.43%,
-      #73a3ff, #397bfa
+      #73a3ff,
+      #397bfa
     );
     background-clip: text;
     -webkit-background-clip: text;
@@ -429,7 +519,8 @@ textarea {
   inset: 0;
   border-radius: 999px;
   padding: 1px;
-  background: linear-gradient(90deg, #73a3ff 0%, #73a3ff 100%), linear-gradient(7deg, #73a3ff 21.22%, #73a3ff 88.72%);
+  background: linear-gradient(90deg, #73a3ff 0%, #73a3ff 100%),
+    linear-gradient(7deg, #73a3ff 21.22%, #73a3ff 88.72%);
   mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
@@ -443,7 +534,8 @@ textarea {
   inset: 0;
   border-radius: 999px;
   padding: 1px;
-  background: linear-gradient(90deg, #73a3ff 0%, #73a3ff 100%), linear-gradient(7deg, #73a3ff 21.22%, #73a3ff 88.72%);
+  background: linear-gradient(90deg, #73a3ff 0%, #73a3ff 100%),
+    linear-gradient(7deg, #73a3ff 21.22%, #73a3ff 88.72%);
   mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
@@ -452,8 +544,8 @@ textarea {
 }
 
 iframe {
-  width:100%;
-  height:500px;
+  width: 100%;
+  height: 500px;
 }
 
 .chevron {
@@ -1855,15 +1947,16 @@ iframe {
   }
 }
 
-
 .ring-effect::before {
   content: '';
   position: absolute;
   top: 1px;
   left: 1px;
-  mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  inset:0;
-  mask-composite:exclude;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  inset: 0;
+  mask-composite: exclude;
   right: 1px;
   bottom: 1px;
   border-radius: 50%;
@@ -1895,7 +1988,8 @@ iframe {
   box-sizing: border-box;
 }
 
-.play-pause-btn, .mute-btn {
+.play-pause-btn,
+.mute-btn {
   background: none;
   border: none;
   color: white;
@@ -1903,7 +1997,8 @@ iframe {
   font-size: 20px;
 }
 
-.volume-slider, .seek-slider {
+.volume-slider,
+.seek-slider {
   -webkit-appearance: none;
   width: 100px;
   height: 5px;
@@ -1914,7 +2009,7 @@ iframe {
   cursor: pointer;
 }
 
-.volume-slider::-webkit-slider-thumb, 
+.volume-slider::-webkit-slider-thumb,
 .seek-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -1942,7 +2037,8 @@ iframe {
     padding: 5px;
   }
 
-  .volume-slider, .seek-slider {
+  .volume-slider,
+  .seek-slider {
     width: 100%;
   }
 
