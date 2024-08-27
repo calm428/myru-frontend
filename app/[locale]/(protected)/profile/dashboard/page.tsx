@@ -610,7 +610,7 @@ export default function DashboardPage() {
   return (
     <div className='mb-8 min-h-screen max-w-3xl space-y-6 rounded-lg bg-white p-0 text-black dark:bg-secondary/60 dark:text-white'>
       {/* Post creation section */}
-      <div className='relative'>
+      {/* <div className='relative'>
         <input
           type='text'
           placeholder='Поиск по тегам...'
@@ -619,7 +619,7 @@ export default function DashboardPage() {
           onChange={handleSearchChange}
         />
         <FaSearch className='absolute left-4 top-1/2 -translate-y-1/2 transform text-gray-500' />
-      </div>
+      </div> */}
       {!selectedPost ? (
         <div>
           <div className='fixed bottom-[60px] z-10  flex w-full max-w-3xl flex-col rounded-none bg-secondary p-4 md:bottom-[0px] '>
