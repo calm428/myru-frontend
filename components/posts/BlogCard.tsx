@@ -15,6 +15,16 @@ interface BlogCardProps {
   blog: Blog;
 }
 
+const saveScrollPosition = () => {
+  if (window === undefined) return;
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(
+      'home-page-scroll-position',
+      (window.scrollY || document.documentElement.scrollTop).toString()
+    );
+  }
+};
+
 const BlogCard = ({ blog }: BlogCardProps) => {
   const heroImage = blog.photos?.[0]?.files?.[0]?.path
     ? `https://img.myru.online/${blog.photos[0].files[0].path}`
@@ -28,43 +38,50 @@ const BlogCard = ({ blog }: BlogCardProps) => {
   return (
     <Card className='w-full overflow-hidden rounded-lg'>
       <CardContent className='relative p-0'>
-        <div className='relative'>
-          <div className='relative h-72 w-full'>
-            <Image
-              src={heroImage}
-              alt={blog.Title}
-              fill
-              style={{ objectFit: 'cover' }}
-              className='rounded-t-lg'
-            />
-          </div>
-          <div className='absolute right-4 top-4 flex space-x-2'>
-            <Badge
-              variant='default'
-              className='bg-gradient-to-r from-[#73a2ff] to-[#73a2ff] p-2 text-white'
-            >
-              <Eye className='text-white' />
-              {blog.Views}
-            </Badge>
-          </div>
-        </div>
-
-        <div className='p-4'>
-          <h2 className='text-xl font-semibold'>{blog.Title}</h2>
-          <p className='text-gray-600 dark:text-gray-400'>{blog.Descr}</p>
-
-          <div className='mt-4'>
-            <TagSlider tags={tags} />
-
-            <div className='mt-4 flex flex-wrap items-center justify-between'>
-              <PriceBadge>{blog.Total.toLocaleString('ru-RU')} ₽</PriceBadge>
-
-              <LocationBadge>{location}</LocationBadge>
-
-              <CategoryBadge>{category}</CategoryBadge>
+        <Link
+          key={`title-link-${blog.id}`}
+          href='/flows/[id]/[slug]'
+          as={`/flows/${blog.UniqId}/${blog.Slug}`}
+          onClick={saveScrollPosition}
+        >
+          <div className='relative'>
+            <div className='relative h-72 w-full'>
+              <Image
+                src={heroImage}
+                alt={blog.Title}
+                fill
+                style={{ objectFit: 'cover' }}
+                className='rounded-t-lg'
+              />
+            </div>
+            <div className='absolute right-4 top-4 flex space-x-2'>
+              <Badge
+                variant='default'
+                className='bg-gradient-to-r from-[#73a2ff] to-[#73a2ff] p-2 text-white'
+              >
+                <Eye className='text-white' />
+                {blog.Views}
+              </Badge>
             </div>
           </div>
-        </div>
+
+          <div className='p-4'>
+            <h2 className='text-xl font-semibold'>{blog.Title}</h2>
+            <p className='text-gray-600 dark:text-gray-400'>{blog.Descr}</p>
+
+            <div className='mt-4'>
+              <TagSlider tags={tags} />
+
+              <div className='mt-4 flex flex-wrap items-center justify-between'>
+                <PriceBadge>{blog.Total.toLocaleString('ru-RU')} ₽</PriceBadge>
+
+                <LocationBadge>{location}</LocationBadge>
+
+                <CategoryBadge>{category}</CategoryBadge>
+              </div>
+            </div>
+          </div>
+        </Link>
       </CardContent>
     </Card>
   );
