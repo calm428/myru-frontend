@@ -36,7 +36,7 @@ const BlogCard = ({ blog }: BlogCardProps) => {
   const tags = blog.Hashtags?.map((tag) => tag.Hashtag) || [];
 
   return (
-    <Card className='w-full overflow-hidden rounded-lg'>
+    <Card className='w-full overflow-hidden rounded-lg md:w-[400px]'>
       <CardContent className='relative p-0'>
         <Link
           key={`title-link-${blog.id}`}
