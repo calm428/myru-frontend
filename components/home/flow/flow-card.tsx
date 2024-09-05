@@ -209,15 +209,19 @@ function FlowCard(profile: FlowCardProps) {
         <div className='relative w-full max-w-[100%] px-3'>
           <TagSlider tags={tags} />
         </div>
-        <div className='mb-2 mt-auto flex flex-wrap gap-3 px-3'>
+        <div className='mb-2 mt-auto flex flex-wrap items-stretch gap-3 px-3'>
+          {' '}
+          {/* Добавляем items-stretch */}
           {price !== 0 && (
-            <div className='min-w-[calc(50%-0.75rem)] flex-1'>
+            <div className='flex min-w-[calc(50%-0.75rem)] flex-1'>
               <Link
                 key={`price-link-${id}`}
-                className='w-full'
+                className='h-full w-full'
                 href={{ query: { ...queries, money: price } }}
               >
-                <PriceBadge>
+                <PriceBadge className='flex h-full flex-grow items-center justify-center'>
+                  {' '}
+                  {/* Добавляем h-full */}
                   {price.toLocaleString('ru-RU', {
                     style: 'currency',
                     currency: 'RUB',
@@ -227,22 +231,30 @@ function FlowCard(profile: FlowCardProps) {
               </Link>
             </div>
           )}
-          <div className='min-w-[calc(50%-0.75rem)] flex-1'>
+          <div className='flex min-w-[calc(50%-0.75rem)] flex-1'>
             <Link
               key={`location-link-${id}`}
-              className='w-full'
+              className='h-full w-full'
               href={{ query: { ...queries, city: location, page: 0 } }}
             >
-              <LocationBadge>{location}</LocationBadge>
+              <LocationBadge className='flex h-full flex-grow items-center justify-center'>
+                {' '}
+                {/* Добавляем h-full */}
+                {location}
+              </LocationBadge>
             </Link>
           </div>
-          <div className='w-full'>
+          <div className='flex w-full'>
             <Link
               key={`category-link-${id}`}
-              className='w-full'
+              className='h-full w-full'
               href={{ query: { ...queries, category: category, page: 0 } }}
             >
-              <CategoryBadge>{category}</CategoryBadge>
+              <CategoryBadge className='flex h-full flex-grow items-center justify-center'>
+                {' '}
+                {/* Добавляем h-full */}
+                {category}
+              </CategoryBadge>
             </Link>
           </div>
         </div>
