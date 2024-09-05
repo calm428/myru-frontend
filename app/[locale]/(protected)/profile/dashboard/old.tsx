@@ -125,6 +125,7 @@ export default function DashboardPage() {
       <Separator className='mb-4' />
       <div className='mb-0 grid grid-cols-2 md:mb-0'>
         <div className='col-span-2 grid gap-3 md:grid-cols-2'>
+
           <div className='relative flex justify-between rounded-lg bg-white p-6 dark:bg-black md:col-span-2 shadow-md'>
             <div>
             <div className='mt-0 space-y-2 w-full'>
@@ -203,6 +204,8 @@ export default function DashboardPage() {
               />
             </div>
           </div>
+
+          
           <div className='space-y-2'>
             {services.map((service, index) => (
               <Link

@@ -96,7 +96,8 @@ export default function FlowSection() {
       const response = await fetcher(getFetchURL(nextSkip));
       setFlowData((prevData) => {
         const newData = response.data.filter(
-          (newItem: FlowData) => !prevData.some((item) => item.id === newItem.id)
+          (newItem: FlowData) =>
+            !prevData.some((item) => item.id === newItem.id)
         );
         return [...prevData, ...newData];
       });
@@ -114,14 +115,14 @@ export default function FlowSection() {
         next={loadMore}
         hasMore={hasMore}
         loader={
-          <div className='grid w-full grid-cols-1 place-items-center gap-4 md:grid-cols-2 lg:grid-cols-3 top-[-30px] relative'>
+          <div className='relative top-[-30px] grid w-full grid-cols-1 place-items-center gap-4 md:grid-cols-2 lg:grid-cols-3'>
             <FlowCardSkeleton />
             <FlowCardSkeleton className='hidden md:block' />
             <FlowCardSkeleton className='hidden lg:block' />
           </div>
         }
         endMessage={
-          <p className='text-center mb-8'>
+          <p className='mb-8 text-center'>
             <b>{t('no_more_results')}</b>
           </p>
         }

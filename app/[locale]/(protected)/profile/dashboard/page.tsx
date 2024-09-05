@@ -20,6 +20,9 @@ import { timeAgo } from '@/helpers/utils';
 import NestedCommentSection from './NestedCommentSection';
 import { FaReply, FaTimes, FaPaperclip, FaArrowRight } from 'react-icons/fa';
 import AudioRecorder from '@/components/utils/mediaRecorder';
+import BlogSelectorDialog from '@/components/posts/BlogSelectorDialog';
+import BlogCard from '@/components/posts/BlogCard';
+import { Blog } from '@/types/Blog'; // Подразумевается, что у вас есть тип Blog
 
 import {
   Carousel,
@@ -35,6 +38,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
 import { FaEllipsisV } from 'react-icons/fa';
 
 type FilePost = {
@@ -114,6 +118,7 @@ type Post = {
   comments: any[];
   commentCount: number; // Новое поле для количества комментариев
   shares: any[];
+  blog: Blog | null; // Объект Blog или null, если блог не прикреплен
   files: FilePost[];
   isEditing?: boolean;
   isSaving?: boolean;
@@ -142,10 +147,21 @@ export default function DashboardPage() {
   const [isCommentLoading, setIsCommentLoading] = useState<boolean>(false);
   const [isLiking, setIsLiking] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null); // Явное указание типа Blog или null
+  const [isBlogDialogOpen, setIsBlogDialogOpen] = useState(false); // Управление состоянием открытия модального окна
 
   const router = useRouter(); // useRouter from 'next/navigation'
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const handleAttachBlog = async () => {
+    setIsBlogDialogOpen(true);
+  };
+
+  const handleSelectBlog = (blog: any) => {
+    setSelectedBlog(blog); // Сохраняем выбранный блог
+    setIsBlogDialogOpen(false); // Закрываем модальное окно
+  };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -352,6 +368,10 @@ export default function DashboardPage() {
       const formData = new FormData();
       formData.append('content', content);
 
+      if (selectedBlog) {
+        formData.append('blog_id', selectedBlog.id.toString()); // Добавляем выбранный блог
+      }
+
       const hashtags = content.match(/#[\wа-яА-ЯёЁ]+/g) || [];
       formData.append('tags', hashtags.join(',')); // Отправка хэштегов на сервер
 
@@ -381,6 +401,7 @@ export default function DashboardPage() {
 
       setContent('');
       setFiles([]);
+      setSelectedBlog(null);
     } catch (error) {
       alert('Ошибка при создании поста');
     } finally {
@@ -631,16 +652,32 @@ export default function DashboardPage() {
               <div className='flex w-full flex-col gap-1.5 rounded-[26px] bg-gray-600 p-1.5 transition-colors dark:bg-gray-700'>
                 <div className='flex items-end gap-1.5 md:gap-2'>
                   <div className='relative flex items-center'>
-                    <button
-                      type='button'
-                      aria-label='Attach files'
-                      className='flex h-8 w-8 items-center justify-center rounded-full text-white focus:outline-none dark:text-white'
-                      onClick={() =>
-                        document.getElementById('file-input')?.click()
-                      }
-                    >
-                      <FaPaperclip size={18} />
-                    </button>
+                    {/* Dropdown меню с опциями */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type='button'
+                          aria-label='Attach options'
+                          className='flex h-8 w-8 items-center justify-center rounded-full text-white focus:outline-none dark:text-white'
+                        >
+                          <FaPaperclip size={18} />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={handleAttachBlog}>
+                          Прикрепить товар
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            document.getElementById('file-input')?.click()
+                          }
+                        >
+                          Прикрепить медиафайл
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    {/* Выбранный блог */}
+                    {/* Поле ввода для файлов */}
                     <input
                       type='file'
                       id='file-input'
@@ -704,6 +741,25 @@ export default function DashboardPage() {
                   ))}
                 </ul>
               </div>
+            )}
+            {selectedBlog && (
+              <div className='flex items-center space-x-2 pt-4'>
+                <span>С этим постом будет добавлен выбранный вами товар</span>
+                <button
+                  className='text-red-500 hover:text-red-700'
+                  aria-label='Удалить выбранный товар'
+                  onClick={() => setSelectedBlog(null)} // Убираем выбранный товар
+                >
+                  <FaTrashAlt size={16} />
+                </button>
+              </div>
+            )}
+            {/* Модальное окно для выбора блога */}
+            {isBlogDialogOpen && (
+              <BlogSelectorDialog
+                onSelectBlog={handleSelectBlog}
+                onClose={() => setIsBlogDialogOpen(false)}
+              />
             )}
           </div>
           <InfiniteScroll
@@ -769,7 +825,6 @@ export default function DashboardPage() {
                     </>
                   )}
                 </div>
-
                 {post.files && post.files.length > 0 && (
                   <div className='mt-4'>
                     {post.files.filter(
@@ -898,7 +953,6 @@ export default function DashboardPage() {
                       .map((file, idx) => renderFile(file, idx))}
                   </div>
                 )}
-
                 {post.isEditing ? (
                   <div>
                     <Textarea
@@ -931,7 +985,8 @@ export default function DashboardPage() {
                     maxLength={300}
                   />
                 )}
-
+                {post.blog && <BlogCard blog={post.blog} />}
+                {/* Добавляем компонент BlogCard */}
                 <div className='flex justify-between text-gray-400'>
                   <div className='flex space-x-4'>
                     <span
