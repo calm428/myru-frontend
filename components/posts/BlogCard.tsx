@@ -59,24 +59,29 @@ const BlogCard = ({ blog }: BlogCardProps) => {
                 variant='default'
                 className='bg-gradient-to-r from-[#73a2ff] to-[#73a2ff] p-2 text-white'
               >
-                <Eye className='text-white' />
-                {blog.Views}
+                Коммерческое предложение
               </Badge>
+            </div>
+            <div className='absolute inset-0 flex items-center justify-center rounded-t-md bg-gradient-to-b from-transparent via-transparent to-white dark:to-black'></div>
+            <div className='absolute bottom-0 z-10 px-4'>
+              <h2 className='text-xl font-semibold'>{blog.Title}</h2>
+              <p className='text-gray-600 dark:text-gray-400'>{blog.Descr}</p>
             </div>
           </div>
 
           <div className='p-4'>
-            <h2 className='text-xl font-semibold'>{blog.Title}</h2>
-            <p className='text-gray-600 dark:text-gray-400'>{blog.Descr}</p>
-
             <div className='mt-4'>
               <TagSlider tags={tags} />
 
-              <div className='mt-4 flex flex-wrap items-center justify-between'>
-                <PriceBadge>{blog.Total.toLocaleString('ru-RU')} ₽</PriceBadge>
-
-                <LocationBadge>{location}</LocationBadge>
-
+              <div className='mt-4 flex flex-wrap items-center justify-between gap-3'>
+                <div className='flex min-w-[calc(50%-0.75rem)] flex-1'>
+                  <PriceBadge>
+                    {blog.Total.toLocaleString('ru-RU')} ₽
+                  </PriceBadge>
+                </div>
+                <div className='flex min-w-[calc(50%-0.75rem)] flex-1'>
+                  <LocationBadge>{location}</LocationBadge>
+                </div>
                 <CategoryBadge>{category}</CategoryBadge>
               </div>
             </div>
