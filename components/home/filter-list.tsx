@@ -207,61 +207,64 @@ export default function FilterListSection() {
       )}
     </>
   );
+
   return (
-    <div className='relative flex w-full flex-wrap items-center gap-2 pb-4 pt-2'>
-      <Badges />
-      {filtersApplied && session?.user?.id && (
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button type='button' className='btn !m-0 !mt-2 !rounded-md'>
-              {t('save_combination')}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className='sm:max-w-lg'>
-            <DialogHeader>
-              <DialogTitle>{t('complaints')}</DialogTitle>
-            </DialogHeader>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(saveCombination)}
-                className='w-full space-y-2'
-              >
-                <Separator />
-                <div className='grid gap-4'>
-                  <div className=''>
-                    <Label htmlFor='username' className='text-right'>
-                      {t('description')}:
-                    </Label>
-                    <FormField
-                      control={form.control}
-                      name='name'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input id='descr' {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+    filtersApplied && (
+      <div className='relative flex w-full flex-wrap items-center gap-2 pb-4 pt-2'>
+        <Badges />
+        {filtersApplied && session?.user?.id && (
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button type='button' className='btn !m-0 !mt-2 !rounded-md'>
+                {t('save_combination')}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className='sm:max-w-lg'>
+              <DialogHeader>
+                <DialogTitle>{t('complaints')}</DialogTitle>
+              </DialogHeader>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(saveCombination)}
+                  className='w-full space-y-2'
+                >
+                  <Separator />
+                  <div className='grid gap-4'>
+                    <div className=''>
+                      <Label htmlFor='username' className='text-right'>
+                        {t('description')}:
+                      </Label>
+                      <FormField
+                        control={form.control}
+                        name='name'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input id='descr' {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className='flex w-full flex-wrap items-center gap-2 pb-4'>
+                      <Badges />
+                    </div>
                   </div>
-                  <div className='flex w-full flex-wrap items-center gap-2 pb-4'>
-                    <Badges />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant='outline' type='button'>
-                      {t('cancel')}
-                    </Button>
-                  </DialogClose>
-                  <Button type='submit'>{t('submit')}</Button>
-                </DialogFooter>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant='outline' type='button'>
+                        {t('cancel')}
+                      </Button>
+                    </DialogClose>
+                    <Button type='submit'>{t('submit')}</Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
+    )
   );
 }
