@@ -826,7 +826,7 @@ export default function DashboardPage() {
                   )}
                 </div>
                 {post.files && post.files.length > 0 && (
-                  <div className='mt-4'>
+                  <div className='mt-4 md:w-[400px]'>
                     {post.files.filter(
                       (file) =>
                         file.url.endsWith('.jpeg') ||
