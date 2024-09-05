@@ -95,105 +95,161 @@ function FlowCard(profile: FlowCardProps) {
   return (
     <Card className='size-full w-full'>
       <CardContent className='relative flex size-full flex-col gap-4 p-0'>
-        <Link
-          key={`flow-link-${id}`}
-          href='/flows/[id]/[slug]'
-          as={`/flows/${id}/${slug}`}
-          onClick={saveScrollPosition}
-        >
-          <div className='relative'>
-            <div className='max-h-auto h-auto min-h-[300px] w-full md:min-h-[416px] '>
-              <Image
-                src={hero}
-                fill
-                style={{ objectFit: 'cover' }}
-                className='rounded-md rounded-b-none '
-                alt='profile'
-              />
-            </div>
-            <div className='absolute right-0 top-3 flex gap-2 px-3'>
-              {regularpost && (
-                <Badge
-                  variant='default'
-                  className='border-none bg-black/50 p-2 text-white'
-                >
-                  <LuBrainCircuit className='mr-2 size-4 text-white' />
-                </Badge>
-              )}
-
+        <div className='relative'>
+          <div className='max-h-auto h-auto min-h-[300px] w-full md:min-h-[416px] '>
+            <Image
+              src={hero}
+              fill
+              style={{ objectFit: 'cover' }}
+              className='rounded-md rounded-b-none '
+              alt='profile'
+            />
+          </div>
+          <div className='absolute right-0 top-3 flex gap-2 px-3'>
+            {/* {regularpost && (
               <Badge
                 variant='default'
-                className='border-none bg-gradient-to-r from-[#73a2ff] to-[#73a2ff] p-2 text-white'
+                className='border-none bg-black/50 p-2 text-white'
               >
-                <Eye className='mr-2 size-4 text-white' />
-                {review.totalviews}
+                <LuBrainCircuit className='mr-2 size-4 text-white' />
               </Badge>
-            </div>
-            <div className=' relative -top-[100px] grid grid-cols-2  '>
-              <div></div>
-            </div>
-            <div className='absolute inset-0 flex items-center justify-center rounded-t-md bg-gradient-to-b from-transparent via-transparent to-white dark:to-black'></div>
+            )} */}
+            <Badge
+              variant='default'
+              className='flex flex-col !items-center !justify-center border-none bg-gradient-to-r from-[#73a2ff] to-[#73a2ff] p-2 text-white'
+            >
+              <Eye className='mr-0 size-4 text-white' />
+              {review.totalviews}
+            </Badge>
           </div>
-        </Link>
-        <div className='relative h-[40px] w-full max-w-[100%] px-3'>
+          <div className='absolute right-0 top-24 z-10 px-3'>
+            {user && (
+              <div className='flex flex-col items-center justify-end gap-2'>
+                <ReportModal>
+                  <Button
+                    variant='default'
+                    size='icon'
+                    className='rounded-full'
+                    data-tooltip-id='my-tooltip-1'
+                  >
+                    <FaExclamation className='size-4 text-white dark:text-white' />
+                  </Button>
+                </ReportModal>
+                <Button
+                  variant='default'
+                  size='icon'
+                  className='rounded-full'
+                  data-tooltip-id='my-tooltip-2'
+                  onClick={handleLinkCopy}
+                >
+                  <BiLink className='size-4 text-white dark:text-white' />
+                </Button>
+                {user.telegram && (
+                  <Button
+                    variant='default'
+                    size='icon'
+                    className='rounded-full'
+                    data-tooltip-id='my-tooltip-3'
+                    asChild
+                  >
+                    <Link
+                      href={`tg://resolve?domain=${user.telegram}`}
+                      target='_blank'
+                    >
+                      <FaTelegramPlane className='size-4 text-white dark:text-white' />
+                    </Link>
+                  </Button>
+                )}
+
+                <ReactTooltip
+                  id='my-tooltip-1'
+                  place='bottom'
+                  content={t('send_report')}
+                />
+                <ReactTooltip
+                  id='my-tooltip-2'
+                  place='bottom'
+                  content={t('copy_link')}
+                />
+                <ReactTooltip
+                  id='my-tooltip-3'
+                  place='bottom'
+                  content={t('open_telegram_chat')}
+                />
+              </div>
+            )}
+          </div>
+          <Link
+            key={`flow-link-${id}`}
+            href='/flows/[id]/[slug]'
+            as={`/flows/${id}/${slug}`}
+            onClick={saveScrollPosition}
+          >
+            <div className='absolute bottom-0 z-10'>
+              <div className='px-3 font-satoshi'>
+                <div className='line-clamp-1 text-xl font-semibold text-secondary-foreground'>
+                  <Link
+                    key={`title-link-${id}`}
+                    href='/flows/[id]/[slug]'
+                    as={`/flows/${id}/${slug}`}
+                    onClick={saveScrollPosition}
+                  >
+                    {title}
+                  </Link>
+                </div>
+                <div className='text-muted-foregroun line-clamp-3 break-all text-sm'>
+                  {subtitle}
+                </div>
+                <button className='text-xs'>Открыть карточку</button>
+              </div>
+            </div>
+          </Link>
+          <div className='absolute inset-0 flex items-center justify-center rounded-t-md bg-gradient-to-b from-transparent via-transparent to-white dark:to-black'></div>
+        </div>
+        <div className='relative w-full max-w-[100%] px-3'>
           <TagSlider tags={tags} />
         </div>
-
-        <div className='px-3 font-satoshi'>
-          <div className='line-clamp-1 text-xl font-semibold text-secondary-foreground'>
+        <div className='mb-2 mt-auto flex flex-wrap gap-3 px-3'>
+          {price !== 0 && (
+            <div className='min-w-[calc(50%-0.75rem)] flex-1'>
+              <Link
+                key={`price-link-${id}`}
+                className='w-full'
+                href={{ query: { ...queries, money: price } }}
+              >
+                <PriceBadge>
+                  {price.toLocaleString('ru-RU', {
+                    style: 'currency',
+                    currency: 'RUB',
+                    maximumFractionDigits: 0,
+                  })}
+                </PriceBadge>
+              </Link>
+            </div>
+          )}
+          <div className='min-w-[calc(50%-0.75rem)] flex-1'>
             <Link
-              key={`title-link-${id}`}
-              href='/flows/[id]/[slug]'
-              as={`/flows/${id}/${slug}`}
-              onClick={saveScrollPosition}
-            >
-              {title}
-            </Link>
-          </div>
-          <div className='text-muted-foregroun line-clamp-3 min-h-[3.75rem] text-sm'>
-            {subtitle}
-          </div>
-        </div>
-        <div className='flex flex-wrap gap-3 px-3 mb-2 mt-auto'>
-        {price !== 0 && (
-          <div className="flex-1 min-w-[calc(50%-0.75rem)]">
-            <Link
-              key={`price-link-${id}`}
+              key={`location-link-${id}`}
               className='w-full'
-              href={{ query: { ...queries, money: price } }}
+              href={{ query: { ...queries, city: location, page: 0 } }}
             >
-              <PriceBadge>
-                {price.toLocaleString('ru-RU', {
-                  style: 'currency',
-                  currency: 'RUB',
-                  maximumFractionDigits: 0,
-                })}
-              </PriceBadge>
+              <LocationBadge>{location}</LocationBadge>
             </Link>
           </div>
-        )}
-        <div className="flex-1 min-w-[calc(50%-0.75rem)]">
-          <Link
-            key={`location-link-${id}`}
-            className='w-full'
-            href={{ query: { ...queries, city: location, page: 0 } }}
-          >
-            <LocationBadge>{location}</LocationBadge>
-          </Link>
+          <div className='w-full'>
+            <Link
+              key={`category-link-${id}`}
+              className='w-full'
+              href={{ query: { ...queries, category: category, page: 0 } }}
+            >
+              <CategoryBadge>{category}</CategoryBadge>
+            </Link>
+          </div>
         </div>
-        <div className="w-full">
-          <Link
-            key={`category-link-${id}`}
-            className='w-full'
-            href={{ query: { ...queries, category: category, page: 0 } }}
-          >
-            <CategoryBadge>{category}</CategoryBadge>
-          </Link>
-        </div>
-      </div>
+
         {user && (
-          <div className='grid grid-cols-3 px-3 pb-3'>
-            <div className='col-span-2'>
+          <div className='grid grid-cols-1 px-3 pb-3'>
+            <div className='col-span-1'>
               <Link
                 key={`profile-link-${id}`}
                 href='/profiles/[username]'
@@ -216,59 +272,6 @@ function FlowCard(profile: FlowCardProps) {
                   </div>
                 </div>
               </Link>
-            </div>
-            <div className='flex items-center justify-end gap-2'>
-              <ReportModal>
-                <Button
-                  variant='outline'
-                  size='icon'
-                  className='rounded-full'
-                  data-tooltip-id='my-tooltip-1'
-                >
-                  <FaExclamation className='size-4 text-gray-500 dark:text-white' />
-                </Button>
-              </ReportModal>
-              <Button
-                variant='outline'
-                size='icon'
-                className='rounded-full'
-                data-tooltip-id='my-tooltip-2'
-                onClick={handleLinkCopy}
-              >
-                <BiLink className='size-4 text-gray-500 dark:text-white' />
-              </Button>
-              {user.telegram && (
-                <Button
-                  variant='outline'
-                  size='icon'
-                  className='rounded-full'
-                  data-tooltip-id='my-tooltip-3'
-                  asChild
-                >
-                  <Link
-                    href={`tg://resolve?domain=${user.telegram}`}
-                    target='_blank'
-                  >
-                    <FaTelegramPlane className='size-4 text-gray-500 dark:text-white' />
-                  </Link>
-                </Button>
-              )}
-
-              <ReactTooltip
-                id='my-tooltip-1'
-                place='bottom'
-                content={t('send_report')}
-              />
-              <ReactTooltip
-                id='my-tooltip-2'
-                place='bottom'
-                content={t('copy_link')}
-              />
-              <ReactTooltip
-                id='my-tooltip-3'
-                place='bottom'
-                content={t('open_telegram_chat')}
-              />
             </div>
           </div>
         )}

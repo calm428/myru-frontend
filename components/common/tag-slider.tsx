@@ -39,7 +39,6 @@ function TagSlider({ tags, mode }: TagSliderProps) {
 
   React.useEffect(() => {
     if (containerRef.current && !containerWidth) {
-      // 96 is width of both arrows
       setContainerWidth(containerRef.current.clientWidth - 96);
     }
   }, [containerRef, containerWidth]);
@@ -65,8 +64,8 @@ function TagSlider({ tags, mode }: TagSliderProps) {
       <div ref={containerRef}>
         <div onMouseEnter={disableScroll} onMouseLeave={enableScroll}>
           <ScrollMenu
-            LeftArrow={LeftArrow}
-            RightArrow={RightArrow}
+            LeftArrow={tags.length > 1 ? LeftArrow : null}
+            RightArrow={tags.length > 1 ? RightArrow : null}
             onWheel={onWheel}
             onTouchEnd={onTouchEnd}
             onTouchMove={onTouchMove}
