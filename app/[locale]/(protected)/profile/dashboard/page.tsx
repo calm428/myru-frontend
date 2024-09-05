@@ -649,7 +649,7 @@ export default function DashboardPage() {
         <div>
           <div className='fixed bottom-[60px] z-10  flex w-full max-w-3xl flex-col rounded-none bg-secondary p-4 md:bottom-[0px] '>
             <div className='flex items-center space-x-4'>
-              <div className='flex w-full flex-col gap-1.5 rounded-[26px] bg-gray-600 p-1.5 transition-colors dark:bg-gray-700'>
+              <div className='flex w-full flex-col gap-1.5 rounded-[26px] bg-gray-400 p-1.5 transition-colors dark:bg-gray-700'>
                 <div className='flex items-end gap-1.5 md:gap-2'>
                   <div className='relative flex items-center'>
                     {/* Dropdown меню с опциями */}
@@ -690,7 +690,7 @@ export default function DashboardPage() {
                     <textarea
                       rows={1}
                       placeholder='Ваш пост здесь..'
-                      className='m-0 max-h-52 max-h-[25vh] resize-none border-0 bg-transparent px-0 text-gray-900 focus:ring-0 focus-visible:ring-0 dark:text-white'
+                      className='m-0 max-h-52  resize-none border-0 bg-transparent px-0 text-black focus:ring-0 focus-visible:ring-0 dark:text-white'
                       style={{ height: '30px', overflowY: 'hidden' }}
                       value={content}
                       onChange={(e) => setContent(e.target.value)}

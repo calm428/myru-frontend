@@ -984,6 +984,11 @@ aside {
   }
 }
 
+textarea::placeholder {
+  color: #fff; /* Задаём цвет placeholder */
+  opacity: 1; /* Делает цвет полностью непрозрачным */
+}
+
 .dark {
   .message-form {
     textarea#message-textarea,
