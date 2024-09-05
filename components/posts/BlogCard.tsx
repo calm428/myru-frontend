@@ -63,7 +63,7 @@ const BlogCard = ({ blog }: BlogCardProps) => {
               </Badge>
             </div>
             <div className='absolute inset-0 flex items-center justify-center rounded-t-md bg-gradient-to-b from-transparent via-transparent to-white dark:to-black'></div>
-            <div className='absolute bottom-0 z-10 px-4'>
+            <div className='absolute bottom-2 z-10 px-4'>
               <h2 className='text-xl font-semibold'>{blog.Title}</h2>
               <p className='text-gray-600 dark:text-gray-400'>{blog.Descr}</p>
             </div>

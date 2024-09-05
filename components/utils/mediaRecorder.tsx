@@ -108,7 +108,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
         </div>
       ) : (
         <button onClick={startRecording}>
-          <FaMicrophone size={24} color='green' />
+          <FaMicrophone size={24} color='white' />
         </button>
       )}
     </div>
