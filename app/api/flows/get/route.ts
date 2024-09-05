@@ -7,13 +7,15 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await fetch(
-      `${process.env.API_URL}/api/blog/listAll${query ? `?${query}` : ''}`, { cache: 'no-cache' }
+      `${process.env.API_URL}/api/blog/listAll${query ? `?${query}` : ''}`,
+      { cache: 'no-cache' }
     );
     if (!res.ok) {
       throw new Error('Failed to fetch data');
     }
 
     const data = await res.json();
+
     const flows = data.data.map((item: any) => {
       return {
         id: item.uniqId,
@@ -35,8 +37,14 @@ export async function GET(req: NextRequest) {
         price: item.total,
         regularpost: item.user.role === 'user',
         tags: item.hashtags,
-        location: item.city?.length > 0 ? item.city[0].name : '',
-        category: item.catygory?.length > 0 ? item.catygory[0].name : '',
+        location:
+          item.city?.length > 0
+            ? item.city.map((city: any) => city.name).join(', ')
+            : '',
+        category:
+          item.catygory?.length > 0
+            ? item.catygory.map((category: any) => category.name).join(', ')
+            : '',
         countrycode: item.lang,
         review: {
           totalviews: item.views,

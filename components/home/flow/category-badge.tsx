@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 
 interface SectionBadgeProps {
   children: React.ReactNode;
+  className?: string; // Добавляем свойство className
 }
 
 function CategoryBadge({ children }: SectionBadgeProps) {
