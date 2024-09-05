@@ -139,7 +139,7 @@ export default function MyPostsPage() {
   };
 
   return (
-    <div className='mb-[0px] pb-4 px-4 md:mb-[0px]'>
+    <div className='mb-[0px] pb-4 px-4 md:mb-[0px] max-w-3xl'>
       <Separator className='mb-4' />
       <div className='mb-4 flex w-full flex-col-reverse items-center justify-between gap-2 sm:flex-row'>
         <div className='relative w-full sm:w-80'>

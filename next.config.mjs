@@ -14,11 +14,16 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 const nextConfig = {
+  experimental: {
+    scrollRestoration: true,
+  },
   env: {
     NEXT_PUBLIC_PNM_VERSION: PackageJson.version,
   },
   reactStrictMode: true,
   images: {
+    domains: ['img.myru.online'], // Добавьте этот домен
+
     remotePatterns: [
       {
         protocol: 'https',
@@ -66,7 +71,6 @@ const nextConfig = {
         config.plugins.push(new BundleAnalyzerPlugin());
       }
     }
-
 
     return config;
   },

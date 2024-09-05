@@ -60,7 +60,7 @@ export default function Sidebar() {
       {!isChatPage && !isMessagesPage ? (
         <nav
           className={cn(
-            `fixed bottom-0 z-30 w-full border-t bg-background sm:relative sm:h-screen sm:w-auto sm:border-r sm:pt-0 lg:w-72`
+            `fixed bottom-0 z-30 w-full border-t bg-background sm:relative sm:h-screen sm:w-auto sm:border-r sm:pt-0 md:min-h-full lg:w-72`
           )}
         >
           <div className='sm:space-y-4 sm:py-4'>

@@ -22,6 +22,7 @@ import Script from 'next/script';
 import NextTopLoader from 'nextjs-toploader';
 import { cookies } from 'next/headers';
 import { NotificationProvider } from '@/provider/notificationProvider';
+// import dynamic from 'next/dynamic';
 
 export const viewport: Viewport = {
   themeColor: [
@@ -57,6 +58,8 @@ export async function generateMetadata({
   return metadata;
 }
 
+// const DynamicInstallPrompt = dynamic(() => import('@/hooks/InstallPrompt'), { ssr: false });
+
 export default async function RootLayout({
   children,
   params: { locale },
@@ -84,15 +87,15 @@ export default async function RootLayout({
         )}
       >
         <NextTopLoader
-          color="#2299DD"
+          color='#2299DD'
           initialPosition={0.08}
           crawlSpeed={200}
           height={3}
           crawl={true}
           showSpinner={false}
-          easing="ease"
+          easing='ease'
           speed={200}
-          shadow="0 0 10px #2299DD,0 0 5px #2299DD"
+          shadow='0 0 10px #2299DD,0 0 5px #2299DD'
           template='<div class="bar" role="bar"><div class="peg"></div></div> 
           <div class="spinner" role="spinner"><div class="spinner-icon"></div></div>'
           zIndex={1600}
@@ -109,12 +112,12 @@ export default async function RootLayout({
                     enableSystem={true}
                   >
                     <NotificationProvider>
-                    {children}
-                    <CustomToaster />
-                    <Toaster />
-                    <MetadataUpdater />
-                    <Script id="disable-zoom" strategy="afterInteractive">
-                      {`
+                      {children}
+                      <CustomToaster />
+                      <Toaster />
+                      <MetadataUpdater />
+                      <Script id='disable-zoom' strategy='afterInteractive'>
+                        {`
                         document.addEventListener('gesturestart', function (e) {
                           e.preventDefault();
                         });
@@ -122,7 +125,7 @@ export default async function RootLayout({
                           e.preventDefault();
                         });
                       `}
-                    </Script>
+                      </Script>
                     </NotificationProvider>
                   </ThemeProvider>
                   <TailwindIndicator />
@@ -131,6 +134,7 @@ export default async function RootLayout({
             </StoreProvider>
           </Providers>
         </SessionProviders>
+        {/* <DynamicInstallPrompt /> */}
         <Suspense>
           <Metrika />
         </Suspense>
