@@ -633,11 +633,9 @@ export default function DashboardPage() {
     setFiles((prevFiles) => [...prevFiles, wavFile]);
   };
 
-  const videoId = 'W2A2VAGKUpo'; // Здесь должен быть идентификатор YouTube-видео
-
   return (
     <div className='mb-8 min-h-screen max-w-3xl space-y-6 rounded-lg bg-white p-0 text-black dark:bg-secondary/60 dark:text-white'>
-      <YouTubeProxy videoId={videoId} />
+      <YouTubeProxy />
       {/* Post creation section */}
       {/* <div className='relative'>
         <input
