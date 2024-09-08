@@ -23,7 +23,6 @@ import AudioRecorder from '@/components/utils/mediaRecorder';
 import BlogSelectorDialog from '@/components/posts/BlogSelectorDialog';
 import BlogCard from '@/components/posts/BlogCard';
 import { Blog } from '@/types/Blog'; // Подразумевается, что у вас есть тип Blog
-import YouTubeProxy from '@/components/utils/proxyYoutube';
 
 import {
   Carousel,
@@ -635,7 +634,6 @@ export default function DashboardPage() {
 
   return (
     <div className='mb-8 min-h-screen max-w-3xl space-y-6 rounded-lg bg-white p-0 text-black dark:bg-secondary/60 dark:text-white'>
-      <YouTubeProxy />
       {/* Post creation section */}
       {/* <div className='relative'>
         <input
