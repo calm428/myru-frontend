@@ -149,9 +149,19 @@ export function FilterModal() {
     const _hashtag = hashTag
       ? hashTag.map((item) => item.value).join(',') || 'all'
       : 'all';
-    const _city = city && city.length > 0 ? city[0].label : 'all';
+
+    // Для городов собираем все выбранные значения
+    const _city =
+      city && city.length > 0
+        ? city.map((item) => item.label).join(',') || 'all'
+        : 'all';
+
+    // Для категорий собираем все выбранные значения
     const _category =
-      category && category.length > 0 ? category[0].label : 'all';
+      category && category.length > 0
+        ? category.map((item) => item.label).join(',') || 'all'
+        : 'all';
+
     const _money =
       minPrice && maxPrice
         ? `${minPrice}-${maxPrice}`
@@ -254,46 +264,46 @@ export function FilterModal() {
     const _category = searchParams.get('category');
     const _money = searchParams.get('money');
 
-    if (_hashtag && _hashtag !== 'all')
-      setHashTag(_hashtag.split(',').map((h) => ({ value: h, label: h })));
-    else if (_hashtag === 'all') setHashTag([]);
-    if (_city && _city !== 'all') {
-      setCityKeyword('');
-      let newCity: Option[] = city || [];
-
-      // _city.split(',').forEach((c) => {
-      const cityFound = newCity.find((cat) => cat.label === _city);
-      const cityOptionFound = cityOptions.find((cat) => cat.label === _city);
-
-      if (!cityFound && cityOptionFound) {
-        newCity.push(cityOptionFound);
-      }
-      // });
-
-      setCity(newCity);
-      console.log(newCity, _city, '~~~~~');
-    } else if (_city === 'all') setCity([]);
-    if (_category && _category !== 'all') {
-      let newCategory: Option[] = category || [];
-      setCategoryKeyword('');
-      // _category.split(',').forEach((c) => {
-      const categoryFound = newCategory.find((cat) => cat.label === _category);
-      const categoryOptionFound = categoryOptions.find(
-        (cat) => cat.label === _category
+    // Обработка хэштегов
+    if (_hashtag && _hashtag !== 'all') {
+      setHashTag(
+        _hashtag.split(',').map((h) => ({
+          value: h.trim(),
+          label: h.trim(),
+        }))
       );
+    } else if (_hashtag === 'all') {
+      setHashTag([]);
+    }
 
-      if (!categoryFound && categoryOptionFound) {
-        newCategory.push(categoryOptionFound);
-      }
-      // });
+    // Обработка городов: преобразуем города из URL в массив объектов для селектора
+    if (_city && _city !== 'all') {
+      const cityValues = _city.split(',').map((city) => ({
+        value: city.trim(),
+        label: city.trim(),
+      }));
+      setCity(cityValues); // Устанавливаем города в нужном формате
+    } else {
+      setCity([]);
+    }
 
-      setCategory(newCategory);
-    } else if (_category === 'all') setCategory([]);
+    // Обработка категорий: преобразуем категории из URL в массив объектов для селектора
+    if (_category && _category !== 'all') {
+      const categoryValues = _category.split(',').map((category) => ({
+        value: category.trim(),
+        label: category.trim(),
+      }));
+      setCategory(categoryValues); // Устанавливаем категории в нужном формате
+    } else {
+      setCategory([]);
+    }
+
+    // Обработка ценового диапазона
     if (_money && _money !== 'all') {
       const [min, max] = _money.split('-');
       setMinPrice(min);
       setMaxPrice(max);
-    } else if (_money === 'all') {
+    } else {
       setMinPrice('');
       setMaxPrice('');
     }
