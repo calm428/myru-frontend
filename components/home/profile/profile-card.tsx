@@ -147,9 +147,9 @@ function ProfileCard(profile: ProfileCardProps) {
           >
             @{username}
           </Link>
-          <div className='line-clamp-3 flex flex-col text-sm text-muted-foreground'>
+          <div className='line-clamp-3 flex  flex-col-reverse text-sm text-muted-foreground'>
             <div>{bio}</div>
-            <div className='mt-2'>
+            <div className='pb-4'>
               <FollowButtonGroup
                 me={false}
                 follow={profile.canFollow}
