@@ -24,9 +24,9 @@ export async function GET(req: NextRequest) {
     }
 
     const data = await res.json();
-    console.log(data.data);
     const profiles = data.data.map((item: any) => {
       return {
+        userID: item.profile?.UserID,
         canFollow: item.canFollow,
         username: item.profile?.User?.Name || '',
         bio: item.profile?.MultilangDescr
@@ -64,8 +64,6 @@ export async function GET(req: NextRequest) {
           })) || [],
       };
     });
-
-    console.log(profiles);
 
     return NextResponse.json({ data: profiles, meta: data.meta });
   } catch (error) {

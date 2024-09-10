@@ -11,6 +11,8 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 
 interface ProfileData {
+  canFollow: boolean;
+  userID: string;
   username: string;
   bio: string;
   avatar: string;
