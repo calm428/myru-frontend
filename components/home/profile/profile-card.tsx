@@ -66,7 +66,6 @@ function ProfileCard(profile: ProfileCardProps) {
     callbackURL,
   } = profile;
 
-  console.log(profile);
   const saveScrollPosition = () => {
     if (window === undefined) return;
     if (typeof localStorage !== 'undefined') {
