@@ -7,7 +7,7 @@ import ProfileSection from '@/components/home/profile';
 import { scrollToTransition } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { TbFilterSearch } from "react-icons/tb"; // Импорт иконки
+import { TbFilterSearch } from 'react-icons/tb'; // Импорт иконки
 
 export default function HomePage() {
   const searchParams = useSearchParams();
@@ -26,7 +26,8 @@ export default function HomePage() {
   useEffect(() => {
     const handleScroll = () => {
       if (window === undefined) return;
-      const currentScrollY = window.scrollY || document.documentElement.scrollTop;
+      const currentScrollY =
+        window.scrollY || document.documentElement.scrollTop;
 
       // Вводим зону комфорта в 10 пикселей
       if (Math.abs(currentScrollY - lastScrollY) < 10) {
@@ -92,7 +93,7 @@ export default function HomePage() {
       {(!isCTAVisible || isScrolledDown) && (
         <button
           onClick={toggleCTAVisibility}
-          className={`fixed right-4 z-50 rounded-full bg-blue-500 text-white p-4 shadow-lg transition-all ${
+          className={`fixed right-4 z-50 rounded-full bg-blue-500 p-4 text-white shadow-lg transition-all ${
             isCTAVisible ? 'bottom-[100px] md:bottom-4' : 'bottom-4'
           }`}
         >

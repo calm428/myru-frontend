@@ -42,75 +42,80 @@ import { RxCopy } from 'react-icons/rx';
 import 'react-quill/dist/quill.snow.css';
 import Select, { components, StylesConfig } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
-import useSWR, {mutate} from 'swr';
+import useSWR, { mutate } from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
 import { GrUpdate } from 'react-icons/gr';
 import * as z from 'zod';
 import { SubscriptionCard } from '@/components/profiles/setting/subscription-card';
 import { NewPostModal } from '@/components/profiles/setting/request4new';
-import { NewInvoice } from '@/components/profiles/setting/request4newBank';
 import { formatDateNew, formatAmount, getStatusTranslation } from '@/lib/utils';
-import { GrHostMaintenance } from "react-icons/gr";
-import { IoMdPhotos } from "react-icons/io";
-import { MdDashboardCustomize } from "react-icons/md";
+import { GrHostMaintenance } from 'react-icons/gr';
+import { IoMdPhotos } from 'react-icons/io';
+import { MdDashboardCustomize } from 'react-icons/md';
 import { useTheme } from 'next-themes';
-import CustomControl from '@/components/utils/customControl'; 
-import { SelectProvider } from '@/components/utils/selectContext'; 
+import CustomControl from '@/components/utils/customControl';
+import { SelectProvider } from '@/components/utils/selectContext';
 import Loader from '@/components/ui/loader';
-import { IoIosCloseCircleOutline, IoMdAdd } from "react-icons/io";
+import { IoIosCloseCircleOutline, IoMdAdd } from 'react-icons/io';
 import { Loader2 } from 'lucide-react';
 import { ChangeNamePopup } from '@/components/profiles/dashboard/change-name-popup';
 import Image from 'next/image';
-import { MdAccountBalanceWallet, MdOutlineDriveFileRenameOutline } from 'react-icons/md';
+import {
+  MdAccountBalanceWallet,
+  MdOutlineDriveFileRenameOutline,
+} from 'react-icons/md';
 import { MdDashboard, MdSettings, MdPostAdd } from 'react-icons/md';
 import { IconType } from 'react-icons';
-import { GiVideoConference } from "react-icons/gi";
-import { IoIosNotifications } from "react-icons/io";
+import { GiVideoConference } from 'react-icons/gi';
+import { IoIosNotifications } from 'react-icons/io';
 import CTASection from '@/components/profiles/cta';
 
 const ReactQuill =
   typeof window === 'object' ? require('react-quill') : () => false;
 
-  const customStyles = (theme: string): StylesConfig<Option, true> => ({
-    control: (provided) => ({
-      ...provided,
-      backgroundColor: theme === 'dark' ? '#1a1a1a' : '#ffffff',
+const customStyles = (theme: string): StylesConfig<Option, true> => ({
+  control: (provided) => ({
+    ...provided,
+    backgroundColor: theme === 'dark' ? '#1a1a1a' : '#ffffff',
+    color: theme === 'dark' ? '#ffffff' : '#000000',
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: theme === 'dark' ? '#ffffff' : '#000000',
+  }),
+  menu: (provided) => ({
+    ...provided,
+    backgroundColor: theme === 'dark' ? '#333333' : '#ffffff',
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isFocused
+      ? theme === 'dark'
+        ? '#555555'
+        : '#eaeaea'
+      : theme === 'dark'
+        ? '#333333'
+        : '#ffffff',
+    color: theme === 'dark' ? '#ffffff' : '#000000',
+    cursor: 'pointer',
+  }),
+  multiValue: (provided) => ({
+    ...provided,
+    backgroundColor: theme === 'dark' ? '#555555' : '#eaeaea',
+  }),
+  multiValueLabel: (provided) => ({
+    ...provided,
+    color: theme === 'dark' ? '#ffffff' : '#000000',
+  }),
+  multiValueRemove: (provided) => ({
+    ...provided,
+    color: theme === 'dark' ? '#ffffff' : '#000000',
+    ':hover': {
+      backgroundColor: theme === 'dark' ? '#777777' : '#cccccc',
       color: theme === 'dark' ? '#ffffff' : '#000000',
-    }),
-    input: (provided) => ({
-      ...provided,
-      color: theme === 'dark' ? '#ffffff' : '#000000',
-    }),
-    menu: (provided) => ({
-      ...provided,
-      backgroundColor: theme === 'dark' ? '#333333' : '#ffffff',
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      backgroundColor: state.isFocused
-        ? theme === 'dark' ? '#555555' : '#eaeaea'
-        : theme === 'dark' ? '#333333' : '#ffffff',
-      color: theme === 'dark' ? '#ffffff' : '#000000',
-      cursor: 'pointer',
-    }),
-    multiValue: (provided) => ({
-      ...provided,
-      backgroundColor: theme === 'dark' ? '#555555' : '#eaeaea',
-    }),
-    multiValueLabel: (provided) => ({
-      ...provided,
-      color: theme === 'dark' ? '#ffffff' : '#000000',
-    }),
-    multiValueRemove: (provided) => ({
-      ...provided,
-      color: theme === 'dark' ? '#ffffff' : '#000000',
-      ':hover': {
-        backgroundColor: theme === 'dark' ? '#777777' : '#cccccc',
-        color: theme === 'dark' ? '#ffffff' : '#000000',
-      },
-    }),
-  });
-  
+    },
+  }),
+});
 
 interface Profile {
   bio: string;
@@ -238,14 +243,14 @@ export default function SettingPage() {
   const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
   const [mobileSelectType, setMobileSelectType] = useState<string | null>(null);
   const handleOpenMobileModal = (type: string) => {
-    console.log(type)
+    console.log(type);
     setMobileSelectType(type);
     setIsMobileModalOpen(true);
   };
 
   const t = useTranslations('main');
   const { user, userMutate } = useContext(PaxContext);
-  
+
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -284,10 +289,14 @@ export default function SettingPage() {
   const [categoryKeyword, setCategoryKeyword] = useState<string>('');
 
   const [searchResults, setSearchResults] = useState<Option[]>([]);
-  const [searchResultsCategory, setSearchResultsCategory] = useState<Option[]>([]);
+  const [searchResultsCategory, setSearchResultsCategory] = useState<Option[]>(
+    []
+  );
 
   const [isHashtagLoading, setIsHashtagLoading] = useState(false);
-  const [searchResultsHashtag, setSearchResultsHashtag] = useState<Option[]>([]);
+  const [searchResultsHashtag, setSearchResultsHashtag] = useState<Option[]>(
+    []
+  );
   const [hashtagKeyword, setHashtagKeyword] = useState<string>('');
   const [hashtagURL, setHashtagURL] = useState<string>(
     `/api/hashtags/profile/get`
@@ -318,20 +327,9 @@ export default function SettingPage() {
     fetcher
   );
 
-  const { data: fetchedTransaction, error: transactionFetchError } = useSWR(
-    `/api/profiles/balance/get`, 
-    fetcher        
-  );
-
-
-
-
   // if (!fetchedTransaction && !transactionFetchError) return <div>Loading...</div>;
 
   // if (transactionFetchError) return <div>Error loading</div>;
-
-
-
 
   const { data: fetchedHashtags, error: hashtagFetchError } = useSWR(
     hashtagURL,
@@ -341,13 +339,11 @@ export default function SettingPage() {
   const handleCitySearch = useDebouncedCallback((value: string) => {
     setCityKeyword(value);
     setIsLoading(true);
-
   }, 300);
 
   const handleCategorySearch = useDebouncedCallback((value: string) => {
     setCategoryKeyword(value);
     setIsCategoryLoading(true);
-
   }, 300);
 
   function customFilterFunction(option: Option, searchInput: string) {
@@ -411,11 +407,12 @@ export default function SettingPage() {
         ]);
       } else {
         const limitedResults = fetchedCities.data
-        .map((city: any) => ({
-          value: city.ID,
-          label: city.Translations.find((t: any) => t.Language === locale).Name,
-        }))
-        .slice(0, 3); // Ограничение до 3 элементов
+          .map((city: any) => ({
+            value: city.ID,
+            label: city.Translations.find((t: any) => t.Language === locale)
+              .Name,
+          }))
+          .slice(0, 3); // Ограничение до 3 элементов
 
         setSearchResults(limitedResults);
         setIsLoading(false);
@@ -440,7 +437,7 @@ export default function SettingPage() {
             label: t('no_category'),
           },
         ]);
-  
+
         setCategoryOptions([
           {
             value: -1,
@@ -451,16 +448,18 @@ export default function SettingPage() {
         const limitedResults = fetchedCategories.data
           .map((category: any) => ({
             value: category.ID,
-            label: category.Translations.find((t: any) => t.Language === locale).Name,
+            label: category.Translations.find((t: any) => t.Language === locale)
+              .Name,
           }))
           .slice(0, 3); // Ограничение до 3 элементов
-  
+
         setSearchResultsCategory(limitedResults);
         setIsCategoryLoading(false);
         setCategoryOptions(
           fetchedCategories.data.map((category: any) => ({
             value: category.ID,
-            label: category.Translations.find((t: any) => t.Language === locale).Name,
+            label: category.Translations.find((t: any) => t.Language === locale)
+              .Name,
           }))
         );
       }
@@ -701,10 +700,10 @@ export default function SettingPage() {
   };
 
   useEffect(() => {
-    if(openBankModal === false) {
+    if (openBankModal === false) {
       mutate(`/api/profiles/balance/get`);
     }
-  }, [openBankModal])
+  }, [openBankModal]);
 
   const submitRechargecode = async () => {
     setIsRechargeLoading(true);
@@ -719,7 +718,6 @@ export default function SettingPage() {
           position: 'top-right',
         });
         setRechargecode('');
-
       } else {
         toast.error(t('recharge_failed'), {
           position: 'top-right',
@@ -819,9 +817,6 @@ export default function SettingPage() {
     }
   };
 
-
-
-  
   type ProfileConfig = {
     [key: string]: {
       icon: IconType;
@@ -829,7 +824,7 @@ export default function SettingPage() {
       descriptionKey: string;
     };
   };
-  
+
   const profileConfig: ProfileConfig = {
     '/profile/posts': {
       icon: MdPostAdd,
@@ -855,111 +850,116 @@ export default function SettingPage() {
       icon: IoIosNotifications,
       titleKey: 'notifications',
       descriptionKey: 'conference_description',
-    }
+    },
   };
 
-  
   const getConfigForPath = (path: string) => {
     // Удаляем префикс локали из пути
     const pathWithoutLocale = path.replace(/^\/(ru|es|ka)/, '');
 
     return profileConfig[pathWithoutLocale] || profileConfig['/profile'];
   };
-  
+
   const pathname = usePathname();
   const config = getConfigForPath(pathname);
 
-
   return (
-    
-    <div className='pb-4 px-4'>
-        <div className='px-0 py-4'>
-          <CTASection
-            //@ts-ignore
-            title={t(config.titleKey)}
-            //@ts-ignore
-            description={t(config.descriptionKey)}
-            icon={config.icon}
-          />
-        </div>
-    <div className='relative flex justify-between rounded-lg bg-white p-6 dark:bg-black md:col-span-2 shadow-md'>
-      <div>
-      <div className='mt-0 space-y-2 w-full'>
-      {fetchedData?.streaming !== null && (
-      <div className='mt-0 space-y-2 pb-4'>
-          {fetchedData?.streaming?.length > 0 ? (
-            fetchedData?.streaming?.map((stream: any, index: number) => (
-            <Link href={`/stream/${stream.RoomID}/host`} className='flex items-center justify-center gap-2'>
-              <div key={index} className='rounded-lg bg-blue-500 p-4 w-full'>
-                <div className='text-md'>Ваш эфир создан: {stream.Title}</div>
-                <div className='text-sm'>Отркыть</div>
+    <div className='px-4 pb-4'>
+      <div className='px-0 py-4'>
+        <CTASection
+          //@ts-ignore
+          title={t(config.titleKey)}
+          //@ts-ignore
+          description={t(config.descriptionKey)}
+          icon={config.icon}
+        />
+      </div>
+      <div className='relative flex justify-between rounded-lg bg-white p-6 shadow-md dark:bg-black md:col-span-2'>
+        <div>
+          <div className='mt-0 w-full space-y-2'>
+            {fetchedData?.streaming !== null && (
+              <div className='mt-0 space-y-2 pb-4'>
+                {fetchedData?.streaming?.length > 0 ? (
+                  fetchedData?.streaming?.map((stream: any, index: number) => (
+                    <Link
+                      href={`/stream/${stream.RoomID}/host`}
+                      className='flex items-center justify-center gap-2'
+                    >
+                      <div
+                        key={index}
+                        className='w-full rounded-lg bg-blue-500 p-4'
+                      >
+                        <div className='text-md'>
+                          Ваш эфир создан: {stream.Title}
+                        </div>
+                        <div className='text-sm'>Отркыть</div>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <div className='text-sm text-muted-foreground'></div>
+                )}
               </div>
-              </Link>
-            ))
-          ) : (
-            <div className='text-sm text-muted-foreground'></div>
-          )}
+            )}
           </div>
-        )}
-      </div>
-      <div className='flex flex-col cursor-pointer items-start text-2xl font-semibold'>
-        {t('hello')} {user?.username}
-        <ChangeNamePopup>
-          <Button variant='link' size='icon' className='inline w-full'>
-            <div className='flex gap-2'>
-              <div>Cменить имя</div>
-              <MdOutlineDriveFileRenameOutline className='text-2xl' />
-              </div>
-          </Button>
-        </ChangeNamePopup>
-      </div>
-      {/* <div className='text-sm text-muted-foreground'>
+          <div className='flex cursor-pointer flex-col items-start text-2xl font-semibold'>
+            {t('hello')} {user?.username}
+            <ChangeNamePopup>
+              <Button variant='link' size='icon' className='inline w-full'>
+                <div className='flex gap-2'>
+                  <div>Cменить имя</div>
+                  <MdOutlineDriveFileRenameOutline className='text-2xl' />
+                </div>
+              </Button>
+            </ChangeNamePopup>
+          </div>
+          {/* <div className='text-sm text-muted-foreground'>
         {t('view_all_alerts_description')}
       </div> */}
-      <div className='relative mt-8 flex items-center gap-2'>
-        {/* <Separator
+          <div className='relative mt-8 flex items-center gap-2'>
+            {/* <Separator
           orientation='vertical'
           className='relative mx-2 h-14 w-[1px]'
         /> */}
-        <div className='cursor-pointer space-y-4 text-center'>
-          <Link
-            href={`/profile/posts?callback=${encodeURIComponent('/profile/dashboard')}`}
-            className='cursor-pointer space-y-4 text-center'
-          >
-            <div className='text-center text-sm text-muted-foreground'>
-              {t('publications')}
+            <div className='cursor-pointer space-y-4 text-center'>
+              <Link
+                href={`/profile/posts?callback=${encodeURIComponent('/profile/dashboard')}`}
+                className='cursor-pointer space-y-4 text-center'
+              >
+                <div className='text-center text-sm text-muted-foreground'>
+                  {t('publications')}
+                </div>
+                <div className='text-center text-3xl font-extrabold'>
+                  {user?.totalposts || 0}
+                </div>
+              </Link>
             </div>
-            <div className='text-center text-3xl font-extrabold'>
-              {user?.totalposts || 0}
-            </div>
-          </Link>
+            <Separator
+              orientation='vertical'
+              className='relative mx-2 h-14 w-[1px]'
+            />
+            <Link
+              href={`/profile/relationships?callback=${encodeURIComponent('/profile/dashboard')}`}
+              className='cursor-pointer space-y-4 text-center'
+            >
+              <div className='text-center text-sm text-muted-foreground'>
+                {t('followers')}
+              </div>
+              <div className='text-center text-3xl font-extrabold'>
+                {user?.followers || 0}
+              </div>
+            </Link>
+          </div>
         </div>
-        <Separator
-          orientation='vertical'
-          className='relative mx-2 h-14 w-[1px]'
-        />
-        <Link
-          href={`/profile/relationships?callback=${encodeURIComponent('/profile/dashboard')}`}
-          className='cursor-pointer space-y-4 text-center'
-        >
-          <div className='text-center text-sm text-muted-foreground'>
-            {t('followers')}
-          </div>
-          <div className='text-center text-3xl font-extrabold'>
-            {user?.followers || 0}
-          </div>
-        </Link>
+        <div className='hidden md:block'>
+          <Image
+            src={'/images/analytic.svg'}
+            alt='analytic'
+            width={196}
+            height={147}
+          />
+        </div>
       </div>
-      </div>
-      <div className='hidden md:block'>
-        <Image
-          src={'/images/analytic.svg'}
-          alt='analytic'
-          width={196}
-          height={147}
-        />
-      </div>
-    </div>
       <NewPostModal
         openModal={openModal}
         setOpenModal={setOpenModal}
@@ -993,16 +993,16 @@ export default function SettingPage() {
           className='w-full items-start bg-background py-2 sm:flex'
           orientation='vertical'
         >
-          <TabsList className='flex h-auto w-full bg-background px-2 sm:w-60 sm:flex-col !overflow-hidden justify-center md:justify-start'>
+          <TabsList className='flex h-auto w-full justify-center !overflow-hidden bg-background px-2 sm:w-60 sm:flex-col md:justify-start'>
             <TabsTrigger
               value='profile'
               className='text-md w-full p-3 !shadow-none data-[state=active]:bg-primary/10 data-[state=active]:text-primary sm:justify-start'
               asChild
             >
               <Link href='/profile/setting?tab=profile'>
-                <div className='flex flex-col md:flex-row justify-center items-center'>
-                <FaUser className='mr-2 size-4 min-w-4' />
-                <span>{t('profile_settings')}</span>
+                <div className='flex flex-col items-center justify-center md:flex-row'>
+                  <FaUser className='mr-2 size-4 min-w-4' />
+                  <span>{t('profile_settings')}</span>
                 </div>
               </Link>
             </TabsTrigger>
@@ -1022,10 +1022,10 @@ export default function SettingPage() {
               asChild
             >
               <Link href='/profile/setting?tab=telegram'>
-              <div className='flex flex-col md:flex-row justify-center items-center'>
-                <FaTelegram className='mr-2 size-4 min-w-4' />
-                <span>{t('telegram')}</span>
-              </div>
+                <div className='flex flex-col items-center justify-center md:flex-row'>
+                  <FaTelegram className='mr-2 size-4 min-w-4' />
+                  <span>{t('telegram')}</span>
+                </div>
               </Link>
             </TabsTrigger>
             {/* <TabsTrigger
@@ -1042,35 +1042,41 @@ export default function SettingPage() {
           <div className='w-full'>
             <TabsContent className='my-2 w-full' value='profile'>
               <div className='px-3'>
-                <div className='mb-3 text-2xl font-semibold text-center md:text-left'>
+                <div className='mb-3 text-center text-2xl font-semibold md:text-left'>
                   {/* {t('profile_settings')} */}
                 </div>
                 <Tabs defaultValue='basic' className='w-full'>
-                  <TabsList className='flex w-auto !gap-6 justify-start bg-background !overflow-hidden'>
+                  <TabsList className='flex w-auto justify-start !gap-6 !overflow-hidden bg-background'>
                     <TabsTrigger
                       value='basic'
-                      className='w-auto !pl-0 !pr-0 rounded-none border-b-2 border-transparent bg-background data-[state=active]:border-primary data-[state=active]:shadow-none'
+                      className='w-auto rounded-none border-b-2 border-transparent bg-background !pl-0 !pr-0 data-[state=active]:border-primary data-[state=active]:shadow-none'
                     >
-                     <div className='flex gap-1 items-center'><GrHostMaintenance size="12" /> {t('basic')}</div>
+                      <div className='flex items-center gap-1'>
+                        <GrHostMaintenance size='12' /> {t('basic')}
+                      </div>
                     </TabsTrigger>
                     <TabsTrigger
                       value='photo-gallery'
-                      className='w-auto !pl-0 !pr-0 rounded-none border-b-2 border-transparent bg-background data-[state=active]:border-primary data-[state=active]:shadow-none'
+                      className='w-auto rounded-none border-b-2 border-transparent bg-background !pl-0 !pr-0 data-[state=active]:border-primary data-[state=active]:shadow-none'
                     >
-                      <div className='flex gap-1 items-center'><IoMdPhotos size="12" /> {t('photo_gallery')} </div>
+                      <div className='flex items-center gap-1'>
+                        <IoMdPhotos size='12' /> {t('photo_gallery')}{' '}
+                      </div>
                     </TabsTrigger>
                     <TabsTrigger
                       value='additional'
-                      className='w-auto !pl-0 !pr-0 rounded-none border-b-2 border-transparent bg-background data-[state=active]:border-primary data-[state=active]:shadow-none'
+                      className='w-auto rounded-none border-b-2 border-transparent bg-background !pl-0 !pr-0 data-[state=active]:border-primary data-[state=active]:shadow-none'
                     >
-                       <div className='flex gap-1 items-center'><MdDashboardCustomize size="12" />{t('additional')} </div>
+                      <div className='flex items-center gap-1'>
+                        <MdDashboardCustomize size='12' />
+                        {t('additional')}{' '}
+                      </div>
                     </TabsTrigger>
                   </TabsList>
                   <TabsContent
                     value='basic'
                     className='flex w-full max-w-lg flex-col gap-3'
                   >
-                    
                     <Form {...basicForm}>
                       <form
                         onSubmit={basicForm.handleSubmit(submitBasicInfo)}
@@ -1078,20 +1084,34 @@ export default function SettingPage() {
                       >
                         <FormField
                           control={basicForm.control}
-                          name="city"
+                          name='city'
                           render={({ field }) => {
                             const removeCity = (cityToRemove: Option) => {
-                              const updatedCities = field.value.filter((city: Option) => city.value !== cityToRemove.value);
-                              basicForm.setValue("city", updatedCities);
+                              const updatedCities = field.value.filter(
+                                (city: Option) =>
+                                  city.value !== cityToRemove.value
+                              );
+                              basicForm.setValue('city', updatedCities);
                             };
 
                             const addCity = (city: Option) => {
                               if (city.value === -1) {
-                                setRequestType("city");
+                                setRequestType('city');
                                 setOpenModal(true);
-                              } else if (!field.value.some((c: Option) => c.value === city.value)) {
-                                basicForm.setValue('city', [...field.value, city]);
-                                setSearchResults(prevResults => prevResults.filter((c: Option) => c.value !== city.value));
+                              } else if (
+                                !field.value.some(
+                                  (c: Option) => c.value === city.value
+                                )
+                              ) {
+                                basicForm.setValue('city', [
+                                  ...field.value,
+                                  city,
+                                ]);
+                                setSearchResults((prevResults) =>
+                                  prevResults.filter(
+                                    (c: Option) => c.value !== city.value
+                                  )
+                                );
                               }
                             };
 
@@ -1104,61 +1124,99 @@ export default function SettingPage() {
 
                             return (
                               <FormItem>
-                                <FormLabel htmlFor="city">{t("city_of_operation")}</FormLabel>
+                                <FormLabel htmlFor='city'>
+                                  {t('city_of_operation')}
+                                </FormLabel>
                                 <FormControl>
-                                  <SelectProvider onOpenMobileModal={() => handleOpenMobileModal("city")}>
+                                  <SelectProvider
+                                    onOpenMobileModal={() =>
+                                      handleOpenMobileModal('city')
+                                    }
+                                  >
                                     <Select
                                       isMulti
                                       options={cityOptions}
                                       value={field.value}
-                                      components={{ Control: (props) => <CustomControl {...props} type="city" /> }}
+                                      components={{
+                                        Control: (props) => (
+                                          <CustomControl
+                                            {...props}
+                                            type='city'
+                                          />
+                                        ),
+                                      }}
                                       onChange={(value) => {
-                                        if (value.slice(-1)[0] && value.slice(-1)[0].value === -1) {
-                                          setRequestType("city");
+                                        if (
+                                          value.slice(-1)[0] &&
+                                          value.slice(-1)[0].value === -1
+                                        ) {
+                                          setRequestType('city');
                                           setOpenModal(true);
                                         } else if (value) {
-                                          basicForm.setValue("city", [...value]);
+                                          basicForm.setValue('city', [
+                                            ...value,
+                                          ]);
                                         }
                                       }}
-                                      onInputChange={(value) => handleCitySearch(value)}
+                                      onInputChange={(value) =>
+                                        handleCitySearch(value)
+                                      }
                                       filterOption={customFilterFunction}
-                                      noOptionsMessage={() => t("no_options")}
-                                      placeholder={t("select") + "..."}
-                                      styles={customStyles(theme || "light")}
+                                      noOptionsMessage={() => t('no_options')}
+                                      placeholder={t('select') + '...'}
+                                      styles={customStyles(theme || 'light')}
                                       classNames={{
-                                        input: () => "dark:text-white text-black text-[16px]",
+                                        input: () =>
+                                          'dark:text-white text-black text-[16px]',
                                         control: () =>
-                                          "!flex !w-full !rounded-md !border !border-input !bg-background !text-sm !ring-offset-background file:!border-0 file:!bg-transparent file:!text-sm file:!font-medium focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-ring focus-visible:!ring-offset-2 disabled:!cursor-not-allowed disabled:!opacity-50",
-                                        option: () => "!bg-transparent !my-0 hover:!bg-muted-foreground !cursor-pointer",
-                                        menu: () => "!bg-muted",
-                                        indicatorsContainer: () => "invisible md:visible"
+                                          '!flex !w-full !rounded-md !border !border-input !bg-background !text-sm !ring-offset-background file:!border-0 file:!bg-transparent file:!text-sm file:!font-medium focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-ring focus-visible:!ring-offset-2 disabled:!cursor-not-allowed disabled:!opacity-50',
+                                        option: () =>
+                                          '!bg-transparent !my-0 hover:!bg-muted-foreground !cursor-pointer',
+                                        menu: () => '!bg-muted',
+                                        indicatorsContainer: () =>
+                                          'invisible md:visible',
                                       }}
                                     />
                                   </SelectProvider>
                                 </FormControl>
                                 <FormMessage />
-                                <Dialog open={isMobileModalOpen && mobileSelectType === 'city'} onOpenChange={handleModalClose}>
+                                <Dialog
+                                  open={
+                                    isMobileModalOpen &&
+                                    mobileSelectType === 'city'
+                                  }
+                                  onOpenChange={handleModalClose}
+                                >
                                   <DialogContent>
                                     <DialogHeader>
-                                      <DialogTitle>Выбор города(ов)</DialogTitle>
+                                      <DialogTitle>
+                                        Выбор города(ов)
+                                      </DialogTitle>
                                       <DialogClose />
                                     </DialogHeader>
                                     <div>
-                                      {mobileSelectType === "city" && (
-                                        <div className="flex flex-wrap gap-2">
-                                          <Input placeholder="Найдите или выберите" onChange={(e) => handleCitySearch(e.target.value)} />
+                                      {mobileSelectType === 'city' && (
+                                        <div className='flex flex-wrap gap-2'>
+                                          <Input
+                                            placeholder='Найдите или выберите'
+                                            onChange={(e) =>
+                                              handleCitySearch(e.target.value)
+                                            }
+                                          />
                                           {isLoading ? (
                                             <Loader2 className='mr-2 size-4 animate-spin' />
                                           ) : (
                                             searchResults.length > 0 && (
-                                              <div className="w-full rounded-md">
+                                              <div className='w-full rounded-md'>
                                                 {searchResults.map((city) => (
                                                   <div
                                                     key={city.value}
-                                                    className="dark:bg-gray-800 dark:text-white bg-gray-200 text-black p-2 cursor-pointer mb-2 rounded-sm"
-                                                    onClick={() => addCity(city)}
+                                                    className='mb-2 cursor-pointer rounded-sm bg-gray-200 p-2 text-black dark:bg-gray-800 dark:text-white'
+                                                    onClick={() =>
+                                                      addCity(city)
+                                                    }
                                                   >
-                                                    <div className='flex justify-between items-center gap-2'>
+                                                    <div className='flex items-center justify-between gap-2'>
                                                       {city.label}
                                                       <IoMdAdd />
                                                     </div>
@@ -1168,15 +1226,16 @@ export default function SettingPage() {
                                             )
                                           )}
                                           <Separator className='mb-4' />
-                                          <span>Уже добавленные</span><br />
+                                          <span>Уже добавленные</span>
+                                          <br />
                                           <div className='flex flex-wrap gap-2'>
                                             {field.value.map((city: Option) => (
                                               <div
                                                 key={city.value}
-                                                className="dark:bg-white dark:text-black bg-black text-white p-2 cursor-pointer"
+                                                className='cursor-pointer bg-black p-2 text-white dark:bg-white dark:text-black'
                                                 onClick={() => removeCity(city)}
                                               >
-                                                <div className='flex justify-center items-center gap-2'>
+                                                <div className='flex items-center justify-center gap-2'>
                                                   {city.label}
                                                   <IoIosCloseCircleOutline />
                                                 </div>
@@ -1187,8 +1246,10 @@ export default function SettingPage() {
                                       )}
                                     </div>
                                     <DialogFooter>
-                                      <Button onClick={() => handleModalClose(false)}>
-                                        {t("close")}
+                                      <Button
+                                        onClick={() => handleModalClose(false)}
+                                      >
+                                        {t('close')}
                                       </Button>
                                     </DialogFooter>
                                   </DialogContent>
@@ -1197,14 +1258,17 @@ export default function SettingPage() {
                             );
                           }}
                         />
-                          
+
                         <FormField
                           control={basicForm.control}
                           name='category'
                           render={({ field }) => {
-                            const removeCategory = (categoryToRemove: Option) => {
+                            const removeCategory = (
+                              categoryToRemove: Option
+                            ) => {
                               const updatedCategories = field.value.filter(
-                                (category: Option) => category.value !== categoryToRemove.value
+                                (category: Option) =>
+                                  category.value !== categoryToRemove.value
                               );
                               basicForm.setValue('category', updatedCategories);
                             };
@@ -1214,11 +1278,18 @@ export default function SettingPage() {
                                 setRequestType('category');
                                 setOpenModal(true);
                               } else if (
-                                !field.value.some((c: Option) => c.value === category.value)
+                                !field.value.some(
+                                  (c: Option) => c.value === category.value
+                                )
                               ) {
-                                basicForm.setValue('category', [...field.value, category]);
+                                basicForm.setValue('category', [
+                                  ...field.value,
+                                  category,
+                                ]);
                                 setSearchResultsCategory((prevResults) =>
-                                  prevResults.filter((c: Option) => c.value !== category.value)
+                                  prevResults.filter(
+                                    (c: Option) => c.value !== category.value
+                                  )
                                 );
                               }
                             };
@@ -1231,40 +1302,69 @@ export default function SettingPage() {
 
                             return (
                               <FormItem>
-                                <FormLabel htmlFor='category'>{t('type_of_activities')}</FormLabel>
+                                <FormLabel htmlFor='category'>
+                                  {t('type_of_activities')}
+                                </FormLabel>
                                 <FormControl>
-                                  <SelectProvider onOpenMobileModal={() => handleOpenMobileModal('category')}>
+                                  <SelectProvider
+                                    onOpenMobileModal={() =>
+                                      handleOpenMobileModal('category')
+                                    }
+                                  >
                                     <Select
                                       isMulti
                                       options={categoryOptions}
                                       value={field.value}
-                                      components={{ Control: (props) => <CustomControl {...props} type='category' /> }}
+                                      components={{
+                                        Control: (props) => (
+                                          <CustomControl
+                                            {...props}
+                                            type='category'
+                                          />
+                                        ),
+                                      }}
                                       onChange={(value) => {
-                                        if (value.slice(-1)[0] && value.slice(-1)[0].value === -1) {
+                                        if (
+                                          value.slice(-1)[0] &&
+                                          value.slice(-1)[0].value === -1
+                                        ) {
                                           setRequestType('category');
                                           setOpenModal(true);
                                         } else if (value) {
-                                          basicForm.setValue('category', [...value]);
+                                          basicForm.setValue('category', [
+                                            ...value,
+                                          ]);
                                         }
                                       }}
-                                      onInputChange={(value) => handleCategorySearch(value)}
+                                      onInputChange={(value) =>
+                                        handleCategorySearch(value)
+                                      }
                                       filterOption={customFilterFunction}
                                       noOptionsMessage={() => t('no_options')}
                                       placeholder={t('select') + '...'}
                                       styles={customStyles(theme || 'light')}
                                       classNames={{
-                                        input: () => 'dark:text-white text-black text-[16px]',
+                                        input: () =>
+                                          'dark:text-white text-black text-[16px]',
                                         control: () =>
                                           '!flex !w-full !rounded-md !border !border-input !bg-background !text-sm !ring-offset-background file:!border-0 file:!bg-transparent file:!text-sm file:!font-medium focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-ring focus-visible:!ring-offset-2 disabled:!cursor-not-allowed disabled:!opacity-50',
-                                        option: () => '!bg-transparent !my-0 hover:!bg-muted-foreground !cursor-pointer',
+                                        option: () =>
+                                          '!bg-transparent !my-0 hover:!bg-muted-foreground !cursor-pointer',
                                         menu: () => '!bg-muted',
-                                        indicatorsContainer: () => 'invisible md:visible',
+                                        indicatorsContainer: () =>
+                                          'invisible md:visible',
                                       }}
                                     />
                                   </SelectProvider>
                                 </FormControl>
                                 <FormMessage />
-                                <Dialog open={isMobileModalOpen && mobileSelectType === 'category'} onOpenChange={handleModalClose}>
+                                <Dialog
+                                  open={
+                                    isMobileModalOpen &&
+                                    mobileSelectType === 'category'
+                                  }
+                                  onOpenChange={handleModalClose}
+                                >
                                   <DialogContent>
                                     <DialogHeader>
                                       <DialogTitle>Выбор категорий</DialogTitle>
@@ -1275,25 +1375,34 @@ export default function SettingPage() {
                                         <div className='flex flex-wrap gap-2'>
                                           <Input
                                             placeholder='Найдите или выберите'
-                                            onChange={(e) => handleCategorySearch(e.target.value)}
+                                            onChange={(e) =>
+                                              handleCategorySearch(
+                                                e.target.value
+                                              )
+                                            }
                                           />
                                           {isCategoryLoading ? (
                                             <Loader2 className='mr-2 size-4 animate-spin' />
                                           ) : (
-                                            searchResultsCategory.length > 0 && (
+                                            searchResultsCategory.length >
+                                              0 && (
                                               <div className='w-full rounded-md'>
-                                                {searchResultsCategory.map((category) => (
-                                                  <div
-                                                    key={category.value}
-                                                    className='dark:bg-gray-800 dark:text-white bg-gray-200 text-black p-2 cursor-pointer mb-2 rounded-sm'
-                                                    onClick={() => addCategory(category)}
-                                                  >
-                                                    <div className='flex justify-between items-center gap-2'>
-                                                      {category.label}
-                                                      <IoMdAdd />
+                                                {searchResultsCategory.map(
+                                                  (category) => (
+                                                    <div
+                                                      key={category.value}
+                                                      className='mb-2 cursor-pointer rounded-sm bg-gray-200 p-2 text-black dark:bg-gray-800 dark:text-white'
+                                                      onClick={() =>
+                                                        addCategory(category)
+                                                      }
+                                                    >
+                                                      <div className='flex items-center justify-between gap-2'>
+                                                        {category.label}
+                                                        <IoMdAdd />
+                                                      </div>
                                                     </div>
-                                                  </div>
-                                                ))}
+                                                  )
+                                                )}
                                               </div>
                                             )
                                           )}
@@ -1301,24 +1410,30 @@ export default function SettingPage() {
                                           <span>Уже добавленные</span>
                                           <br />
                                           <div className='flex flex-wrap gap-2'>
-                                            {field.value.map((category: Option) => (
-                                              <div
-                                                key={category.value}
-                                                className='dark:bg-white dark:text-black bg-black text-white p-2 cursor-pointer'
-                                                onClick={() => removeCategory(category)}
-                                              >
-                                                <div className='flex justify-center items-center gap-2'>
-                                                  {category.label}
-                                                  <IoIosCloseCircleOutline />
+                                            {field.value.map(
+                                              (category: Option) => (
+                                                <div
+                                                  key={category.value}
+                                                  className='cursor-pointer bg-black p-2 text-white dark:bg-white dark:text-black'
+                                                  onClick={() =>
+                                                    removeCategory(category)
+                                                  }
+                                                >
+                                                  <div className='flex items-center justify-center gap-2'>
+                                                    {category.label}
+                                                    <IoIosCloseCircleOutline />
+                                                  </div>
                                                 </div>
-                                              </div>
-                                            ))}
+                                              )
+                                            )}
                                           </div>
                                         </div>
                                       )}
                                     </div>
                                     <DialogFooter>
-                                      <Button onClick={() => handleModalClose(false)}>
+                                      <Button
+                                        onClick={() => handleModalClose(false)}
+                                      >
                                         {t('close')}
                                       </Button>
                                     </DialogFooter>
@@ -1330,11 +1445,12 @@ export default function SettingPage() {
                         />
                         <FormField
                           control={basicForm.control}
-                          name="hashtags"
+                          name='hashtags'
                           render={({ field }) => {
                             const removeHashtag = (hashtagToRemove: Option) => {
                               const updatedHashtags = field.value.filter(
-                                (hashtag: Option) => hashtag.value !== hashtagToRemove.value
+                                (hashtag: Option) =>
+                                  hashtag.value !== hashtagToRemove.value
                               );
                               basicForm.setValue('hashtags', updatedHashtags);
                             };
@@ -1342,17 +1458,30 @@ export default function SettingPage() {
                             const addHashtag = async (hashtag: Option) => {
                               if (hashtag.label === hashtag.value) {
                                 try {
-                                  const res = await axios.post('/api/hashtags/create', {
-                                    hashTag: hashtag.label,
-                                  });
+                                  const res = await axios.post(
+                                    '/api/hashtags/create',
+                                    {
+                                      hashTag: hashtag.label,
+                                    }
+                                  );
 
                                   if (res.status === 200) {
                                     const hashtagData = res.data.data;
                                     hashtag.value = hashtagData.ID;
-                                    if (!field.value.some((h: Option) => h.value === hashtag.value)) {
-                                      basicForm.setValue('hashtags', [...field.value, hashtag]);
+                                    if (
+                                      !field.value.some(
+                                        (h: Option) => h.value === hashtag.value
+                                      )
+                                    ) {
+                                      basicForm.setValue('hashtags', [
+                                        ...field.value,
+                                        hashtag,
+                                      ]);
                                       setSearchResultsHashtag((prevResults) =>
-                                        prevResults.filter((h: Option) => h.value !== hashtag.value)
+                                        prevResults.filter(
+                                          (h: Option) =>
+                                            h.value !== hashtag.value
+                                        )
                                       );
                                     }
                                   } else {
@@ -1365,10 +1494,19 @@ export default function SettingPage() {
                                     position: 'top-right',
                                   });
                                 }
-                              } else if (!field.value.some((h: Option) => h.value === hashtag.value)) {
-                                basicForm.setValue('hashtags', [...field.value, hashtag]);
+                              } else if (
+                                !field.value.some(
+                                  (h: Option) => h.value === hashtag.value
+                                )
+                              ) {
+                                basicForm.setValue('hashtags', [
+                                  ...field.value,
+                                  hashtag,
+                                ]);
                                 setSearchResultsHashtag((prevResults) =>
-                                  prevResults.filter((h: Option) => h.value !== hashtag.value)
+                                  prevResults.filter(
+                                    (h: Option) => h.value !== hashtag.value
+                                  )
                                 );
                               }
                             };
@@ -1382,21 +1520,40 @@ export default function SettingPage() {
 
                             return (
                               <FormItem>
-                                <FormLabel htmlFor="hashtags">{t('hashtag_for_promoting')}</FormLabel>
+                                <FormLabel htmlFor='hashtags'>
+                                  {t('hashtag_for_promoting')}
+                                </FormLabel>
                                 <FormControl>
-                                  <SelectProvider onOpenMobileModal={() => handleOpenMobileModal('hashtag')}>
+                                  <SelectProvider
+                                    onOpenMobileModal={() =>
+                                      handleOpenMobileModal('hashtag')
+                                    }
+                                  >
                                     <CreatableSelect
                                       isMulti
                                       placeholder={t('select') + '...'}
                                       noOptionsMessage={() => t('no_options')}
                                       options={hashtagOptions}
                                       value={field.value}
-                                      components={{ Control: (props) => <CustomControl {...props} type='hashtag' /> }}
+                                      components={{
+                                        Control: (props) => (
+                                          <CustomControl
+                                            {...props}
+                                            type='hashtag'
+                                          />
+                                        ),
+                                      }}
                                       onChange={(value) => {
-                                        if (value.slice(-1)[0] && value.slice(-1)[0].label === value.slice(-1)[0].value) {
+                                        if (
+                                          value.slice(-1)[0] &&
+                                          value.slice(-1)[0].label ===
+                                            value.slice(-1)[0].value
+                                        ) {
                                           addHashtag(value.slice(-1)[0]);
                                         } else if (value) {
-                                          basicForm.setValue('hashtags', [...value]);
+                                          basicForm.setValue('hashtags', [
+                                            ...value,
+                                          ]);
                                         }
                                       }}
                                       onInputChange={(value) => {
@@ -1404,22 +1561,32 @@ export default function SettingPage() {
                                         handleHashtagSearch(value);
                                       }}
                                       filterOption={customFilterFunction}
-                                      formatCreateLabel={(inputValue) => `Добавить "${inputValue}"`}
+                                      formatCreateLabel={(inputValue) =>
+                                        `Добавить "${inputValue}"`
+                                      }
                                       styles={customStyles(theme || 'light')}
                                       classNames={{
-                                        input: () => 'dark:text-white text-black text-[16px]',
+                                        input: () =>
+                                          'dark:text-white text-black text-[16px]',
                                         control: () =>
                                           '!flex !w-full !rounded-md !border !border-input !bg-background !text-sm !ring-offset-background file:!border-0 file:!bg-transparent file:!text-sm file:!font-medium focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-ring focus-visible:!ring-offset-2 disabled:!cursor-not-allowed disabled:!opacity-50',
                                         option: () =>
                                           '!bg-transparent !my-0 hover:!bg-muted-foreground !cursor-pointer',
                                         menu: () => '!bg-muted',
-                                        indicatorsContainer: () => 'invisible md:visible',
+                                        indicatorsContainer: () =>
+                                          'invisible md:visible',
                                       }}
                                     />
                                   </SelectProvider>
                                 </FormControl>
                                 <FormMessage />
-                                <Dialog open={isMobileModalOpen && mobileSelectType === 'hashtag'} onOpenChange={handleModalClose}>
+                                <Dialog
+                                  open={
+                                    isMobileModalOpen &&
+                                    mobileSelectType === 'hashtag'
+                                  }
+                                  onOpenChange={handleModalClose}
+                                >
                                   <DialogContent>
                                     <DialogHeader>
                                       <DialogTitle>Выбор хэштегов</DialogTitle>
@@ -1432,7 +1599,9 @@ export default function SettingPage() {
                                             placeholder='Найдите или выберите'
                                             onChange={(e) => {
                                               setHashtagKeyword(e.target.value);
-                                              handleHashtagSearch(e.target.value);
+                                              handleHashtagSearch(
+                                                e.target.value
+                                              );
                                             }}
                                           />
                                           {isHashtagLoading ? (
@@ -1440,18 +1609,22 @@ export default function SettingPage() {
                                           ) : (
                                             searchResultsHashtag.length > 0 && (
                                               <div className='w-full rounded-md'>
-                                                {searchResultsHashtag.map((hashtag) => (
-                                                  <div
-                                                    key={hashtag.value}
-                                                    className='dark:bg-gray-800 dark:text-white bg-gray-200 text-black p-2 cursor-pointer mb-2 rounded-sm'
-                                                    onClick={() => addHashtag(hashtag)}
-                                                  >
-                                                    <div className='flex justify-between items-center gap-2'>
-                                                      {hashtag.label}
-                                                      <IoMdAdd />
+                                                {searchResultsHashtag.map(
+                                                  (hashtag) => (
+                                                    <div
+                                                      key={hashtag.value}
+                                                      className='mb-2 cursor-pointer rounded-sm bg-gray-200 p-2 text-black dark:bg-gray-800 dark:text-white'
+                                                      onClick={() =>
+                                                        addHashtag(hashtag)
+                                                      }
+                                                    >
+                                                      <div className='flex items-center justify-between gap-2'>
+                                                        {hashtag.label}
+                                                        <IoMdAdd />
+                                                      </div>
                                                     </div>
-                                                  </div>
-                                                ))}
+                                                  )
+                                                )}
                                               </div>
                                             )
                                           )}
@@ -1459,25 +1632,31 @@ export default function SettingPage() {
                                           <span>Уже добавленные</span>
                                           <br />
                                           <div className='flex flex-wrap gap-2'>
-                                            {field.value.map((hashtag: Option) => (
-                                              <div
-                                                key={hashtag.value}
-                                                className='dark:bg-white dark:text-black bg-black text-white p-2 cursor-pointer'
-                                                onClick={() => removeHashtag(hashtag)}
-                                              >
-                                                <div className='flex justify-center items-center gap-2'>
-                                                  {hashtag.label}
-                                                  <IoIosCloseCircleOutline />
+                                            {field.value.map(
+                                              (hashtag: Option) => (
+                                                <div
+                                                  key={hashtag.value}
+                                                  className='cursor-pointer bg-black p-2 text-white dark:bg-white dark:text-black'
+                                                  onClick={() =>
+                                                    removeHashtag(hashtag)
+                                                  }
+                                                >
+                                                  <div className='flex items-center justify-center gap-2'>
+                                                    {hashtag.label}
+                                                    <IoIosCloseCircleOutline />
+                                                  </div>
                                                 </div>
-                                              </div>
-                                            ))}
+                                              )
+                                            )}
                                           </div>
                                         </div>
                                       )}
                                     </div>
                                     <DialogFooter>
-                                      <Button onClick={() => handleModalClose(false)}>
-                                        {t("close")}
+                                      <Button
+                                        onClick={() => handleModalClose(false)}
+                                      >
+                                        {t('close')}
                                       </Button>
                                     </DialogFooter>
                                   </DialogContent>
@@ -1590,76 +1769,6 @@ export default function SettingPage() {
                 </Tabs>
               </div>
             </TabsContent>
-            <TabsContent className='w-full' value='accounting'>
-              <div className='px-3'>
-                <div className='text-2xl font-semibold'>{t('accounting')}</div>
-                <div className='mt-4 flex w-full  items-start gap-4'>
-                  {/* <Input
-                    placeholder={t('enter_recharge_code')}
-                    value={rechargecode}
-                    onChange={(e) => setRechargecode(e.target.value)}
-                  ></Input>
-                  <Button
-                    onClick={submitRechargecode}
-                    className='btn btn--wide !rounded-md'
-                  >
-                    {isRechargeLoading && (
-                      <Loader2 className='mr-2 size-4 animate-spin' />
-                    )}
-                    {t('recharge_via_code')}
-                  </Button> */}
-                  <Button
-                    onClick={submitBankRecharge}
-                    className='btn btn--wide !rounded-md float-left !m-0'
-                  >
-                    {isRechargeLoading && (
-                      <Loader2 className='mr-2 size-4 animate-spin' />
-                    )}
-                    {t('recharge_via_bank_card')}
-                  </Button>
-                  <NewInvoice openBankModal={openBankModal} setOpenBankModal={setOpenBankModal} requestType="payment" />
-
-                </div>
-                <div>
-                <div className="container mx-auto mt-8">
-                <h1 className="text-2xl font-bold mb-4">{t('transactions')}</h1>
-                <div className="overflow-x-auto">
-                  <table className="responsive-table min-w-full shadow-sm">
-                    <thead>
-                      <tr className="bg-gray-100 dark:bg-black">
-                        <th className="py-2 px-4 border-b text-left">{t('transaction_description')}</th>
-                        <th className="py-2 px-4 border-b text-left">{t('amount')}</th>
-                        <th className="py-2 px-4 border-b text-left">{t('date')}</th>
-
-                        <th className="py-2 px-4 border-b text-right">{t('status')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                    {fetchedTransaction && fetchedTransaction.data ? (
-                      fetchedTransaction.data.map((transaction: any) => (
-                        <tr key={transaction.ID} className="bg-gray-50 dark:bg-black">
-                          <td data-label={t('transaction_description')} className="py-2 px-4 border-b whitespace-break-spaces">
-                            {getStatusTranslation<typeof t>(transaction.Description, t)}
-                          </td>
-                          <td data-label={t('amount')} className="py-2 px-4 border-b">{formatAmount(transaction.Amount)}</td>
-                          <td data-label={t('date')} className="py-2 px-4 border-b"> {formatDateNew(transaction.CreatedAt)}</td>
-                          <td data-label={t('status')} className="py-2 px-4 border-b text-right">{getStatusTranslation<typeof t>(transaction.Status, t)}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={3} className="py-2 px-4 border-b">
-                          Loading...
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                  </table>
-                </div>
-                </div>
-                </div>
-              </div>
-            </TabsContent>
             <TabsContent className='my-2 w-full' value='telegram'>
               <div className='px-3'>
                 <div className='text-2xl font-semibold'>
@@ -1683,7 +1792,7 @@ export default function SettingPage() {
                         ),
                       })}
                     </div>
-                    <div className='flex items-center justify-between rounded-lg bg-black/5 p-4 dark:bg-white/10 break-all'>
+                    <div className='flex items-center justify-between break-all rounded-lg bg-black/5 p-4 dark:bg-white/10'>
                       <div>{profile?.telegram?.token}</div>
                       <div>
                         <Button

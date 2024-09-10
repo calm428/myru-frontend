@@ -98,7 +98,8 @@ export default function ProfileSection() {
       const response = await fetcher(getFetchURL(nextSkip));
       setProfileData((prevData) => {
         const newData = response.data.filter(
-          (newItem: ProfileData) => !prevData.some((item) => item.username === newItem.username)
+          (newItem: ProfileData) =>
+            !prevData.some((item) => item.username === newItem.username)
         );
         return [...prevData, ...newData];
       });
@@ -116,14 +117,14 @@ export default function ProfileSection() {
         next={loadMore}
         hasMore={hasMore}
         loader={
-          <div className='grid w-full grid-cols-1 place-items-center gap-4 md:grid-cols-2 lg:grid-cols-3 top-[-30px] relative'>
+          <div className='relative top-[-30px] grid w-full grid-cols-1 place-items-center gap-4 md:grid-cols-2 lg:grid-cols-3'>
             <ProfileCardSkeleton />
             <ProfileCardSkeleton className='hidden md:block' />
             <ProfileCardSkeleton className='hidden lg:block' />
           </div>
         }
         endMessage={
-          <p className='text-center mb-8'>
+          <p className='mb-8 text-center'>
             <b>{t('no_more_results')}</b>
           </p>
         }
@@ -132,7 +133,11 @@ export default function ProfileSection() {
           {!error ? (
             profileData.length > 0 ? (
               profileData.map((profile: ProfileData) => (
-                <ProfileCard key={profile.username} {...profile} callbackURL='' />
+                <ProfileCard
+                  key={profile.username}
+                  {...profile}
+                  callbackURL=''
+                />
               ))
             ) : (
               !loading && (
