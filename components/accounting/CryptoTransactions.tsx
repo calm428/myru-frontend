@@ -25,7 +25,7 @@ export default function CryptoTransactions() {
     setIsRechargeLoading(true);
     try {
       const response = await axios.post('/api/crypto/wallet/create');
-      const { address, public_key } = response.data;
+      const { address, public_key } = response.data.balance;
       setWalletData({ address, public_key }); // Сохраняем данные кошелька
       setWalletCreated(true); // Отмечаем, что кошелек создан
     } catch (error) {
