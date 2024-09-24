@@ -27,8 +27,6 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    console.log(await res.json());
-
     if (!res.ok) {
       throw new Error('Failed to fetch data');
     }
