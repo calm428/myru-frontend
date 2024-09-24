@@ -25,7 +25,7 @@ export default function CryptoTransactions() {
     setIsRechargeLoading(true);
     try {
       const response = await axios.post('/api/crypto/wallet/create');
-      const { address, public_key } = response.data.balance;
+      const { address, public_key } = response.data.data;
       setWalletData({ address, public_key }); // Сохраняем данные кошелька
       setWalletCreated(true); // Отмечаем, что кошелек создан
     } catch (error) {
@@ -83,8 +83,10 @@ export default function CryptoTransactions() {
   return (
     <div className='mx-auto mt-8'>
       <h1 className='mb-4 text-2xl font-bold'>Крипта</h1>
-      <p className='text-lg'>
-        Баланс вашего криптокошелька: {fetchedTransaction.balance}
+      <p className='flex flex-col gap-4 text-lg'>
+        <p>Баланс вашего криптокошелька: {fetchedTransaction.data?.balance}</p>
+        <p>Адрес кошелька {fetchedTransaction.data?.wallet}</p>
+        <p>Ключ {fetchedTransaction.data?.public_key}</p>
       </p>
     </div>
   );
