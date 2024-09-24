@@ -19,7 +19,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  console.log(process.env.API_URL);
   try {
     const res = await fetch(`${process.env.API_URL}/api/crypto/balance`, {
       method: 'GET',
@@ -28,12 +27,13 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    console.log(await res.json());
+
     if (!res.ok) {
       throw new Error('Failed to fetch data');
     }
 
     const data = await res.json();
-
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(
