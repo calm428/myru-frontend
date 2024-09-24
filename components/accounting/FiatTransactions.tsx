@@ -22,7 +22,7 @@ export default function FiatTransactions() {
 
   if (!fetchedTransaction) {
     return (
-      <div className='flex justify-center'>
+      <div className='my-8 flex justify-center'>
         <Loader2 className='animate-spin' />
       </div>
     );
