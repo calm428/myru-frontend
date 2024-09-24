@@ -6,6 +6,7 @@ import axios from 'axios';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { SiPastebin } from 'react-icons/si';
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -62,6 +63,8 @@ export default function CryptoTransactions() {
           <p className='text-center'>
             Ваш адрес: <strong>{walletData?.address}</strong>
           </p>
+          <SiPastebin size={16} />
+
           <p className='text-center'>
             Ваш публичный ключ: <strong>{walletData?.public_key}</strong>
           </p>
@@ -85,8 +88,19 @@ export default function CryptoTransactions() {
       <h1 className='mb-4 text-2xl font-bold'>Крипта</h1>
       <p className='flex flex-col gap-4 text-lg'>
         <p>Баланс вашего криптокошелька: {fetchedTransaction.data?.balance}</p>
-        <p>Адрес кошелька {fetchedTransaction.data?.wallet}</p>
-        <p>Ключ {fetchedTransaction.data?.public_key}</p>
+        <div>
+          {' '}
+          <SiPastebin size={24} />
+          <p className='break-words text-sm'>
+            Адрес кошелька {fetchedTransaction.data?.Wallet}{' '}
+          </p>
+        </div>
+        <div>
+          <SiPastebin size={24} />
+          <p className=' break-words text-sm'>
+            Ключ {fetchedTransaction.data?.Public_key}
+          </p>
+        </div>
       </p>
     </div>
   );
