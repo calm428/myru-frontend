@@ -60,12 +60,12 @@ export default function CryptoTransactions() {
       return (
         <div className='my-8 flex flex-col items-center justify-center gap-8'>
           <p className='text-center text-green-500'>Кошелек успешно создан!</p>
-          <p className='text-center'>
+          <p className='break-words text-center text-sm'>
             Ваш адрес: <strong>{walletData?.address}</strong>
           </p>
           <SiPastebin size={16} />
 
-          <p className='text-center'>
+          <p className='break-words text-center text-sm'>
             Ваш публичный ключ: <strong>{walletData?.public_key}</strong>
           </p>
         </div>
