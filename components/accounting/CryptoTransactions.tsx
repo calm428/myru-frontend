@@ -92,13 +92,13 @@ export default function CryptoTransactions() {
           {' '}
           <SiPastebin size={24} />
           <p className='break-words text-sm'>
-            Адрес кошелька {fetchedTransaction.data?.Wallet}{' '}
+            Адрес кошелька {fetchedTransaction.data?.wallet}{' '}
           </p>
         </div>
         <div>
           <SiPastebin size={24} />
           <p className=' break-words text-sm'>
-            Ключ {fetchedTransaction.data?.Public_key}
+            Ключ {fetchedTransaction.data?.public_key}
           </p>
         </div>
       </p>
