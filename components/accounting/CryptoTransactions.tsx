@@ -264,7 +264,7 @@ export default function CryptoTransactions() {
 
   // Отображение данных транзакций, если кошелек уже создан
   return (
-    <div className='mx-auto mt-8'>
+    <div className='mx-auto mt-2'>
       <p className='my-4 items-center gap-4 '>
         Баланс: <strong>{fetchedBalance.data.balance} RUDT</strong>
         {/* <Image
@@ -310,7 +310,7 @@ export default function CryptoTransactions() {
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)}>
             {/* Поле для ввода адреса отправителя (from_wallet) */}
-            <div className='mb-4'>
+            <div className='mb-4 hidden'>
               <label
                 htmlFor='from_wallet'
                 className='block text-sm font-medium text-gray-700 dark:text-gray-100'
