@@ -9,6 +9,7 @@ import { NewInvoice } from '@/components/profiles/setting/request4newBank';
 import { Separator } from '@/components/ui/separator';
 import FiatTransactions from '@/components/accounting/FiatTransactions';
 import CryptoTransactions from '@/components/accounting/CryptoTransactions';
+import BackButton from '@/components/home/back-button';
 
 export default function AccountingPage() {
   const t = useTranslations('main');
@@ -20,7 +21,7 @@ export default function AccountingPage() {
 
   // Получение активной вкладки из параметров URL
   const tabParam = searchParams.get('tab');
-  const [activeTab, setActiveTab] = useState(tabParam || 'fiat');
+  const [activeTab, setActiveTab] = useState(tabParam || 'crypto');
 
   useEffect(() => {
     if (tabParam) {
@@ -36,11 +37,13 @@ export default function AccountingPage() {
 
   return (
     <div className='container px-3 py-4'>
-      <div className='text-2xl font-semibold'>{t('accounting')}</div>
+      <BackButton callback={searchParams.get('callback') || ''} />
+
+      {/* <div className='text-2xl font-semibold'>{t('accounting')}</div> */}
 
       {/* Вкладки для выбора между Фиат и Крипта */}
       <div className='mt-4 flex'>
-        <div
+        {/* <div
           className={`me-2 w-full cursor-pointer ${
             activeTab === 'fiat' ? 'border-b-2 border-primary' : ''
           }`}
@@ -53,7 +56,7 @@ export default function AccountingPage() {
           >
             Фиат
           </div>
-        </div>
+        </div> */}
         <div
           className={`me-2 w-full cursor-pointer ${
             activeTab === 'crypto' ? 'border-b-2 border-primary' : ''
@@ -61,11 +64,11 @@ export default function AccountingPage() {
           onClick={() => handleTabChange('crypto')}
         >
           <div
-            className={`inline-flex w-full items-center justify-center p-4 ${
+            className={`inline-flex w-full items-start justify-start p-4 ${
               activeTab === 'crypto' ? 'text-primary' : 'text-gray-500'
             }`}
           >
-            Крипта
+            Данные кошелька
           </div>
         </div>
       </div>
@@ -73,7 +76,7 @@ export default function AccountingPage() {
       <Separator />
 
       {/* Отображение контента на основе выбранной вкладки */}
-      {activeTab === 'fiat' && <FiatTransactions />}
+      {/* {activeTab === 'fiat' && <FiatTransactions />} */}
       {activeTab === 'crypto' && <CryptoTransactions />}
     </div>
   );
