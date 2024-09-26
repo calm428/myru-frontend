@@ -22,7 +22,6 @@ import { useEffect } from 'react';
 
 import toast from 'react-hot-toast';
 interface FormValues {
-  walletAddress: any;
   from_wallet: string;
   to_wallet: string;
   amount: number;
@@ -141,7 +140,7 @@ export default function CryptoTransactions() {
     setIsSubmitting(true); // Начинаем процесс отправки
     try {
       const response = await axios.post('/api/crypto/wallet/send', {
-        to_wallet: data.walletAddress,
+        to_wallet: data.to_wallet,
         public_key: data.public_key,
         from_wallet: data.from_wallet,
         amount: data.amount,
@@ -155,6 +154,7 @@ export default function CryptoTransactions() {
         position: 'top-right',
       });
     } finally {
+      setOpenModal(false);
       setIsSubmitting(false); // Завершаем процесс отправки
     }
   };
