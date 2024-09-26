@@ -8,18 +8,51 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { SiPastebin } from 'react-icons/si';
 
+// Определение типов данных
+interface TransactionType {
+  OnlineTime?: {
+    online_time: number;
+    reward_amount: number;
+  };
+  // Добавьте другие типы транзакций здесь
+}
+
+interface TransactionResponse {
+  id: string;
+  hash: string;
+  data: string;
+  timestamp: string;
+  transaction_type: TransactionType;
+  user_id: string;
+  signature: number[];
+}
+
+type TransactionsResponse = TransactionResponse[];
+
+interface BalanceResponse {
+  balance: number;
+  wallet: string;
+  public_key: string;
+}
+
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function CryptoTransactions() {
   const t = useTranslations('main');
   const [isRechargeLoading, setIsRechargeLoading] = useState(false);
-  const [walletData, setWalletData] = useState<any>(null); // Добавляем состояние для хранения информации о кошельке
-  const [walletCreated, setWalletCreated] = useState(false); // Состояние для отслеживания созданного кошелька
+  const [walletData, setWalletData] = useState<{
+    address: string;
+    public_key: string;
+  } | null>(null);
+  const [walletCreated, setWalletCreated] = useState(false);
 
-  const { data: fetchedTransaction, error: transactionFetchError } = useSWR(
-    `/api/crypto/balance/get`,
-    fetcher
-  );
+  // Запрос к API для получения баланса
+  const { data: fetchedBalance, error: balanceFetchError } =
+    useSWR<BalanceResponse>('/api/crypto/balance/get', fetcher);
+
+  // Запрос к API для получения транзакций
+  const { data: fetchedTransactions, error: transactionsFetchError } =
+    useSWR<TransactionsResponse>('/api/crypto/transactions/get', fetcher);
 
   // Асинхронная функция для создания кошелька
   async function createWallet() {
@@ -27,8 +60,8 @@ export default function CryptoTransactions() {
     try {
       const response = await axios.post('/api/crypto/wallet/create');
       const { address, public_key } = response.data.balance;
-      setWalletData({ address, public_key }); // Сохраняем данные кошелька
-      setWalletCreated(true); // Отмечаем, что кошелек создан
+      setWalletData({ address, public_key });
+      setWalletCreated(true);
     } catch (error) {
       console.error('Ошибка создания кошелька:', error);
       alert('Ошибка при создании кошелька');
@@ -37,8 +70,8 @@ export default function CryptoTransactions() {
     }
   }
 
-  // Если произошла ошибка загрузки баланса
-  if (transactionFetchError) {
+  // Обработка ошибок загрузки баланса или транзакций
+  if (balanceFetchError || transactionsFetchError) {
     // Проверяем, если кошелек еще не создан
     if (!walletCreated) {
       return (
@@ -74,7 +107,7 @@ export default function CryptoTransactions() {
   }
 
   // Если данные еще загружаются
-  if (!fetchedTransaction) {
+  if (!fetchedBalance || !fetchedTransactions) {
     return (
       <div className='my-8 flex justify-center'>
         <Loader2 className='animate-spin' />
@@ -87,21 +120,58 @@ export default function CryptoTransactions() {
     <div className='mx-auto mt-8'>
       <h1 className='mb-4 text-2xl font-bold'>Крипта</h1>
       <p className='flex flex-col gap-4 text-lg'>
-        <p>Баланс вашего криптокошелька: {fetchedTransaction.data?.balance}</p>
+        <p>Баланс вашего криптокошелька: {fetchedBalance.balance}</p>
         <div>
-          {' '}
           <SiPastebin size={24} />
           <p className='break-words text-sm'>
-            Адрес кошелька {fetchedTransaction.data?.wallet}{' '}
+            Адрес кошелька: <strong>{fetchedBalance.wallet}</strong>
           </p>
         </div>
         <div>
           <SiPastebin size={24} />
-          <p className=' break-words text-sm'>
-            Ключ {fetchedTransaction.data?.public_key}
+          <p className='break-words text-sm'>
+            Ключ: <strong>{fetchedBalance.public_key}</strong>
           </p>
         </div>
       </p>
+
+      {/* Таблица транзакций */}
+      <div className='mt-8 overflow-x-auto'>
+        <table className='responsive-table min-w-full shadow-sm'>
+          <thead>
+            <tr className='bg-gray-100 dark:bg-black'>
+              <th className='border-b px-4 py-2 text-left'>
+                {t('transaction_description')}
+              </th>
+              <th className='border-b px-4 py-2 text-left'>{t('amount')}</th>
+              <th className='border-b px-4 py-2 text-left'>{t('date')}</th>
+              <th className='border-b px-4 py-2 text-right'>{t('status')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {fetchedTransactions.map((transaction) => (
+              <tr key={transaction.id} className='bg-gray-50 dark:bg-black'>
+                <td className='whitespace-break-spaces border-b px-4 py-2'>
+                  {transaction.data}
+                </td>
+                <td className='border-b px-4 py-2'>
+                  {transaction.transaction_type?.OnlineTime?.reward_amount ||
+                    '—'}
+                </td>
+                <td className='border-b px-4 py-2'>
+                  {new Date(transaction.timestamp).toLocaleString()}
+                </td>
+                <td className='border-b px-4 py-2 text-right'>
+                  {/* Определение статуса на основе типа транзакции */}
+                  {transaction.transaction_type?.OnlineTime
+                    ? 'Completed'
+                    : 'Pending'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
