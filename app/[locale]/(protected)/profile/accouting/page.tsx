@@ -64,7 +64,7 @@ export default function AccountingPage() {
           onClick={() => handleTabChange('crypto')}
         >
           <div
-            className={`inline-flex w-full items-start justify-start p-4 ${
+            className={`inline-flex w-full items-start justify-start py-4 ${
               activeTab === 'crypto' ? 'text-primary' : 'text-gray-500'
             }`}
           >
