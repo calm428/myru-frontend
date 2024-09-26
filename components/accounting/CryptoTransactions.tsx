@@ -14,6 +14,13 @@ interface TransactionType {
     online_time: number;
     reward_amount: number;
   };
+  FiatConversion?: {
+    from_currency: string;
+    to_currency: string;
+    amount: number;
+    conversion_rate: number;
+    wallet_address: string;
+  };
   // Добавьте другие типы транзакций здесь
 }
 
@@ -27,9 +34,13 @@ interface TransactionResponse {
   signature: number[];
 }
 
-type TransactionsResponse = TransactionResponse[];
+interface TransactionsAPIResponse {
+  data: TransactionResponse[];
+  status: string;
+}
 
 interface BalanceResponse {
+  data: any;
   balance: number;
   wallet: string;
   public_key: string;
@@ -52,7 +63,7 @@ export default function CryptoTransactions() {
 
   // Запрос к API для получения транзакций
   const { data: fetchedTransactions, error: transactionsFetchError } =
-    useSWR<TransactionsResponse>('/api/crypto/transactions/get', fetcher);
+    useSWR<TransactionsAPIResponse>('/api/crypto/transactions/get', fetcher);
 
   // Асинхронная функция для создания кошелька
   async function createWallet() {
@@ -120,17 +131,17 @@ export default function CryptoTransactions() {
     <div className='mx-auto mt-8'>
       <h1 className='mb-4 text-2xl font-bold'>Крипта</h1>
       <p className='flex flex-col gap-4 text-lg'>
-        <p>Баланс вашего криптокошелька: {fetchedBalance.balance}</p>
+        <p>Баланс вашего криптокошелька: {fetchedBalance.data.balance}</p>
         <div>
           <SiPastebin size={24} />
           <p className='break-words text-sm'>
-            Адрес кошелька: <strong>{fetchedBalance.wallet}</strong>
+            Адрес кошелька: <strong>{fetchedBalance.data.wallet}</strong>
           </p>
         </div>
         <div>
           <SiPastebin size={24} />
           <p className='break-words text-sm'>
-            Ключ: <strong>{fetchedBalance.public_key}</strong>
+            Ключ: <strong>{fetchedBalance.data.public_key}</strong>
           </p>
         </div>
       </p>
@@ -149,13 +160,39 @@ export default function CryptoTransactions() {
             </tr>
           </thead>
           <tbody>
-            {fetchedTransactions.map((transaction) => (
+            {fetchedTransactions.data.map((transaction) => (
               <tr key={transaction.id} className='bg-gray-50 dark:bg-black'>
                 <td className='whitespace-break-spaces border-b px-4 py-2'>
-                  {transaction.data}
+                  {/* Определяем данные в зависимости от типа транзакции */}
+                  {transaction.transaction_type?.OnlineTime ? (
+                    <>
+                      Онлайн время:{' '}
+                      {transaction.transaction_type.OnlineTime.online_time}{' '}
+                      минут
+                    </>
+                  ) : transaction.transaction_type?.FiatConversion ? (
+                    <>
+                      Конвертация:{' '}
+                      {transaction.transaction_type.FiatConversion.amount}{' '}
+                      {
+                        transaction.transaction_type.FiatConversion
+                          .from_currency
+                      }{' '}
+                      →{' '}
+                      {transaction.transaction_type.FiatConversion.to_currency}{' '}
+                      по курсу{' '}
+                      {
+                        transaction.transaction_type.FiatConversion
+                          .conversion_rate
+                      }
+                    </>
+                  ) : (
+                    transaction.data
+                  )}
                 </td>
                 <td className='border-b px-4 py-2'>
                   {transaction.transaction_type?.OnlineTime?.reward_amount ||
+                    transaction.transaction_type?.FiatConversion?.amount ||
                     '—'}
                 </td>
                 <td className='border-b px-4 py-2'>
@@ -163,9 +200,7 @@ export default function CryptoTransactions() {
                 </td>
                 <td className='border-b px-4 py-2 text-right'>
                   {/* Определение статуса на основе типа транзакции */}
-                  {transaction.transaction_type?.OnlineTime
-                    ? 'Completed'
-                    : 'Pending'}
+                  Исполнен
                 </td>
               </tr>
             ))}
