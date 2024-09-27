@@ -4,7 +4,14 @@ import { PaxContext, User, AdditionalData } from '@/context/context';
 import axios from 'axios';
 import { useLocale } from 'next-intl';
 import { setCookie } from 'nookies';
-import React, { ReactNode, useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import React, {
+  ReactNode,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+} from 'react';
 import useSWR from 'swr';
 import { useSession } from 'next-auth/react';
 import cookies from 'next-cookies';
@@ -19,7 +26,7 @@ const PLAN = {
   Начальный: 'BASIC',
   Бизнесс: 'BUSINESS',
   Расширенный: 'ADVANCED',
-};  
+};
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -33,12 +40,42 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
   const socketRef = useRef<WebSocket | null>(null); // Используем useRef для хранения состояния сокета
   const locale = useLocale();
 
-  const userFetchURL = useMemo(() => `/api/users/me?language=${locale}`, [locale]);
+  const [cryptoBalance, setCryptoBalance] = useState<number | null>(null);
+  const [cryptoWallet, setCryptoWallet] = useState<string | null>(null);
+  const [cryptoPublicKey, setCryptoPublicKey] = useState<string | null>(null);
 
-  const { data: fetchedData, error, mutate: userMutate } = useSWR(
-    session.status === 'authenticated' || initialAccessToken ? userFetchURL : null,
+  const userFetchURL = useMemo(
+    () => `/api/users/me?language=${locale}`,
+    [locale]
+  );
+
+  const cryptoBalanceURL = `/api/crypto/balance/get`;
+
+  const {
+    data: fetchedData,
+    error,
+    mutate: userMutate,
+  } = useSWR(
+    session.status === 'authenticated' || initialAccessToken
+      ? userFetchURL
+      : null,
     fetcher
   );
+
+  const { data: cryptoData, error: cryptoError } = useSWR(
+    cryptoBalanceURL,
+    fetcher
+  );
+
+  console.log(cryptoData);
+
+  useEffect(() => {
+    if (!cryptoError && cryptoData) {
+      setCryptoBalance(cryptoData.data?.balance);
+      setCryptoWallet(cryptoData.data?.wallet);
+      setCryptoPublicKey(cryptoData.data?.public_key);
+    }
+  }, [cryptoData, cryptoError]);
 
   useEffect(() => {
     if (!error && fetchedData) {
@@ -107,8 +144,14 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
     };
 
     _socket.onclose = (event) => {
-      console.log('WebSocket disconnected with code:', event.code, 'and reason:', event.reason);
-      if (event.code !== 1000) { // 1000 indicates a normal closure
+      console.log(
+        'WebSocket disconnected with code:',
+        event.code,
+        'and reason:',
+        event.reason
+      );
+      if (event.code !== 1000) {
+        // 1000 indicates a normal closure
         console.log('Attempting to reconnect WebSocket...');
         setTimeout(connectWebSocket, 5000); // Attempt to reconnect every 5 seconds
       }
@@ -146,8 +189,11 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
         setSocket: (socket) => {
           socketRef.current = socket;
         },
-        additionalData, 
-        setAdditionalData, 
+        additionalData,
+        setAdditionalData,
+        cryptoBalance, // Передаем данные баланса через контекст
+        cryptoWallet, // Передаем данные кошелька через контекст
+        cryptoPublicKey, // Передаем данные публичного ключа через контекст
       }}
     >
       {children}

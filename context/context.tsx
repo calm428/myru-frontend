@@ -40,7 +40,7 @@ export type GlobalContent = {
   postMode: string;
   currentPlan: string;
   lastCommand: string;
-  additionalData: AdditionalData[]; 
+  additionalData: AdditionalData[];
   socket: WebSocket | null;
   // eslint-disable-next-line unused-imports/no-unused-vars
   setUser: (user: User | null) => void;
@@ -52,7 +52,12 @@ export type GlobalContent = {
   setCurrentPlan: (value: string) => void;
   // eslint-disable-next-line unused-imports/no-unused-vars
   setSocket: (value: WebSocket | null) => void;
-  setAdditionalData: (data: AdditionalData[]) => void; 
+  setAdditionalData: (data: AdditionalData[]) => void;
+  // Новые свойства для данных криптокошелька
+  // Обновляем типы для данных криптокошелька
+  cryptoBalance: number | null; // Изменяем на number | null
+  cryptoWallet: string | null; // Изменяем на string | null
+  cryptoPublicKey: string | null; // Изменяем на string | null
 };
 export const PaxContext = createContext<GlobalContent>({
   user: null,
@@ -66,6 +71,11 @@ export const PaxContext = createContext<GlobalContent>({
   setPostMode: () => {},
   setCurrentPlan: () => {},
   setSocket: () => {},
-  setAdditionalData: () => {}, 
+  setAdditionalData: () => {},
+
+  // Новые свойства для данных криптокошелька
+  cryptoBalance: null, // Значение по умолчанию
+  cryptoWallet: null, // Значение по умолчанию
+  cryptoPublicKey: null, // Значение по умолчанию
 });
 export const usePaxContext = () => useContext(PaxContext);
