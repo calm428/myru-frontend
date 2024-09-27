@@ -53,9 +53,9 @@ export function MainNav({ items }: MainNavProps) {
         <Image
           src='/logo-black.svg'
           alt='logo'
-          width={40.44}
-          height={40.44}
-          className='size-[40.44px]'
+          width={24.44}
+          height={24.44}
+          className='size-[24.44px]'
           priority
         />
         <span className='inline-block font-satoshi text-xs font-semibold sm:hidden lg:inline-block'>
@@ -63,7 +63,7 @@ export function MainNav({ items }: MainNavProps) {
         </span>
       </Link>
       {items?.length ? (
-        <nav className='my-auto hidden h-10 gap-6 rounded-full border bg-card-gradient-menu p-4 md:flex'>
+        <nav className='my-auto hidden h-6 gap-2 rounded-full border bg-card-gradient-menu p-4 text-sm md:flex'>
           {items?.map(
             (item, index) =>
               item.href && (
@@ -71,9 +71,10 @@ export function MainNav({ items }: MainNavProps) {
                   key={index}
                   href={item.href}
                   className={cn(
-                    'flex items-center rounded-lg px-3 font-medium text-muted-foreground hover:bg-secondary hover:text-primary active:bg-secondary/80',
-                    item.disabled && 'cursor-not-allowed opacity-80',
-                    pathname === item.href && 'bg-secondary text-primary'
+                    'flex items-center rounded-lg px-3 text-sm font-medium  hover:bg-secondary hover:text-primary active:bg-secondary/80',
+                    item.disabled && 'cursor-not-allowed text-sm opacity-80',
+                    pathname === item.href &&
+                      'bg-secondary text-sm text-primary'
                   )}
                 >
                   {t(item.title as keyof IntlMessages['main'])}

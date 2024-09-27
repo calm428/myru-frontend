@@ -2,7 +2,7 @@
 
 import { PaxContext } from '@/context/context';
 import { useContext, useEffect, useState } from 'react';
-import { IoIosNotifications } from "react-icons/io";
+import { IoIosNotifications } from 'react-icons/io';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import eventBus from '@/lib/eventBus';
@@ -10,9 +10,13 @@ import useSWR from 'swr';
 import toast from 'react-hot-toast';
 import { useNotification } from '@/provider/notificationProvider';
 
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export default function Notification({ authenticated }: { authenticated: boolean; }) {
+export default function Notification({
+  authenticated,
+}: {
+  authenticated: boolean;
+}) {
   const { user, socket } = useContext(PaxContext);
   const { playNotificationSound } = useNotification();
 
@@ -24,7 +28,7 @@ export default function Notification({ authenticated }: { authenticated: boolean
     };
 
     eventBus.on('notificationRead', handleNotificationRead);
-    
+
     return () => {
       eventBus.off('notificationRead', handleNotificationRead);
     };
@@ -48,13 +52,13 @@ export default function Notification({ authenticated }: { authenticated: boolean
   const unreadCount = data?.data?.unread;
 
   return authenticated || user ? (
-    <Link href="/profile/notifications">
+    <Link href='/profile/notifications'>
       <button>
         <div className='flex items-center justify-center'>
-        <span className='relative -top-2 left-10 rounded-full bg-card-gradient-menu px-2 text-center text-xs'>
-          {unreadCount > 0 ? unreadCount : 0}
-        </span>
-          <IoIosNotifications size={32} />
+          <span className='relative -top-2 left-10 rounded-full bg-card-gradient-menu px-2 text-center text-xs'>
+            {unreadCount > 0 ? unreadCount : 0}
+          </span>
+          <IoIosNotifications size={24} />
         </div>
       </button>
     </Link>

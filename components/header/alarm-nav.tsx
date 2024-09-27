@@ -61,7 +61,7 @@ export default function AlarmNav({
           <span className='relative -top-2 left-12 rounded-full bg-card-gradient-menu px-2 text-center text-xs'>
             {roomCount}
           </span>
-          <TiMessages size={32} />
+          <TiMessages size={24} />
         </div>
       </button>
     </div>
