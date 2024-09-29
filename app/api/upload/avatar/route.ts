@@ -20,21 +20,35 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const res = await fetch(`${process.env.API_URL}/api/crypto/walllet`, {
-      method: 'POST',
+    const formData = await req.formData();
+
+    const files = formData.getAll('photo') as File[];
+
+    const body = new FormData();
+
+    console.log(files);
+    files.forEach((file) => {
+      body.append('photo', file); // Название поля должно быть 'photo'
+    });
+
+    const res = await fetch(`${process.env.API_URL}/api/users/changePhoto`, {
+      method: 'PUT',
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
+      body: body,
     });
 
     if (!res.ok) {
-      throw new Error('Failed to fetch data');
+      const errorData = await res.json();
+      throw new Error(errorData.message || 'Что-то пошло не так');
     }
 
     const data = await res.json();
 
     return NextResponse.json(data);
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { error: 'Failed to fetch data' },
       { status: 500 }

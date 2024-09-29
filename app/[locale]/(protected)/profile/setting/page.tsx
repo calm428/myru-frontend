@@ -1,5 +1,6 @@
 'use client';
 
+import AvatarUploader from '@/components/AvatarUploader';
 import { ConfirmModal } from '@/components/common/confirm-modal';
 import { ImageUpload, PreviewImage } from '@/components/common/file-uploader';
 import { Button } from '@/components/ui/button';
@@ -44,10 +45,12 @@ import Select, { components, StylesConfig } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import useSWR, { mutate } from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
-import { GrUpdate } from 'react-icons/gr';
+import Cropper from 'react-easy-crop';
 import * as z from 'zod';
 import { SubscriptionCard } from '@/components/profiles/setting/subscription-card';
 import { NewPostModal } from '@/components/profiles/setting/request4new';
+import { NewPhoto } from '@/components/profiles/setting/newPhoto';
+
 import { formatDateNew, formatAmount, getStatusTranslation } from '@/lib/utils';
 import { GrHostMaintenance } from 'react-icons/gr';
 import { IoMdPhotos } from 'react-icons/io';
@@ -256,6 +259,7 @@ export default function SettingPage() {
   const searchParams = useSearchParams();
   const [openModal, setOpenModal] = useState(false);
   const [openBankModal, setOpenBankModal] = useState(false);
+  const [openModalPhoto, setOpenModalPhoto] = useState(false);
 
   const [currentTab, setCurrentTab] = useState<string>('profile');
 
@@ -345,6 +349,11 @@ export default function SettingPage() {
     setCategoryKeyword(value);
     setIsCategoryLoading(true);
   }, 300);
+
+  const handleImageUpload = (newAvatarPath: string) => {
+    alert(newAvatarPath);
+    // Логика после успешной загрузки аватара (например, обновление состояния профиля)
+  };
 
   function customFilterFunction(option: Option, searchInput: string) {
     return true;
@@ -874,7 +883,7 @@ export default function SettingPage() {
           icon={config.icon}
         />
       </div>
-      <div className='relative flex justify-between rounded-lg bg-white p-6 shadow-md dark:bg-black md:col-span-2'>
+      <div className='relative flex justify-between rounded-lg bg-white p-4 shadow-md dark:bg-black md:col-span-2'>
         <div>
           <div className='mt-0 w-full space-y-2'>
             {fetchedData?.streaming !== null && (
@@ -903,7 +912,20 @@ export default function SettingPage() {
             )}
           </div>
           <div className='flex cursor-pointer flex-col items-start text-2xl font-semibold'>
-            {t('hello')} {user?.username}
+            <div className='flex flex-row items-center gap-2'>
+              {t('hello')} {user?.username}{' '}
+              <img
+                onClick={() => setOpenModalPhoto(true)}
+                className='h-20 w-20 rounded-full'
+                src={`https://proxy.myru.online/100/https://img.myru.online/${user?.avatar}`}
+                alt='User Avatar'
+              />
+              <NewPhoto
+                openModal={openModalPhoto}
+                setOpenModal={setOpenModalPhoto}
+                requestType={requestType}
+              />
+            </div>
             <ChangeNamePopup>
               <Button variant='link' size='icon' className='inline w-full'>
                 <div className='flex gap-2'>
