@@ -32,6 +32,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "components/ui/draggable"
-  ],
+, "components/quill/VideoBlot.js", "components/quill/quill.js"  ],
   "exclude": ["node_modules"]
 }
