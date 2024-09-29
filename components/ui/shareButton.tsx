@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { BsShareFill } from 'react-icons/bs';
+import { Button } from '../ui/button';
 
 interface ShareButtonProps {
   shareUrl: string; // Указываем, что shareUrl должен быть строкой
@@ -28,7 +30,20 @@ function ShareButton({ shareUrl }: ShareButtonProps) {
     }
   };
 
-  return <>{isWebView && <button onClick={handleClick}>Поделиться</button>}</>;
+  return (
+    <>
+      {isWebView && (
+        <Button
+          variant='default'
+          size='icon'
+          className='rounded-full'
+          onClick={handleClick}
+        >
+          <BsShareFill />
+        </Button>
+      )}
+    </>
+  );
 }
 
 export default ShareButton;
