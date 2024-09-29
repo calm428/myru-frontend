@@ -108,21 +108,8 @@ export default function FlowSection() {
     }
   };
 
-  const handleClick = () => {
-    // Проверяем, что мы находимся в WebView
-    if (
-      window.webkit &&
-      window.webkit.messageHandlers &&
-      window.webkit.messageHandlers.shareHandler
-    ) {
-      // Отправляем сообщение в WebView
-      window.webkit.messageHandlers.shareHandler.postMessage('shareContent');
-    }
-  };
-
   return (
     <div className='w-full'>
-      <button onClick={handleClick}>Поделиться</button>
       <InfiniteScroll
         dataLength={flowData.length}
         next={loadMore}
