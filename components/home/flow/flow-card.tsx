@@ -21,7 +21,7 @@ import toast from 'react-hot-toast';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { ReportModal } from '@/components/common/report-modal';
 import { LuBrainCircuit } from 'react-icons/lu';
-
+import ShareButton from '@/components/ui/shareButton';
 export interface FlowCardProps {
   id: string;
   title: string;
@@ -160,6 +160,10 @@ function FlowCard(profile: FlowCardProps) {
                     </Link>
                   </Button>
                 )}
+                <ShareButton
+                  data-tooltip-id='my-tooltip-4'
+                  shareUrl={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/flows/${id}/${slug}`}
+                />
 
                 <ReactTooltip
                   id='my-tooltip-1'
@@ -175,6 +179,11 @@ function FlowCard(profile: FlowCardProps) {
                   id='my-tooltip-3'
                   place='bottom'
                   content={t('open_telegram_chat')}
+                />
+                <ReactTooltip
+                  id='my-tooltip-4'
+                  place='bottom'
+                  content='Поделиться'
                 />
               </div>
             )}
