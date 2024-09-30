@@ -163,6 +163,7 @@ function FlowCard(profile: FlowCardProps) {
                 <ShareButton
                   data-tooltip-id='my-tooltip-4'
                   shareUrl={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/flows/${id}/${slug}`}
+                  shareTitle={title}
                 />
 
                 <ReactTooltip
@@ -179,11 +180,6 @@ function FlowCard(profile: FlowCardProps) {
                   id='my-tooltip-3'
                   place='bottom'
                   content={t('open_telegram_chat')}
-                />
-                <ReactTooltip
-                  id='my-tooltip-4'
-                  place='bottom'
-                  content='Поделиться'
                 />
               </div>
             )}
