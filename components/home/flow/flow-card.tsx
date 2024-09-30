@@ -117,8 +117,15 @@ function FlowCard(profile: FlowCardProps) {
       if (response.ok) {
         // Обновляем локальное состояние после успешного запроса
         setIsFavorite(!isFavorite);
-        console.log('Изменен статус избранного');
+        toast.success('Изменен статус избранного'),
+          {
+            position: 'top-right',
+          };
       } else {
+        toast.error('Ошибка изменения статуса избранного'),
+          {
+            position: 'top-right',
+          };
         console.error('Ошибка при изменении избранного статуса');
       }
     } catch (error) {

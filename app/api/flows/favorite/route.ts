@@ -27,9 +27,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { blogID, actionType } = await req.json();
+    const { id, actionType } = await req.json();
 
-    if (!blogID) {
+    if (!id) {
       return NextResponse.json({ error: 'Missing blogID' }, { status: 400 });
     }
 
@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          BlogID: blogID,
-          UserID: userId,
+          UniqId: id,
+          actionType: 'add',
         }),
       });
 
@@ -56,16 +56,18 @@ export async function POST(req: NextRequest) {
     // Если тип действия "remove", удаляем из избранного
     else if (actionType === 'remove') {
       const res = await fetch(`${process.env.API_URL}/api/blog/delFav`, {
-        method: 'POST',
+        method: 'DELETE',
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          BlogID: blogID,
-          UserID: userId,
+          UniqId: id,
+          actionType: 'remove',
         }),
       });
+
+      console.log(await res.json());
 
       if (!res.ok) {
         throw new Error('Failed to remove from favorites');
@@ -79,9 +81,6 @@ export async function POST(req: NextRequest) {
       );
     }
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to process request' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error }, { status: 500 });
   }
 }
