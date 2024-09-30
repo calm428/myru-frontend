@@ -5,11 +5,13 @@ import { BsShareFill, BsTwitterX } from 'react-icons/bs';
 import { FaWhatsapp, FaTelegramPlane } from 'react-icons/fa';
 import { Button } from '../ui/button';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
+import { FaVk } from 'react-icons/fa';
 
 import {
   TwitterShareButton,
   TelegramShareButton,
   WhatsappShareButton,
+  VKShareButton,
 } from 'react-share';
 
 interface ShareButtonProps {
@@ -60,6 +62,11 @@ function ShareButton({ shareUrl, shareTitle }: ShareButtonProps) {
           <FaTelegramPlane />
         </Button>
       </TelegramShareButton>
+      <VKShareButton url={shareUrl} title={shareTitle}>
+        <Button variant='default' size='icon'>
+          <FaVk />
+        </Button>
+      </VKShareButton>
       <WhatsappShareButton url={shareUrl} title={shareTitle}>
         <Button variant='default' size='icon'>
           <FaWhatsapp />
@@ -102,7 +109,7 @@ function ShareButton({ shareUrl, shareTitle }: ShareButtonProps) {
           {/* Анимированный список иконок соцсетей */}
           {isOpen && (
             <div
-              className={`absolute left-[-8rem] top-0 transition-all duration-300 ease-in-out ${
+              className={`absolute left-[-10rem] top-0 transition-all duration-300 ease-in-out ${
                 isOpen ? 'max-w-md opacity-100' : 'max-w-0 opacity-0'
               }`}
             >
