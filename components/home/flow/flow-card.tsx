@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { Eye, Mail } from 'lucide-react';
 import Image from 'next/image';
 import { BiLink } from 'react-icons/bi';
@@ -22,7 +24,11 @@ import { Tooltip as ReactTooltip } from 'react-tooltip';
 import { ReportModal } from '@/components/common/report-modal';
 import { LuBrainCircuit } from 'react-icons/lu';
 import ShareButton from '@/components/ui/shareButton';
+import { RiHeartAddFill } from 'react-icons/ri';
+import { RiHeartFill } from 'react-icons/ri';
+
 export interface FlowCardProps {
+  isFavorite: boolean;
   id: string;
   title: string;
   subtitle: string;
@@ -47,6 +53,8 @@ export interface FlowCardProps {
 }
 
 function FlowCard(profile: FlowCardProps) {
+  const [isFavorite, setIsFavorite] = useState(profile.isFavorite);
+
   const t = useTranslations('main');
   const searchParams = useSearchParams();
   const {
@@ -63,6 +71,7 @@ function FlowCard(profile: FlowCardProps) {
     category,
     countrycode,
     review,
+    // isFavorite,
     // callbackURL,
   } = profile;
 
@@ -89,6 +98,31 @@ function FlowCard(profile: FlowCardProps) {
         'home-page-scroll-position',
         (window.scrollY || document.documentElement.scrollTop).toString()
       );
+    }
+  };
+
+  const handleFavoriteToggle = async () => {
+    try {
+      // Определяем тип действия в зависимости от текущего состояния
+      const actionType = isFavorite ? 'remove' : 'add';
+
+      const response = await fetch(`/api/flows/favorite`, {
+        method: 'POST', // Используем только POST запрос
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, actionType }), // Передаем тип действия
+      });
+
+      if (response.ok) {
+        // Обновляем локальное состояние после успешного запроса
+        setIsFavorite(!isFavorite);
+        console.log('Изменен статус избранного');
+      } else {
+        console.error('Ошибка при изменении избранного статуса');
+      }
+    } catch (error) {
+      console.error('Ошибка сети:', error);
     }
   };
 
@@ -122,6 +156,7 @@ function FlowCard(profile: FlowCardProps) {
               {review.totalviews}
             </Badge>
           </div>
+
           <div className='absolute right-0 top-24 z-10 px-3'>
             {user && (
               <div className='flex flex-col items-center justify-end gap-2'>
@@ -161,11 +196,19 @@ function FlowCard(profile: FlowCardProps) {
                   </Button>
                 )}
                 <ShareButton
-                  data-tooltip-id='my-tooltip-4'
                   shareUrl={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/flows/${id}/${slug}`}
                   shareTitle={title}
                 />
 
+                <Button
+                  variant='default'
+                  size='icon'
+                  className='rounded-full'
+                  data-tooltip-id='my-tooltip-5'
+                  onClick={handleFavoriteToggle}
+                >
+                  {isFavorite ? <RiHeartFill /> : <RiHeartAddFill />}
+                </Button>
                 <ReactTooltip
                   id='my-tooltip-1'
                   place='bottom'
@@ -180,6 +223,11 @@ function FlowCard(profile: FlowCardProps) {
                   id='my-tooltip-3'
                   place='bottom'
                   content={t('open_telegram_chat')}
+                />
+                <ReactTooltip
+                  id='my-tooltip-5'
+                  place='bottom'
+                  content='Добавить в избранное'
                 />
               </div>
             )}
