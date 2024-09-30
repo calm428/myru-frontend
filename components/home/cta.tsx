@@ -73,7 +73,7 @@ export function CTASection() {
         </ToggleGroupItem>
       </ToggleGroup>
 
-      <div className=' w-full gap-3 bg-white px-0 py-0 dark:bg-black md:static md:flex-row md:pt-0'>
+      <div className='w-auto gap-3 bg-white px-0 py-0 dark:bg-black md:static md:flex-row md:pt-0'>
         <div className='relative  flex w-[-webkit-fill-available] gap-2 md:w-[15rem] lg:w-[30rem]'>
           <Search className='absolute inset-y-0 left-3 my-auto size-4 text-gray-500' />
           <Input
