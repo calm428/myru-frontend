@@ -95,7 +95,6 @@ function ShareButton({ shareUrl, shareTitle }: ShareButtonProps) {
             variant='default'
             size='icon'
             className='rounded-full'
-            data-tooltip-id='my-tooltip-5'
             onClick={handleToggle} // Открываем/закрываем список
           >
             <BsShareFill />
