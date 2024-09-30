@@ -94,11 +94,11 @@ function ShareButton({ shareUrl, shareTitle }: ShareButtonProps) {
             <BsShareFill />
           </Button>
 
-          <ReactTooltip
+          {/* <ReactTooltip
             id='my-tooltip-5'
             place='bottom'
             content='поделиться в соц сети'
-          />
+          /> */}
           {/* Анимированный список иконок соцсетей */}
           {isOpen && (
             <div
