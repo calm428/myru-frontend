@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
 import { getServerSession } from 'next-auth';
 import authOptions from '@/lib/authOptions';
 import { headers } from 'next/headers';
@@ -42,20 +41,20 @@ export async function POST(request: Request) {
       const itemsForSeller = groupedBySeller[sellerID];
 
       const order = {
-        id: uuidv4(),
-        sellerID: sellerID,
-        customerID: customerDetails.userID,
-        totalAmount: itemsForSeller.reduce(
-          (sum: number, item: any) => sum + item.price * item.quantity,
-          0
-        ),
-        status: 'pending',
-        orderItems: itemsForSeller.map((item: any) => ({
-          product: item.title,
+        cartItems: itemsForSeller.map((item: any) => ({
+          id: item.id,
+          title: item.title,
           price: item.price,
           quantity: item.quantity,
+          image: item.image,
+          seller: item.seller, // Имя продавца
         })),
-        customerDetails,
+        customerDetails: {
+          name: customerDetails.name,
+          email: customerDetails.email,
+          address: customerDetails.address,
+          phone: customerDetails.phone,
+        },
       };
 
       // Отправка заказа в API
