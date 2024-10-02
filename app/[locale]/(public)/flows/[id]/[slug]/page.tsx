@@ -9,6 +9,11 @@ import { UpvoteCard } from '@/components/home/flow/upvote-card';
 import MessageForm from '@/components/home/messsage-form';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import dynamic from 'next/dynamic';
+const CartButton = dynamic(() => import('@/components/cart/CartButton'), {
+  ssr: false,
+});
+
 import {
   Card,
   CardContent,
@@ -66,6 +71,7 @@ interface BlogDetails {
   categories: string[];
   cities: string[];
   countrycode: string;
+  uniqId: string;
   me: boolean;
 }
 
@@ -194,6 +200,7 @@ async function getData(
       },
       price: blogData.data[0].total,
       link: `/${blogData.data[0].uniqId}/${blogData.data[0].slug}`,
+      uniqId: blogData.data[0].uniqId,
       hashtags: blogData.data[0].hashtags,
       categories: blogData.data[0].catygory.map(
         (catygory: any) => catygory.name
@@ -203,6 +210,7 @@ async function getData(
       me: userId === blogData.data[0].user.userID,
       // isFavorite: isFavorite,
     };
+    console.log(blog);
 
     return blog;
   } catch (error) {
@@ -274,7 +282,6 @@ export default async function FlowPage({
           {blogDetails?.description}
         </div>
       </div>
-
       <div className='my-4 grid gap-4 md:grid-cols-3 xl:grid-cols-3'>
         <div className='md:col-span-2 xl:col-span-2'>
           <div className='grid gap-4 md:grid-cols-2 xl:grid-cols-3'>
@@ -403,6 +410,19 @@ export default async function FlowPage({
               className='mt-2 text-muted-foreground'
               dangerouslySetInnerHTML={{ __html: blogDetails.content }}
             />
+            {blogDetails.price !== 0 && (
+              <div className='mt-4'>
+                {/* Вставляем кнопку корзины */}
+                <CartButton
+                  id={blogDetails.uniqId}
+                  title={blogDetails.title}
+                  price={blogDetails.price}
+                  seller={blogDetails.author.userId}
+                  quantity={0}
+                  image={blogDetails?.gallery[0].original}
+                />
+              </div>
+            )}
           </div>
         </div>
         <div className='mx-auto w-full space-y-4'>

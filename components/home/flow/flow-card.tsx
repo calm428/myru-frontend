@@ -28,6 +28,10 @@ import { LuBrainCircuit } from 'react-icons/lu';
 import ShareButton from '@/components/ui/shareButton';
 import { RiHeartAddFill } from 'react-icons/ri';
 import { RiHeartFill } from 'react-icons/ri';
+import dynamic from 'next/dynamic';
+const CartButton = dynamic(() => import('@/components/cart/CartButton'), {
+  ssr: false,
+});
 
 export interface FlowCardProps {
   isFavorite: boolean;
@@ -56,23 +60,6 @@ export interface FlowCardProps {
 
 function FlowCard(profile: FlowCardProps) {
   const [isFavorite, setIsFavorite] = useState(profile.isFavorite);
-  const dispatch = useDispatch();
-  const cartItems = useSelector(selectCartItems);
-  const isInCart = cartItems.some((item) => item.id === profile.id);
-
-  const handleAddToCart = () => {
-    if (!isInCart) {
-      dispatch(
-        addToCart({
-          id: profile.id,
-          title: profile.title,
-          image: hero,
-          price: profile.price,
-          quantity: 1,
-        })
-      );
-    }
-  };
 
   const t = useTranslations('main');
   const searchParams = useSearchParams();
@@ -351,13 +338,22 @@ function FlowCard(profile: FlowCardProps) {
             {' '}
             <Button className='!w-full !text-xs'>Подбронее о товаре</Button>
           </Link>
-          <Button
+          <CartButton
+            id={profile.id.toString()}
+            title={profile.title}
+            image={hero}
+            price={profile.price}
+            quantity={1}
+            seller={profile.user?.username || ''} // Проверка на наличие username
+          />
+
+          {/* <Button
             className='!w-full !text-xs'
             onClick={handleAddToCart}
             disabled={isInCart} // Если товар уже в корзине, кнопка отключена
           >
             {isInCart ? 'В корзине' : 'В корзину'}
-          </Button>
+          </Button> */}
         </div>
         {/*         
         {user && (
