@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
     );
 
     if (!res.ok) {
+      console.log(res);
       throw new Error('Failed to fetch data');
     }
 

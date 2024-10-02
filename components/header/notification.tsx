@@ -1,9 +1,8 @@
 'use client';
 
 import { PaxContext } from '@/context/context';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import { IoIosNotifications } from 'react-icons/io';
-import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import eventBus from '@/lib/eventBus';
 import useSWR from 'swr';
@@ -53,16 +52,14 @@ export default function Notification({
 
   return authenticated || user ? (
     <Link href='/profile/notifications'>
-      <button>
-        <div className='flex items-center justify-center'>
-          <span className='relative -top-2 left-10 rounded-full bg-card-gradient-menu px-2 text-center text-xs'>
-            {unreadCount > 0 ? unreadCount : 0}
+      <div className='relative'>
+        <IoIosNotifications size={24} />
+        {unreadCount > 0 && (
+          <span className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'>
+            {unreadCount}
           </span>
-          <IoIosNotifications size={24} />
-        </div>
-      </button>
+        )}
+      </div>
     </Link>
-  ) : (
-    <></>
-  );
+  ) : null;
 }

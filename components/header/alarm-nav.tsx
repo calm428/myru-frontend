@@ -4,11 +4,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import eventBus from '@/eventBus';
 import { TiMessages } from 'react-icons/ti';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { PaxContext } from '@/context/context';
+import useCentrifuge from '@/hooks/useCentrifuge';
 import getSubscribedRooms from '@/lib/server/chat/getSubscribedRooms';
 import getUnsubscribedNewRooms from '@/lib/server/chat/getUnsubscribedNewRooms';
-import useCentrifuge from '@/hooks/useCentrifuge';
-import { PaxContext } from '@/context/context';
 
 export default function AlarmNav({
   authenticated,
@@ -55,17 +54,17 @@ export default function AlarmNav({
   }, []);
 
   return authenticated || user ? (
-    <div>
+    <div className='flex'>
       <button onClick={checkMessagesInPathname}>
-        <div className='flex items-center justify-center'>
-          <span className='relative -top-2 left-12 rounded-full bg-card-gradient-menu px-2 text-center text-xs'>
-            {roomCount}
-          </span>
+        <div className='relative'>
           <TiMessages size={24} />
+          {roomCount > 0 && (
+            <span className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'>
+              {roomCount}
+            </span>
+          )}
         </div>
       </button>
     </div>
-  ) : (
-    <></>
-  );
+  ) : null;
 }
