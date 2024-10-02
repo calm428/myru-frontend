@@ -6,11 +6,15 @@ import { selectCartItems, removeFromCart, clearCart } from '@/store/cartSlice';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { RiDeleteBinLine } from 'react-icons/ri';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation'; // Используем useRouter из next/navigation
 
 export default function CartPage() {
   const [isMounted, setIsMounted] = useState(false); // Проверяем, смонтирован ли компонент на клиенте
   const cartItems = useSelector(selectCartItems); // Получаем товары из состояния
   const dispatch = useDispatch();
+  const { data: session, status } = useSession(); // Проверка авторизации
+  const router = useRouter();
 
   // Устанавливаем флаг, когда компонент смонтирован на клиенте
   useEffect(() => {
@@ -25,6 +29,15 @@ export default function CartPage() {
     dispatch(clearCart()); // Очистка корзины
   };
 
+  const handleCheckout = () => {
+    if (status !== 'authenticated') {
+      router.push('/auth/signin'); // Если не авторизован, перенаправляем на страницу входа
+      return;
+    }
+
+    router.push('/checkout'); // Если авторизован, перенаправляем на страницу оформления заказа
+  };
+
   // Пока компонент не смонтирован на клиенте, ничего не рендерим
   if (!isMounted) {
     return null;
@@ -32,7 +45,7 @@ export default function CartPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className='container mx-auto my-10'>
+      <div className='container mx-auto my-4'>
         <h1 className='text-2xl font-bold'>Ваша корзина пуста</h1>
         <Link href='/'>
           <Button className='mt-4'>Вернуться к покупкам</Button>
@@ -42,7 +55,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className='container mx-auto my-10'>
+    <div className='container mx-auto my-4'>
       <div className='mb-6 flex items-center justify-between'>
         <h1 className='text-2xl font-bold'>Ваша корзина</h1>
         <Button
@@ -86,9 +99,9 @@ export default function CartPage() {
       </div>
 
       <div className='mt-6 flex flex-col justify-between gap-2 md:flex-row'>
-        <Link href='/checkout'>
-          <Button className='!w-full'>Перейти к оформлению</Button>
-        </Link>
+        <Button className='!w-full' onClick={handleCheckout}>
+          Перейти к оформлению
+        </Button>
       </div>
     </div>
   );

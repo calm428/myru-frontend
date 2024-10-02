@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 export default function CheckoutDonePage() {
   return (
-    <div className='container mx-auto my-10'>
+    <div className='container mx-auto my-4'>
       <h1 className='mb-6 text-2xl font-bold'>Ваш заказ успешно оформлен!</h1>
       <p className='mb-4 text-lg'>
         Спасибо за покупку! Мы свяжемся с вами для подтверждения заказа и

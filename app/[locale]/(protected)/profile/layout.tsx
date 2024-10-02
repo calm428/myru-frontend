@@ -1,4 +1,4 @@
-"use client"
+'use client';
 import Sidebar from '@/components/profiles/sidebar';
 import { ReactNode } from 'react';
 import CTASection from '@/components/profiles/cta';
@@ -6,9 +6,8 @@ import { MdDashboard, MdSettings, MdPostAdd } from 'react-icons/md';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import { IconType } from 'react-icons';
-import { GiVideoConference } from "react-icons/gi";
-import { IoIosNotifications } from "react-icons/io";
-
+import { GiVideoConference } from 'react-icons/gi';
+import { IoIosNotifications } from 'react-icons/io';
 
 type ProfileConfig = {
   [key: string]: {
@@ -43,7 +42,7 @@ const profileConfig: ProfileConfig = {
     icon: IoIosNotifications,
     titleKey: 'notifications',
     descriptionKey: 'conference_description',
-  }
+  },
 };
 
 type Props = {
@@ -66,8 +65,16 @@ export default function ProfilePageLayout({ children }: Props) {
   return (
     <div className='flex w-full'>
       <Sidebar />
-      <main className='mb-0 mt-0 w-full bg-secondary/60 md:mb-0 pb-8'>
-
+      <main className='mb-0 mt-0 w-full bg-secondary/60 pb-8 md:mb-0'>
+        {/* <div className='px-4 py-4'>
+          <CTASection
+            //@ts-ignore
+            title={t(config.titleKey)}
+            //@ts-ignore
+            description={t(config.descriptionKey)}
+            icon={config.icon}
+          />
+        </div> */}
         {children}
       </main>
     </div>

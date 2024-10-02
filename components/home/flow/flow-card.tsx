@@ -13,6 +13,8 @@ import { TagSlider } from '@/components/common/tag-slider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation'; // Используем useRouter из next/navigation
 
 import Link from 'next/link';
 import { CategoryBadge } from './category-badge';
@@ -29,6 +31,8 @@ import ShareButton from '@/components/ui/shareButton';
 import { RiHeartAddFill } from 'react-icons/ri';
 import { RiHeartFill } from 'react-icons/ri';
 import dynamic from 'next/dynamic';
+import { PaxContext } from '@/context/context';
+
 const CartButton = dynamic(() => import('@/components/cart/CartButton'), {
   ssr: false,
 });
@@ -60,6 +64,8 @@ export interface FlowCardProps {
 
 function FlowCard(profile: FlowCardProps) {
   const [isFavorite, setIsFavorite] = useState(profile.isFavorite);
+  const { data: session, status } = useSession(); // Используем useSession для проверки авторизации
+  const router = useRouter(); // Используем навигацию из next/navigation
 
   const t = useTranslations('main');
   const searchParams = useSearchParams();
@@ -108,6 +114,10 @@ function FlowCard(profile: FlowCardProps) {
   };
 
   const handleFavoriteToggle = async () => {
+    if (status !== 'authenticated') {
+      router.push('/auth/signin');
+      return;
+    }
     try {
       // Определяем тип действия в зависимости от текущего состояния
       const actionType = isFavorite ? 'remove' : 'add';
@@ -328,7 +338,7 @@ function FlowCard(profile: FlowCardProps) {
             </Link>
           </div>
         </div>
-        <div className='flex gap-2 px-4 pb-2'>
+        <div className='flex gap-2 px-2 pb-2'>
           <Link
             key={`flow-link-${id}`}
             href='/flows/[id]/[slug]'
@@ -336,7 +346,7 @@ function FlowCard(profile: FlowCardProps) {
             onClick={saveScrollPosition}
           >
             {' '}
-            <Button className='!w-full !text-xs'>Подбронее о товаре</Button>
+            <Button className='!w-full !text-xs'>Открыть товар</Button>
           </Link>
           <CartButton
             id={profile.id.toString()}

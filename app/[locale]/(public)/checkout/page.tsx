@@ -79,36 +79,17 @@ export default function CheckoutPage() {
     }
   };
 
+  // Вычисляем общую сумму заказа
+  const totalAmount = cartItems.reduce((total, item) => total + item.price, 0);
+
   // Пока компонент не смонтирован, возвращаем null для предотвращения ошибки гидратации
   if (!isMounted) {
     return null;
   }
 
   return (
-    <div className='container mx-auto my-10'>
+    <div className='container mx-auto my-4'>
       <h1 className='mb-6 text-2xl font-bold'>Оформление заказа</h1>
-
-      <div className='space-y-6'>
-        <h2 className='text-xl font-semibold'>Товары в корзине</h2>
-        {cartItems.map((item) => (
-          <div
-            key={item.id}
-            className='flex items-center justify-between border-b pb-4'
-          >
-            <div className='flex items-center space-x-4'>
-              <img
-                src={item.image}
-                alt={item.title}
-                className='h-16 w-16 rounded-md object-cover'
-              />
-              <div>
-                <h2 className='text-lg font-semibold'>{item.title}</h2>
-                <p className='text-gray-600'>{item.price} руб.</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
 
       {/* Раздел для ввода адреса доставки */}
       {/* Форма ввода реквизитов покупателя */}
@@ -192,6 +173,17 @@ export default function CheckoutPage() {
             <span>Оплата наличными</span>
           </label>
         </div>
+      </div>
+
+      {/* Вывод общей суммы заказа */}
+      <div className='mt-8'>
+        <h2 className='text-xl font-semibold'>
+          Общая сумма заказа:{' '}
+          {totalAmount.toLocaleString('ru-RU', {
+            style: 'currency',
+            currency: 'RUB',
+          })}
+        </h2>
       </div>
 
       {/* Кнопка для оформления заказа */}

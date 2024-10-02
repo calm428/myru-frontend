@@ -36,8 +36,8 @@ export default function ClientHeader({ data }: ClientHeaderProps) {
         <MainNav items={siteConfig.mainNav} />
         <div className='flex items-center gap-4'>
           <AlarmNav authenticated={!!data} />
+          <DynamicCartIcon /> {/* Отображаем иконку корзины динамически */}{' '}
           <Notification authenticated={!!data} />
-          <DynamicCartIcon /> {/* Отображаем иконку корзины динамически */}
         </div>
         <RightNav
           user={

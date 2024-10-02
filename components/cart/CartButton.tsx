@@ -36,7 +36,11 @@ const CartButton = ({ id, title, price, image, seller }: CartButtonProps) => {
   };
 
   return (
-    <Button onClick={handleAddToCart} className='w-full' disabled={isInCart}>
+    <Button
+      onClick={handleAddToCart}
+      className='w-full text-xs'
+      disabled={isInCart}
+    >
       {isInCart ? 'Уже в корзине' : 'Добавить в корзину'}
     </Button>
   );

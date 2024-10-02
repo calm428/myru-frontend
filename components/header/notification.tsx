@@ -2,7 +2,8 @@
 
 import { PaxContext } from '@/context/context';
 import { useContext, useEffect } from 'react';
-import { IoIosNotifications } from 'react-icons/io';
+import { IoIosNotificationsOutline } from 'react-icons/io';
+
 import Link from 'next/link';
 import eventBus from '@/lib/eventBus';
 import useSWR from 'swr';
@@ -48,17 +49,15 @@ export default function Notification({
 
   if (!data) return null;
 
-  const unreadCount = data?.data?.unread;
+  const unreadCount = data?.data?.unread || 0;
 
   return authenticated || user ? (
     <Link href='/profile/notifications'>
       <div className='relative'>
-        <IoIosNotifications size={24} />
-        {unreadCount > 0 && (
-          <span className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'>
-            {unreadCount}
-          </span>
-        )}
+        <IoIosNotificationsOutline size={24} />
+        <span className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'>
+          {unreadCount}
+        </span>
       </div>
     </Link>
   ) : null;

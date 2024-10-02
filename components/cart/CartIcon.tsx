@@ -8,9 +8,9 @@ import { CiShoppingCart } from 'react-icons/ci';
 export default function CartIcon() {
   const cartItems = useSelector(selectCartItems); // Получаем товары из корзины
 
-  if (cartItems.length === 0) {
-    return null; // Не отображаем иконку, если корзина пуста
-  }
+  //   if (cartItems.length === 0) {
+  //     return null; // Не отображаем иконку, если корзина пуста
+  //   }
 
   return (
     <Link href='/cart' className='relative'>
