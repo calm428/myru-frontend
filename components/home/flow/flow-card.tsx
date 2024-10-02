@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { BiLink } from 'react-icons/bi';
 import { FaExclamation, FaTelegramPlane } from 'react-icons/fa';
 import { IoLanguage } from 'react-icons/io5';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart, selectCartItems } from '@/store/cartSlice';
 
 import { ProfileAvatar } from '@/components/common/profile-avatar';
 import { TagSlider } from '@/components/common/tag-slider';
@@ -54,6 +56,23 @@ export interface FlowCardProps {
 
 function FlowCard(profile: FlowCardProps) {
   const [isFavorite, setIsFavorite] = useState(profile.isFavorite);
+  const dispatch = useDispatch();
+  const cartItems = useSelector(selectCartItems);
+  const isInCart = cartItems.some((item) => item.id === profile.id);
+
+  const handleAddToCart = () => {
+    if (!isInCart) {
+      dispatch(
+        addToCart({
+          id: profile.id,
+          title: profile.title,
+          image: hero,
+          price: profile.price,
+          quantity: 1,
+        })
+      );
+    }
+  };
 
   const t = useTranslations('main');
   const searchParams = useSearchParams();
@@ -234,7 +253,11 @@ function FlowCard(profile: FlowCardProps) {
                 <ReactTooltip
                   id='my-tooltip-5'
                   place='bottom'
-                  content='Добавить в избранное'
+                  content={
+                    isFavorite
+                      ? 'Удалить из избранного'
+                      : 'Добавить в избранное'
+                  }
                 />
               </div>
             )}
@@ -260,7 +283,7 @@ function FlowCard(profile: FlowCardProps) {
                 <div className='text-muted-foregroun line-clamp-3 break-all text-sm'>
                   {subtitle}
                 </div>
-                <button className='text-xs'>Открыть карточку</button>
+                {/* <button className='text-xs'>Открыть карточку</button> */}
               </div>
             </div>
           </Link>
@@ -318,7 +341,25 @@ function FlowCard(profile: FlowCardProps) {
             </Link>
           </div>
         </div>
-
+        <div className='flex gap-2 px-4 pb-2'>
+          <Link
+            key={`flow-link-${id}`}
+            href='/flows/[id]/[slug]'
+            as={`/flows/${id}/${slug}`}
+            onClick={saveScrollPosition}
+          >
+            {' '}
+            <Button className='!w-full !text-xs'>Подбронее о товаре</Button>
+          </Link>
+          <Button
+            className='!w-full !text-xs'
+            onClick={handleAddToCart}
+            disabled={isInCart} // Если товар уже в корзине, кнопка отключена
+          >
+            {isInCart ? 'В корзине' : 'В корзину'}
+          </Button>
+        </div>
+        {/*         
         {user && (
           <div className='grid grid-cols-1 px-3 pb-3'>
             <div className='col-span-1'>
@@ -346,7 +387,7 @@ function FlowCard(profile: FlowCardProps) {
               </Link>
             </div>
           </div>
-        )}
+        )} */}
       </CardContent>
     </Card>
   );
