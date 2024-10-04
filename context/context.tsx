@@ -5,6 +5,7 @@ export interface User {
   username: string;
   email: string;
   avatar: string;
+  seller: boolean;
   plan: string;
   city: {
     id: number;

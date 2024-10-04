@@ -67,7 +67,7 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
     fetcher
   );
 
-  console.log(cryptoData);
+  console.log(fetchedData);
 
   useEffect(() => {
     if (!cryptoError && cryptoData) {
@@ -85,6 +85,7 @@ const Providers: React.FC<IProps> = ({ children, initialAccessToken }) => {
         email: fetchedData.data?.user?.email,
         avatar: fetchedData.data?.user?.photo,
         plan: fetchedData.data?.user?.Plan,
+        seller: fetchedData.data?.user?.Seller,
         city: fetchedData.data?.user?.profile[0].City.map((city: string) =>
           JSON.parse(city)
         ),
