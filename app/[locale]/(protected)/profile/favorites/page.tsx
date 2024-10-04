@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
 import useSWR from 'swr';
-import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -20,7 +19,7 @@ export default function FavoritesPage() {
   if (!data) {
     return (
       <div className='container mx-auto py-6'>
-        <h1 className='text-3xl font-bold'>Наиминование товаров</h1>
+        <h1 className='text-3xl font-bold'>Наименование товаров</h1>
         <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
           {[...Array(6)].map((_, i) => (
             <SkeletonCard key={i} />
@@ -34,35 +33,49 @@ export default function FavoritesPage() {
 
   return (
     <div className='container mx-auto py-6'>
-      <h1 className='pb-4 text-3xl font-bold'>Наиминование товаров</h1>
+      <h1 className='pb-4 text-3xl font-bold'>Наименование товаров</h1>
 
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-        {favorites.map((favorite: any) => (
-          <div key={favorite.ID} className='rounded-lg border p-4 shadow-lg'>
-            <img
-              src={`https://proxy.myru.online/100/https://img.myru.online/${favorite.Blog.photos[0].files[0].path}`}
-              alt='Photo'
-              className='mb-4 h-16 w-16 rounded-full'
-            />
-            <h2 className='text-xl font-semibold'>
-              {favorite.Blog.MultilangTitle[currentLang]}
-            </h2>
-            <p className='text-sm text-gray-600'>
-              {favorite.Blog.MultilangDescr[currentLang]}
-            </p>
-            <p className='mt-2 text-gray-500'>
-              Просмотров: {favorite.Blog.Views} ₽
-            </p>
-            <p className='mt-2 text-gray-500'>Цена: {favorite.Blog.Total}</p>
-            <Link
-              className='mt-4 inline-block rounded bg-blue-500 px-4 py-2 text-white'
-              href={`/flows/${favorite.Blog.UniqId}/${favorite.Blog.Slug}`}
-            >
-              Открыть товар
-            </Link>
-          </div>
-        ))}
-      </div>
+      {/* Проверка на наличие избранных товаров */}
+      {favorites.length === 0 ? (
+        <div className='text-center'>
+          <p className='text-lg font-semibold text-gray-700'>
+            Нет избранных товаров.
+          </p>
+          <Link href='/home'>
+            <a className='mt-4 inline-block rounded bg-blue-500 px-6 py-2 text-white'>
+              Перейти на главную
+            </a>
+          </Link>
+        </div>
+      ) : (
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+          {favorites.map((favorite: any) => (
+            <div key={favorite.ID} className='rounded-lg border p-4 shadow-lg'>
+              <img
+                src={`https://proxy.myru.online/100/https://img.myru.online/${favorite.Blog.photos[0].files[0].path}`}
+                alt='Photo'
+                className='mb-4 h-16 w-16 rounded-full'
+              />
+              <h2 className='text-xl font-semibold'>
+                {favorite.Blog.MultilangTitle[currentLang]}
+              </h2>
+              <p className='text-sm text-gray-600'>
+                {favorite.Blog.MultilangDescr[currentLang]}
+              </p>
+              <p className='mt-2 text-gray-500'>
+                Просмотров: {favorite.Blog.Views} ₽
+              </p>
+              <p className='mt-2 text-gray-500'>Цена: {favorite.Blog.Total}</p>
+              <Link
+                className='mt-4 inline-block rounded bg-blue-500 px-4 py-2 text-white'
+                href={`/flows/${favorite.Blog.UniqId}/${favorite.Blog.Slug}`}
+              >
+                Открыть товар
+              </Link>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
