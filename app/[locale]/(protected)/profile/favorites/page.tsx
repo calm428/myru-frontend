@@ -41,10 +41,11 @@ export default function FavoritesPage() {
           <p className='text-lg font-semibold text-gray-700'>
             Нет избранных товаров.
           </p>
-          <Link href='/home'>
-            <a className='mt-4 inline-block rounded bg-blue-500 px-6 py-2 text-white'>
-              Перейти на главную
-            </a>
+          <Link
+            className='mt-4 inline-block rounded bg-blue-500 px-6 py-2 text-white'
+            href='/home'
+          >
+            Перейти на главную
           </Link>
         </div>
       ) : (
