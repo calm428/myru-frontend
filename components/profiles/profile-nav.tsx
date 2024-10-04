@@ -110,7 +110,7 @@ export function ProfileNav({ items, setOpen, hideSidebar }: ProfileNavProps) {
                       {item.dropdownItems?.map((dropdownItem, idx) => (
                         <li
                           key={idx}
-                          className='flex px-4 py-6 hover:bg-gray-100 dark:hover:bg-black/50'
+                          className='flex px-4 py-6 hover:bg-gray-100 dark:hover:bg-primary'
                         >
                           <IoRemoveOutline className='mr-2' size={24} />
                           <Link
@@ -128,7 +128,10 @@ export function ProfileNav({ items, setOpen, hideSidebar }: ProfileNavProps) {
                   <div className='absolute bottom-full left-0 z-20 mb-2 w-auto rounded-md border bg-background shadow-lg'>
                     <ul>
                       {item.dropdownItems?.map((dropdownItem, idx) => (
-                        <li key={idx} className='px-4 py-2 hover:bg-gray-100'>
+                        <li
+                          key={idx}
+                          className='px-4 py-2 hover:bg-gray-100 dark:hover:bg-primary'
+                        >
                           <Link
                             href={dropdownItem.href}
                             onClick={handleLinkClick}
