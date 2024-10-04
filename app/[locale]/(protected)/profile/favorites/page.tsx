@@ -37,10 +37,8 @@ export default function FavoritesPage() {
 
       {/* Проверка на наличие избранных товаров */}
       {favorites.length === 0 ? (
-        <div className='text-center'>
-          <p className='text-lg font-semibold text-gray-700'>
-            Нет избранных товаров.
-          </p>
+        <div className='text-left'>
+          <p className='font-semibol text-lg'>Нет избранных товаров.</p>
           <Link
             className='mt-4 inline-block rounded bg-blue-500 px-6 py-2 text-white'
             href='/home'
