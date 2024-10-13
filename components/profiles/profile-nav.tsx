@@ -130,7 +130,7 @@ export function ProfileNav({ items, setOpen, hideSidebar }: ProfileNavProps) {
                       {item.dropdownItems?.map((dropdownItem, idx) => (
                         <li
                           key={idx}
-                          className='px-4 py-2 hover:bg-gray-100 dark:hover:bg-primary'
+                          className='flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-primary'
                         >
                           <Link
                             href={dropdownItem.href}

@@ -346,7 +346,7 @@ export default function Tabs() {
                 : 'group hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300'
             }`}
           >
-            <span>Продано</span>
+            <span>Продажи</span>
           </div>
         </div>
       </div>

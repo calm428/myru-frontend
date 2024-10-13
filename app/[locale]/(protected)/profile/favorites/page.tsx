@@ -11,7 +11,7 @@ export default function FavoritesPage() {
   );
 
   // Получение данных с использованием SWR
-  const { data, error } = useSWR('/api/fav/get', fetcher);
+  const { data, error, mutate } = useSWR('/api/fav/get', fetcher);
 
   if (error) return <div>Ошибка</div>;
 
@@ -31,6 +31,29 @@ export default function FavoritesPage() {
 
   const favorites = data.data;
 
+  const handleRemoveFavorite = async (uniqId: string) => {
+    const actionType = 'remove'; // Устанавливаем тип действия "remove"
+
+    try {
+      const response = await fetch(`/api/flows/favorite`, {
+        method: 'POST', // Используем только POST запрос
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: uniqId, actionType }), // Передаем уникальный ID и тип действия
+      });
+
+      if (response.ok) {
+        // Обновляем список избранного после удаления
+        mutate();
+      } else {
+        console.error('Ошибка при удалении из избранного');
+      }
+    } catch (error) {
+      console.error('Ошибка сети', error);
+    }
+  };
+
   return (
     <div className='container mx-auto py-6'>
       <h1 className='pb-4 text-3xl font-bold'>Наименование товаров</h1>
@@ -38,7 +61,7 @@ export default function FavoritesPage() {
       {/* Проверка на наличие избранных товаров */}
       {favorites.length === 0 ? (
         <div className='text-left'>
-          <p className='font-semibol text-lg'>Нет избранных товаров.</p>
+          <p className='text-lg font-semibold '>Нет избранных товаров.</p>
           <Link
             className='mt-4 inline-block rounded bg-blue-500 px-6 py-2 text-white'
             href='/home'
@@ -62,15 +85,25 @@ export default function FavoritesPage() {
                 {favorite.Blog.MultilangDescr[currentLang]}
               </p>
               <p className='mt-2 text-gray-500'>
-                Просмотров: {favorite.Blog.Views} ₽
+                Просмотров: {favorite.Blog.Views}
               </p>
-              <p className='mt-2 text-gray-500'>Цена: {favorite.Blog.Total}</p>
-              <Link
-                className='mt-4 inline-block rounded bg-blue-500 px-4 py-2 text-white'
-                href={`/flows/${favorite.Blog.UniqId}/${favorite.Blog.Slug}`}
-              >
-                Открыть товар
-              </Link>
+              <p className='mt-2 text-gray-500'>
+                Цена: {favorite.Blog.Total} ₽
+              </p>
+              <div className='mt-4 flex items-center justify-between'>
+                <Link
+                  className='inline-block rounded bg-blue-500 px-4 py-2 text-white'
+                  href={`/flows/${favorite.Blog.UniqId}/${favorite.Blog.Slug}`}
+                >
+                  Открыть товар
+                </Link>
+                <button
+                  className='ml-4 inline-block rounded bg-red-500 px-4 py-2 text-white'
+                  onClick={() => handleRemoveFavorite(favorite.Blog.UniqId)}
+                >
+                  Удалить из избранного
+                </button>
+              </div>
             </div>
           ))}
         </div>
