@@ -32,7 +32,7 @@ import { RiHeartAddFill } from 'react-icons/ri';
 import { RiHeartFill } from 'react-icons/ri';
 import dynamic from 'next/dynamic';
 import { PaxContext } from '@/context/context';
-import { getSessionData } from '@/app/[locale]/(auth)/auth/check-session';
+// import { getSessionData } from '@/app/[locale]/(auth)/auth/check-session';
 
 const CartButton = dynamic(() => import('@/components/cart/CartButton'), {
   ssr: false,
