@@ -32,10 +32,7 @@ import { RiHeartAddFill } from 'react-icons/ri';
 import { RiHeartFill } from 'react-icons/ri';
 import dynamic from 'next/dynamic';
 import { PaxContext } from '@/context/context';
-import authOptions from '@/lib/authOptions';
-import cookie from 'cookie'; // Для парсинга cookies
-import { getServerSession } from 'next-auth';
-import { headers } from 'next/headers';
+import { getSessionData } from '@/app/[locale]/(auth)/auth/check-session';
 
 const CartButton = dynamic(() => import('@/components/cart/CartButton'), {
   ssr: false,
@@ -118,19 +115,14 @@ function FlowCard(profile: FlowCardProps) {
   };
 
   const handleFavoriteToggle = async () => {
-    const session = await getServerSession(authOptions);
+    // const accessToken = await getSessionData();
 
-    let accessToken = session?.accessToken;
-    if (!accessToken) {
-      const cookies = headers().get('cookie') || '';
-      const parsedCookies = cookie.parse(cookies);
-      accessToken = parsedCookies.access_token;
-    }
+    // if (!accessToken) {
+    //   const router = useRouter();
+    //   router.push('/auth/signin');
+    //   return;
+    // }
 
-    if (!accessToken) {
-      router.push('/auth/signin');
-      return;
-    }
     try {
       // Определяем тип действия в зависимости от текущего состояния
       const actionType = isFavorite ? 'remove' : 'add';
