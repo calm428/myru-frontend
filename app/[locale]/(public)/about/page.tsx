@@ -123,6 +123,15 @@ async function getUUID(username: string) {
   }
 }
 
+const items = [
+  { id: 1, content: 'Item 1', size: 'large' },
+  { id: 2, content: 'Item 2', size: 'small' },
+  { id: 3, content: 'Item 3', size: 'medium' },
+  { id: 4, content: 'Item 4', size: 'large' },
+  { id: 5, content: 'Item 5', size: 'small' },
+  { id: 6, content: 'Item 6', size: 'medium' },
+];
+
 export default async function LandingPage({
   params,
 }: {

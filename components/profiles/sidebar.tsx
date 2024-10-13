@@ -21,7 +21,11 @@ const navItems: NavItem[] = [
     icon: MdDashboard,
     label: 'Dashboard',
     description: '',
-    hasDropdown: false,
+    hasDropdown: true,
+    dropdownItems: [
+      { label: 'Лента', href: '/profile/dashboard' },
+      { label: 'Товары', href: '/profile/dashboard?tabs=products' },
+    ],
   },
   {
     title: 'my_posts',
@@ -34,8 +38,7 @@ const navItems: NavItem[] = [
     hasDropdown: true,
     dropdownItems: [
       { label: 'Витрина', href: '/profile/posts' },
-      { label: 'Избранное', href: '/profile/favorites' },
-      { label: 'Покупки', href: '/profile/purchases' },
+      { label: 'Продажи', href: '/profile/posts?tabs=sales' },
     ],
   },
   {
@@ -49,6 +52,8 @@ const navItems: NavItem[] = [
     hasDropdown: true,
     dropdownItems: [
       { label: 'Настройки профиля', href: '/profile/setting' },
+      { label: 'Избранное', href: '/profile/favorites' },
+      { label: 'Покупки', href: '/profile/purchases' },
       { label: 'Адреса доставки', href: '/profile/address' },
     ],
   },
@@ -72,6 +77,13 @@ export default function Sidebar() {
   const isChatPage = /^\/profile\/chat(\/(?!.*\/).*)?$/.test(pathname);
   const isMessagesPage = /^\/profile\/messages(\/(?!.*\/).*)?$/.test(pathname);
 
+  const filteredNavItems = navItems.filter((item) => {
+    if (item.title === 'my_posts' && !user?.seller) {
+      return true; // Скрываем пункт "Витрина", если user.seller === false
+    }
+    return true;
+  });
+
   return (
     <div>
       {!isChatPage && !isMessagesPage ? (
@@ -85,7 +97,7 @@ export default function Sidebar() {
               <div className='space-y-1'>
                 {/* Передаем setIsOpen в ProfileNav */}
                 <ProfileNav
-                  items={navItems}
+                  items={filteredNavItems} // Передаем отфильтрованные элементы навигации
                   hideSidebar={isChatPage}
                   setOpen={setIsOpen}
                 />

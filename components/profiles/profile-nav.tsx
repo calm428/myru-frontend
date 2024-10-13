@@ -70,7 +70,7 @@ export function ProfileNav({ items, setOpen, hideSidebar }: ProfileNavProps) {
   };
 
   return (
-    <nav className='grid w-full grid-cols-4 items-start gap-2 py-2 sm:grid-cols-1'>
+    <nav className='flex w-full items-start gap-1 py-2 md:grid md:grid-cols-1'>
       {items.map((item, index) => {
         const Icon: React.ComponentType<any> | undefined = item.icon;
         const normalizedHref = stripLangPrefix(item.href ?? '');
@@ -97,9 +97,9 @@ export function ProfileNav({ items, setOpen, hideSidebar }: ProfileNavProps) {
                   {!isMobile && (
                     <>
                       {openDropdown === item.title ? (
-                        <FaChevronUp className='ml-2' />
+                        <FaChevronUp className='ml-2 hidden md:block' />
                       ) : (
-                        <FaChevronDown className='ml-2' />
+                        <FaChevronDown className='ml-2 hidden md:block' />
                       )}
                     </>
                   )}

@@ -23,6 +23,7 @@ import AudioRecorder from '@/components/utils/mediaRecorder';
 import BlogSelectorDialog from '@/components/posts/BlogSelectorDialog';
 import BlogCard from '@/components/posts/BlogCard';
 import { Blog } from '@/types/Blog'; // Подразумевается, что у вас есть тип Blog
+import MyProducts from './MyProducts';
 
 import {
   Carousel,
@@ -149,6 +150,7 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null); // Явное указание типа Blog или null
   const [isBlogDialogOpen, setIsBlogDialogOpen] = useState(false); // Управление состоянием открытия модального окна
+  const [activeTab, setActiveTab] = useState('feed'); // Текущее активное состояние вкладки
 
   const router = useRouter(); // useRouter from 'next/navigation'
   const pathname = usePathname();
@@ -633,384 +635,421 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className='mb-8 min-h-screen max-w-3xl space-y-6 rounded-lg bg-white p-0 text-black dark:bg-secondary/60 dark:text-white'>
-      {/* Post creation section */}
-      {/* <div className='relative'>
-        <input
-          type='text'
-          placeholder='Поиск по тегам...'
-          className='w-full rounded-full border border-gray-300 px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500'
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
-        <FaSearch className='absolute left-4  top-1/2 -translate-y-1/2 transform text-gray-500' />
-      </div> */}
-      {!selectedPost ? (
-        <div>
-          <div className='fixed bottom-[60px] z-10  flex w-full max-w-3xl flex-col rounded-none bg-secondary p-4 md:bottom-[0px] '>
-            <div className='flex items-center space-x-4'>
-              <div className='flex w-full flex-col gap-1.5 rounded-[26px] bg-gray-400 p-1.5 transition-colors dark:bg-gray-700'>
-                <div className='flex items-end gap-1.5 md:gap-2'>
-                  <div className='relative flex items-center'>
-                    {/* Dropdown меню с опциями */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          type='button'
-                          aria-label='Attach options'
-                          className='flex h-8 w-8 items-center justify-center rounded-full text-white focus:outline-none dark:text-white'
-                        >
-                          <FaPaperclip size={18} />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem onClick={handleAttachBlog}>
-                          Прикрепить товар
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            document.getElementById('file-input')?.click()
-                          }
-                        >
-                          Прикрепить медиафайл
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    {/* Выбранный блог */}
-                    {/* Поле ввода для файлов */}
-                    <input
-                      type='file'
-                      id='file-input'
-                      multiple
-                      onChange={handleFileChange}
-                      className='hidden'
-                    />
-                  </div>
-                  <div className='flex min-w-0 flex-1 flex-col'>
-                    <textarea
-                      rows={1}
-                      placeholder='Ваш пост здесь..'
-                      className='m-0 max-h-52  resize-none border-0 bg-transparent px-0 text-black focus:ring-0 focus-visible:ring-0 dark:text-white'
-                      style={{ height: '30px', overflowY: 'hidden' }}
-                      value={content}
-                      onChange={(e) => setContent(e.target.value)}
-                    />
-                  </div>
-                  <AudioRecorder
-                    onRecordingComplete={handleRecordingComplete}
-                  />
-
-                  <button
-                    onClick={handleSubmit}
-                    disabled={
-                      isLoading || (!content.trim() && files.length === 0)
-                    }
-                    aria-label='Поделиться'
-                    className={`mb-1 me-1 flex h-8 w-8 items-center justify-center rounded-full bg-black text-white transition-opacity hover:opacity-70 focus:outline-none dark:bg-white dark:text-black ${
-                      !content.trim() && files.length === 0
-                        ? 'cursor-not-allowed opacity-50'
-                        : ''
-                    }`}
-                  >
-                    {isLoading ? (
-                      <FaSpinner className='animate-spin' size={16} />
-                    ) : (
-                      <FaArrowRight size={16} />
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-            {files.length > 0 && (
-              <div className='mt-4'>
-                <h4 className='text-sm font-medium text-gray-300'>
-                  Прикрепленные файлы:
-                </h4>
-                <ul className='mt-2 list-inside list-disc text-gray-400'>
-                  {files.map((file, index) => (
-                    <li key={index} className='flex items-center'>
-                      <span className='flex-1'>{file.name}</span>
-                      <button
-                        onClick={() => handleRemoveFile(index)}
-                        className='ml-2 flex items-center justify-center rounded-full text-red-500 hover:text-red-700'
-                        aria-label='Удалить файл'
-                      >
-                        <FaTrashAlt size={16} />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {selectedBlog && (
-              <div className='flex items-center space-x-2 pt-4'>
-                <span>С этим постом будет добавлен выбранный вами товар</span>
-                <button
-                  className='text-red-500 hover:text-red-700'
-                  aria-label='Удалить выбранный товар'
-                  onClick={() => setSelectedBlog(null)} // Убираем выбранный товар
-                >
-                  <FaTrashAlt size={16} />
-                </button>
-              </div>
-            )}
-            {/* Модальное окно для выбора блога */}
-            {isBlogDialogOpen && (
-              <BlogSelectorDialog
-                onSelectBlog={handleSelectBlog}
-                onClose={() => setIsBlogDialogOpen(false)}
-              />
-            )}
-          </div>
-          <InfiniteScroll
-            dataLength={posts.length}
-            next={() => fetchPosts()}
-            hasMore={hasMore}
-            loader={
-              <div className='flex flex-col space-y-4 px-4 py-4'>
-                <Skeleton className='h-6 w-3/4' />
-                <Skeleton className='h-6 w-full' />
-                <Skeleton className='h-6 w-5/6' />
-                <Skeleton className='h-6 w-2/3' />
-                <Skeleton className='h-6 w-1/2' />
-              </div>
-            }
-            endMessage={<p className='text-center'>Больше нет постов</p>}
+    <>
+      <div className='mb-4 flex'>
+        <div className='me-2 w-full cursor-pointer'>
+          <button
+            onClick={() => setActiveTab('feed')}
+            className={`tab-item inline-flex w-full items-center justify-center rounded-t-lg border-b-2 p-4 ${
+              activeTab === 'feed'
+                ? 'border-primary text-primary'
+                : 'border-b text-gray-600 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+            }`}
           >
-            {posts.map((post, index) => (
-              <div
-                key={index}
-                className='mb-4 space-y-4 rounded-none bg-secondary p-4'
-              >
+            Лента
+          </button>
+        </div>
+        <div className='me-0 w-full cursor-pointer'>
+          <button
+            onClick={() => setActiveTab('products')}
+            className={`tab-item inline-flex w-full items-center justify-center rounded-t-lg border-b-2 p-4 ${
+              activeTab === 'products'
+                ? 'border-primary text-primary'
+                : 'border-b text-gray-600 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+            }`}
+          >
+            Товары
+          </button>
+        </div>
+      </div>
+      {activeTab === 'feed' && (
+        <div className='mb-8 min-h-screen max-w-3xl space-y-6 rounded-lg bg-white p-0 text-black dark:bg-secondary/60 dark:text-white'>
+          {/* Таб-панель для выбора между лентой и продуктами */}
+
+          {!selectedPost ? (
+            <div>
+              <div className='fixed bottom-[60px] z-20  flex w-full max-w-3xl flex-col rounded-none bg-secondary p-2 md:bottom-[0px] '>
                 <div className='flex items-center space-x-4'>
-                  <Avatar className='mr-0'>
-                    <Link href={`/profiles/${post?.user?.Name}`} passHref>
-                      <AvatarImage
-                        src={`https://proxy.myru.online/100/https://img.myru.online/${post?.user?.Photo}`}
-                        alt={post?.user?.Photo}
-                      />
-                    </Link>
-                  </Avatar>
-                  <div className='flex-1'>
-                    <Link href={`/profiles/${post?.user?.Name}`} passHref>
-                      <p className='text-sm'>
-                        <span className='font-semibold'>
-                          {post?.user?.Name}
-                        </span>
-                      </p>
-                      <p className='text-xs text-gray-400'>
-                        {timeAgo(post.created_at)}
-                      </p>
-                    </Link>
-                  </div>
-                  {post.user.ID === userData?.id && (
-                    <>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className='text-gray-400 hover:text-gray-300'>
-                            <FaEllipsisV />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align='end'>
-                          <DropdownMenuItem onClick={() => handleEdit(post.id)}>
-                            Редактировать
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleDelete(post.id)}
-                          >
-                            Удалить
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </>
-                  )}
-                </div>
-                {post.files && post.files.length > 0 && (
-                  <div className='mt-4 md:w-[400px]'>
-                    {post.files.filter(
-                      (file) =>
-                        file.url.endsWith('.jpeg') ||
-                        file.url.endsWith('.jpg') ||
-                        file.url.endsWith('.png') ||
-                        file.url.endsWith('.gif') ||
-                        file.url.endsWith('.mp4') ||
-                        file.url.endsWith('.mkv') ||
-                        file.url.endsWith('.mov')
-                    ).length > 1 ? (
-                      <Carousel className='w-full md:max-w-md'>
-                        <CarouselContent>
-                          {post.files
-                            .filter(
-                              (file) =>
-                                file.url.endsWith('.jpeg') ||
-                                file.url.endsWith('.jpg') ||
-                                file.url.endsWith('.png') ||
-                                file.url.endsWith('.gif') ||
-                                file.url.endsWith('.mp4') ||
-                                file.url.endsWith('.mkv') ||
-                                file.url.endsWith('.mov')
-                            )
-                            .map((file, idx) => {
-                              const { url, filename } = file;
-                              const sanitizedUrl = url.replace(
-                                '../server-data/img-store/',
-                                ''
-                              );
-                              const fileUrlImage = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
-                              const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
-
-                              if (
-                                url.endsWith('.jpeg') ||
-                                url.endsWith('.jpg') ||
-                                url.endsWith('.png') ||
-                                url.endsWith('.gif')
-                              ) {
-                                return (
-                                  <CarouselItem key={idx}>
-                                    <div className='max-h-md relative h-80 w-full'>
-                                      <Image
-                                        src={fileUrlImage}
-                                        alt={filename}
-                                        layout='fill'
-                                        objectFit='cover'
-                                      />
-                                    </div>
-                                  </CarouselItem>
-                                );
-                              } else if (
-                                url.endsWith('.mp4') ||
-                                url.endsWith('.mkv') ||
-                                url.endsWith('.mov')
-                              ) {
-                                return (
-                                  <CarouselItem key={idx}>
-                                    <div className='relative h-full w-full'>
-                                      <CustomPlayer url={fileUrl} />
-                                    </div>
-                                  </CarouselItem>
-                                );
-                              }
-                            })}
-                        </CarouselContent>
-                        <CarouselPrevious className='left-3' />
-                        <CarouselNext className='right-3' />
-                      </Carousel>
-                    ) : (
-                      post.files.map((file, idx) => {
-                        const { url, filename } = file;
-                        const sanitizedUrl = url.replace(
-                          '../server-data/img-store/',
-                          ''
-                        );
-                        const fileUrlImage = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
-                        const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
-
-                        if (
-                          url.endsWith('.jpeg') ||
-                          url.endsWith('.jpg') ||
-                          url.endsWith('.png') ||
-                          url.endsWith('.gif')
-                        ) {
-                          return (
-                            <div
-                              key={idx}
-                              className='max-h-md relative h-80 max-w-md'
+                  <div className='flex w-full flex-col gap-1.5 rounded-[26px] bg-gray-400 p-1.5 transition-colors dark:bg-gray-700'>
+                    <div className='flex items-end gap-1.5 md:gap-2'>
+                      <div className='relative flex items-center'>
+                        {/* Dropdown меню с опциями */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type='button'
+                              aria-label='Attach options'
+                              className='flex h-8 w-8 items-center justify-center rounded-full text-white focus:outline-none dark:text-white'
                             >
-                              <Image
-                                src={fileUrlImage}
-                                alt={filename}
-                                layout='fill'
-                                objectFit='cover'
-                              />
-                            </div>
-                          );
-                        } else if (
-                          url.endsWith('.mp4') ||
-                          url.endsWith('.mkv') ||
-                          url.endsWith('.mov')
-                        ) {
-                          return (
-                            <div key={idx} className='relative h-full w-full'>
-                              <CustomPlayer url={fileUrl} />
-                            </div>
-                          );
-                        }
-                      })
-                    )}
+                              <FaPaperclip size={18} />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem onClick={handleAttachBlog}>
+                              Прикрепить товар
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                document.getElementById('file-input')?.click()
+                              }
+                            >
+                              Прикрепить медиафайл
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        {/* Выбранный блог */}
+                        {/* Поле ввода для файлов */}
+                        <input
+                          type='file'
+                          id='file-input'
+                          multiple
+                          onChange={handleFileChange}
+                          className='hidden'
+                        />
+                      </div>
+                      <div className='flex min-w-0 flex-1 flex-col'>
+                        <textarea
+                          rows={1}
+                          placeholder='Ваш пост здесь..'
+                          className='m-0 max-h-52  resize-none border-0 bg-transparent px-0 text-black focus:ring-0 focus-visible:ring-0 dark:text-white'
+                          style={{ height: '30px', overflowY: 'hidden' }}
+                          value={content}
+                          onChange={(e) => setContent(e.target.value)}
+                        />
+                      </div>
+                      <AudioRecorder
+                        onRecordingComplete={handleRecordingComplete}
+                      />
 
-                    {/* Отображение остальных файлов */}
-                    {post.files
-                      .filter(
-                        (file) =>
-                          !file.url.endsWith('.jpeg') &&
-                          !file.url.endsWith('.jpg') &&
-                          !file.url.endsWith('.png') &&
-                          !file.url.endsWith('.gif') &&
-                          !file.url.endsWith('.mp4') &&
-                          !file.url.endsWith('.mkv') &&
-                          !file.url.endsWith('.mov')
-                      )
-                      .map((file, idx) => renderFile(file, idx))}
+                      <button
+                        onClick={handleSubmit}
+                        disabled={
+                          isLoading || (!content.trim() && files.length === 0)
+                        }
+                        aria-label='Поделиться'
+                        className={`mb-1 me-1 flex h-8 w-8 items-center justify-center rounded-full bg-black text-white transition-opacity hover:opacity-70 focus:outline-none dark:bg-white dark:text-black ${
+                          !content.trim() && files.length === 0
+                            ? 'cursor-not-allowed opacity-50'
+                            : ''
+                        }`}
+                      >
+                        {isLoading ? (
+                          <FaSpinner className='animate-spin' size={16} />
+                        ) : (
+                          <FaArrowRight size={16} />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                {files.length > 0 && (
+                  <div className='mt-4'>
+                    <h4 className='text-sm font-medium text-gray-300'>
+                      Прикрепленные файлы:
+                    </h4>
+                    <ul className='mt-2 list-inside list-disc text-gray-400'>
+                      {files.map((file, index) => (
+                        <li key={index} className='flex items-center'>
+                          <span className='flex-1'>{file.name}</span>
+                          <button
+                            onClick={() => handleRemoveFile(index)}
+                            className='ml-2 flex items-center justify-center rounded-full text-red-500 hover:text-red-700'
+                            aria-label='Удалить файл'
+                          >
+                            <FaTrashAlt size={16} />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
-                {post.isEditing ? (
-                  <div>
-                    <Textarea
-                      className='w-full bg-transparent text-[16px] text-gray-400 placeholder-gray-500 focus:outline-none'
-                      value={post.content}
-                      onChange={(e) =>
-                        setPosts((prevPosts) =>
-                          prevPosts.map((p) =>
-                            p.id === post.id
-                              ? { ...p, content: e.target.value }
-                              : p
-                          )
-                        )
-                      }
-                    />
+                {selectedBlog && (
+                  <div className='flex items-center space-x-2 pt-4'>
+                    <span>
+                      С этим постом будет добавлен выбранный вами товар
+                    </span>
                     <button
-                      className={`mt-2 flex items-center rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 ${post.isSaving ? 'cursor-not-allowed opacity-50' : ''}`}
-                      onClick={() => handleSaveEdit(post.id, post.content)}
-                      disabled={post.isSaving}
+                      className='text-red-500 hover:text-red-700'
+                      aria-label='Удалить выбранный товар'
+                      onClick={() => setSelectedBlog(null)} // Убираем выбранный товар
                     >
-                      {post.isSaving ? (
-                        <FaSpinner className='mr-2 animate-spin' />
-                      ) : null}
-                      {post.isSaving ? 'Сохранение...' : 'Сохранить'}
+                      <FaTrashAlt size={16} />
                     </button>
                   </div>
-                ) : (
-                  <LongText
-                    text={renderContentWithHashtags(post.content)}
-                    maxLength={300}
+                )}
+                {/* Модальное окно для выбора блога */}
+                {isBlogDialogOpen && (
+                  <BlogSelectorDialog
+                    onSelectBlog={handleSelectBlog}
+                    onClose={() => setIsBlogDialogOpen(false)}
                   />
                 )}
-                {post.blog && <BlogCard blog={post.blog} />}
-                {/* Добавляем компонент BlogCard */}
-                <div className='flex justify-between text-gray-400'>
-                  <div className='flex space-x-4'>
-                    <span
-                      className='cursor-pointer'
-                      onClick={() => handleToggleLike(post.id)}
-                    >
-                      👍 {post.likeCount}
-                    </span>
-                    <span
-                      className='cursor-pointer'
-                      onClick={() => handleCommentClick(post)}
-                    >
-                      💬 {post.commentCount}
-                    </span>
-                    {/* <span>🔄 {post.shares}</span> */}
-                  </div>
-                </div>
               </div>
-            ))}
-          </InfiniteScroll>
+              <InfiniteScroll
+                dataLength={posts.length}
+                next={() => fetchPosts()}
+                hasMore={hasMore}
+                loader={
+                  <div className='flex flex-col space-y-4 px-4 py-4'>
+                    <Skeleton className='h-6 w-3/4' />
+                    <Skeleton className='h-6 w-full' />
+                    <Skeleton className='h-6 w-5/6' />
+                    <Skeleton className='h-6 w-2/3' />
+                    <Skeleton className='h-6 w-1/2' />
+                  </div>
+                }
+                endMessage={<p className='text-center'>Больше нет постов</p>}
+              >
+                {posts.map((post, index) => (
+                  <div
+                    key={index}
+                    className='mb-4 space-y-4 rounded-none bg-secondary p-4'
+                  >
+                    <div className='flex items-center space-x-4'>
+                      <Avatar className='mr-0'>
+                        <Link href={`/profiles/${post?.user?.Name}`} passHref>
+                          <AvatarImage
+                            src={`https://proxy.myru.online/100/https://img.myru.online/${post?.user?.Photo}`}
+                            alt={post?.user?.Photo}
+                          />
+                        </Link>
+                      </Avatar>
+                      <div className='flex-1'>
+                        <Link href={`/profiles/${post?.user?.Name}`} passHref>
+                          <p className='text-sm'>
+                            <span className='font-semibold'>
+                              {post?.user?.Name}
+                            </span>
+                          </p>
+                          <p className='text-xs text-gray-400'>
+                            {timeAgo(post.created_at)}
+                          </p>
+                        </Link>
+                      </div>
+                      {post.user.ID === userData?.id && (
+                        <>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button className='text-gray-400 hover:text-gray-300'>
+                                <FaEllipsisV />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align='end'>
+                              <DropdownMenuItem
+                                onClick={() => handleEdit(post.id)}
+                              >
+                                Редактировать
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleDelete(post.id)}
+                              >
+                                Удалить
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </>
+                      )}
+                    </div>
+                    {post.files && post.files.length > 0 && (
+                      <div className='mt-4 md:w-[400px]'>
+                        {post.files.filter(
+                          (file) =>
+                            file.url.endsWith('.jpeg') ||
+                            file.url.endsWith('.jpg') ||
+                            file.url.endsWith('.png') ||
+                            file.url.endsWith('.gif') ||
+                            file.url.endsWith('.mp4') ||
+                            file.url.endsWith('.mkv') ||
+                            file.url.endsWith('.mov')
+                        ).length > 1 ? (
+                          <Carousel className='w-full md:max-w-md'>
+                            <CarouselContent>
+                              {post.files
+                                .filter(
+                                  (file) =>
+                                    file.url.endsWith('.jpeg') ||
+                                    file.url.endsWith('.jpg') ||
+                                    file.url.endsWith('.png') ||
+                                    file.url.endsWith('.gif') ||
+                                    file.url.endsWith('.mp4') ||
+                                    file.url.endsWith('.mkv') ||
+                                    file.url.endsWith('.mov')
+                                )
+                                .map((file, idx) => {
+                                  const { url, filename } = file;
+                                  const sanitizedUrl = url.replace(
+                                    '../server-data/img-store/',
+                                    ''
+                                  );
+                                  const fileUrlImage = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
+                                  const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
+
+                                  if (
+                                    url.endsWith('.jpeg') ||
+                                    url.endsWith('.jpg') ||
+                                    url.endsWith('.png') ||
+                                    url.endsWith('.gif')
+                                  ) {
+                                    return (
+                                      <CarouselItem key={idx}>
+                                        <div className='max-h-md relative h-80 w-full'>
+                                          <Image
+                                            src={fileUrlImage}
+                                            alt={filename}
+                                            layout='fill'
+                                            objectFit='cover'
+                                          />
+                                        </div>
+                                      </CarouselItem>
+                                    );
+                                  } else if (
+                                    url.endsWith('.mp4') ||
+                                    url.endsWith('.mkv') ||
+                                    url.endsWith('.mov')
+                                  ) {
+                                    return (
+                                      <CarouselItem key={idx}>
+                                        <div className='relative h-full w-full'>
+                                          <CustomPlayer url={fileUrl} />
+                                        </div>
+                                      </CarouselItem>
+                                    );
+                                  }
+                                })}
+                            </CarouselContent>
+                            <CarouselPrevious className='left-3' />
+                            <CarouselNext className='right-3' />
+                          </Carousel>
+                        ) : (
+                          post.files.map((file, idx) => {
+                            const { url, filename } = file;
+                            const sanitizedUrl = url.replace(
+                              '../server-data/img-store/',
+                              ''
+                            );
+                            const fileUrlImage = `https://proxy.myru.online/256/https://img.myru.online/${sanitizedUrl}`;
+                            const fileUrl = `https://img.myru.online/${sanitizedUrl}`;
+
+                            if (
+                              url.endsWith('.jpeg') ||
+                              url.endsWith('.jpg') ||
+                              url.endsWith('.png') ||
+                              url.endsWith('.gif')
+                            ) {
+                              return (
+                                <div
+                                  key={idx}
+                                  className='max-h-md relative h-80 max-w-md'
+                                >
+                                  <Image
+                                    src={fileUrlImage}
+                                    alt={filename}
+                                    layout='fill'
+                                    objectFit='cover'
+                                  />
+                                </div>
+                              );
+                            } else if (
+                              url.endsWith('.mp4') ||
+                              url.endsWith('.mkv') ||
+                              url.endsWith('.mov')
+                            ) {
+                              return (
+                                <div
+                                  key={idx}
+                                  className='relative h-full w-full'
+                                >
+                                  <CustomPlayer url={fileUrl} />
+                                </div>
+                              );
+                            }
+                          })
+                        )}
+
+                        {/* Отображение остальных файлов */}
+                        {post.files
+                          .filter(
+                            (file) =>
+                              !file.url.endsWith('.jpeg') &&
+                              !file.url.endsWith('.jpg') &&
+                              !file.url.endsWith('.png') &&
+                              !file.url.endsWith('.gif') &&
+                              !file.url.endsWith('.mp4') &&
+                              !file.url.endsWith('.mkv') &&
+                              !file.url.endsWith('.mov')
+                          )
+                          .map((file, idx) => renderFile(file, idx))}
+                      </div>
+                    )}
+                    {post.isEditing ? (
+                      <div>
+                        <Textarea
+                          className='w-full bg-transparent text-[16px] text-gray-400 placeholder-gray-500 focus:outline-none'
+                          value={post.content}
+                          onChange={(e) =>
+                            setPosts((prevPosts) =>
+                              prevPosts.map((p) =>
+                                p.id === post.id
+                                  ? { ...p, content: e.target.value }
+                                  : p
+                              )
+                            )
+                          }
+                        />
+                        <button
+                          className={`mt-2 flex items-center rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 ${post.isSaving ? 'cursor-not-allowed opacity-50' : ''}`}
+                          onClick={() => handleSaveEdit(post.id, post.content)}
+                          disabled={post.isSaving}
+                        >
+                          {post.isSaving ? (
+                            <FaSpinner className='mr-2 animate-spin' />
+                          ) : null}
+                          {post.isSaving ? 'Сохранение...' : 'Сохранить'}
+                        </button>
+                      </div>
+                    ) : (
+                      <LongText
+                        text={renderContentWithHashtags(post.content)}
+                        maxLength={300}
+                      />
+                    )}
+                    {post.blog && <BlogCard blog={post.blog} />}
+                    {/* Добавляем компонент BlogCard */}
+                    <div className='flex justify-between text-gray-400'>
+                      <div className='flex space-x-4'>
+                        <span
+                          className='cursor-pointer'
+                          onClick={() => handleToggleLike(post.id)}
+                        >
+                          👍 {post.likeCount}
+                        </span>
+                        <span
+                          className='cursor-pointer'
+                          onClick={() => handleCommentClick(post)}
+                        >
+                          💬 {post.commentCount}
+                        </span>
+                        {/* <span>🔄 {post.shares}</span> */}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </InfiniteScroll>
+            </div>
+          ) : (
+            <NestedCommentSection
+              post={selectedPost}
+              onBack={handleBackToPosts}
+            />
+          )}
         </div>
-      ) : (
-        <NestedCommentSection post={selectedPost} onBack={handleBackToPosts} />
       )}
-    </div>
+      {activeTab === 'products' && (
+        <div>
+          {/* Страница товаров */}
+          <MyProducts />
+        </div>
+      )}
+    </>
   );
 }

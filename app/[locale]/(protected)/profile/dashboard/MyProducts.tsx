@@ -1,6 +1,6 @@
 'use client';
 
-import { CTASection } from '@/components/home/cta';
+import { CTASection } from '@/components/home/cta-d';
 import FilterListSection from '@/components/home/filter-list';
 import FlowSection from '@/components/home/flow';
 import ProfileSection from '@/components/home/profile';
@@ -8,10 +8,8 @@ import { scrollToTransition } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { TbFilterSearch } from 'react-icons/tb'; // Импорт иконки
-import HeroSection from '@/components/main/heroForMain';
-import Head from 'next/head'; // Импортируем Head
 
-export default function HomePage() {
+export default function MyProducts() {
   const searchParams = useSearchParams();
   const [viewMode, setViewMode] = useState<string>(
     searchParams.get('mode') || 'flow'
@@ -20,6 +18,7 @@ export default function HomePage() {
   const [isManualToggle, setIsManualToggle] = useState(false);
   const [isScrolledDown, setIsScrolledDown] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [activeTab, setActiveTab] = useState('home'); // Для управления вкладками
 
   useEffect(() => {
     setViewMode(searchParams.get('mode') || 'flow');
@@ -92,27 +91,29 @@ export default function HomePage() {
 
   return (
     <div>
-      <HeroSection />
-
-      {(!isCTAVisible || isScrolledDown) && (
-        <button
-          onClick={toggleCTAVisibility}
-          className={`fixed right-4 z-50 rounded-full bg-blue-500 p-4 text-white shadow-lg transition-all ${
-            isCTAVisible ? 'bottom-[100px] md:bottom-4' : 'bottom-4'
-          }`}
-        >
-          <TbFilterSearch size={12} />
-        </button>
+      {activeTab === 'home' && (
+        <>
+          {(!isCTAVisible || isScrolledDown) && (
+            <button
+              onClick={toggleCTAVisibility}
+              className={`fixed right-4 z-50 rounded-full bg-blue-500 p-4 text-white shadow-lg transition-all ${
+                isCTAVisible ? 'bottom-[170px] md:bottom-4' : 'bottom-16'
+              }`}
+            >
+              <TbFilterSearch size={12} />
+            </button>
+          )}
+          {isCTAVisible && <CTASection />}
+          <section className='container'>
+            <FilterListSection />
+            {viewMode === 'profile' ? (
+              <ProfileSection />
+            ) : viewMode === 'flow' ? (
+              <FlowSection />
+            ) : null}
+          </section>
+        </>
       )}
-      {isCTAVisible && <CTASection />}
-      <section className='container'>
-        <FilterListSection />
-        {viewMode === 'profile' ? (
-          <ProfileSection />
-        ) : viewMode === 'flow' ? (
-          <FlowSection />
-        ) : null}
-      </section>
     </div>
   );
 }
