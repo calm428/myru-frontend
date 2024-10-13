@@ -8,9 +8,10 @@ export async function POST(request: Request) {
   try {
     // Получение тела запроса
     const body = await request.json();
-    const { cartItems, customerDetails } = body;
+    const { cartItems, customerDetails, shippingMethod, paymentMethod } = body;
 
-    if (!cartItems || !customerDetails) {
+    // Проверка на наличие товаров и данных клиента
+    if (!cartItems || !customerDetails || !shippingMethod || !paymentMethod) {
       return NextResponse.json(
         { message: 'Ошибка: недостаточно данных' },
         { status: 400 }
@@ -50,11 +51,10 @@ export async function POST(request: Request) {
           seller: item.seller, // Имя продавца
         })),
         customerDetails: {
-          name: customerDetails.name,
-          email: customerDetails.email,
-          address: customerDetails.address,
-          phone: customerDetails.phone,
+          addressId: customerDetails.addressId, // Передаем ID адреса клиента
         },
+        shippingMethod, // Способ доставки
+        paymentMethod, // Способ оплаты
       };
 
       // Отправка заказа в API
