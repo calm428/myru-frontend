@@ -10,6 +10,15 @@ import toast from 'react-hot-toast';
 import { format } from 'date-fns'; // Модуль для форматирования даты
 import { ru } from 'date-fns/locale'; // Импорт локали ru
 
+// Компонент для скелетона адресов
+const SkeletonAddress = () => (
+  <div className='animate-pulse p-4'>
+    <div className='mb-2 h-4 w-40 bg-gray-300'></div>
+    <div className='mb-2 h-4 w-56 bg-gray-300'></div>
+    <div className='mb-2 h-4 w-40 bg-gray-300'></div>
+  </div>
+);
+
 interface Address {
   id: string;
   addressName: string;
@@ -32,6 +41,7 @@ export default function CheckoutPage() {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(true); // Состояние загрузки
 
   useEffect(() => {
     setIsMounted(true);
@@ -56,6 +66,8 @@ export default function CheckoutPage() {
       setSavedAddresses(formattedAddresses);
     } catch (error) {
       console.error('Ошибка при загрузке адресов', error);
+    } finally {
+      setIsLoading(false); // Окончание загрузки
     }
   };
 
@@ -123,7 +135,14 @@ export default function CheckoutPage() {
     <div className='container mx-auto my-4'>
       <h1 className='mb-6 text-2xl font-bold'>Оформление заказа</h1>
 
-      {savedAddresses.length > 0 ? (
+      {isLoading ? (
+        // Отображаем скелетон во время загрузки адресов
+        <div className='space-y-4'>
+          {[...Array(3)].map((_, i) => (
+            <SkeletonAddress key={i} />
+          ))}
+        </div>
+      ) : savedAddresses.length > 0 ? (
         <div className='mt-8'>
           <h2 className='text-xl font-semibold'>Адрес доставки</h2>
 
@@ -185,15 +204,6 @@ export default function CheckoutPage() {
           <div className='mt-8'>
             <h2 className='text-xl font-semibold'>Способ оплаты</h2>
             <div className='space-y-4'>
-              {/* <label className='flex items-center space-x-2'>
-                <input
-                  type='radio'
-                  value='credit_card'
-                  checked={paymentMethod === 'credit_card'}
-                  onChange={() => setPaymentMethod('credit_card')}
-                />
-                <span>Банковская карта</span>
-              </label> */}
               <label className='flex items-center space-x-2'>
                 <input
                   type='radio'
