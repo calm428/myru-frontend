@@ -32,6 +32,10 @@ import { RiHeartAddFill } from 'react-icons/ri';
 import { RiHeartFill } from 'react-icons/ri';
 import dynamic from 'next/dynamic';
 import { PaxContext } from '@/context/context';
+import authOptions from '@/lib/authOptions';
+import cookie from 'cookie'; // Для парсинга cookies
+import { getServerSession } from 'next-auth';
+import { headers } from 'next/headers';
 
 const CartButton = dynamic(() => import('@/components/cart/CartButton'), {
   ssr: false,
@@ -114,7 +118,16 @@ function FlowCard(profile: FlowCardProps) {
   };
 
   const handleFavoriteToggle = async () => {
-    if (status !== 'authenticated') {
+    const session = await getServerSession(authOptions);
+
+    let accessToken = session?.accessToken;
+    if (!accessToken) {
+      const cookies = headers().get('cookie') || '';
+      const parsedCookies = cookie.parse(cookies);
+      accessToken = parsedCookies.access_token;
+    }
+
+    if (!accessToken) {
       router.push('/auth/signin');
       return;
     }

@@ -8,6 +8,10 @@ import { Button } from '@/components/ui/button';
 import { RiDeleteBinLine } from 'react-icons/ri';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation'; // Используем useRouter из next/navigation
+import authOptions from '@/lib/authOptions';
+import { headers } from 'next/headers';
+import cookie from 'cookie';
+import { getServerSession } from 'next-auth';
 
 export default function CartPage() {
   const [isMounted, setIsMounted] = useState(false); // Проверяем, смонтирован ли компонент на клиенте
@@ -29,8 +33,18 @@ export default function CartPage() {
     dispatch(clearCart()); // Очистка корзины
   };
 
-  const handleCheckout = () => {
-    if (status !== 'authenticated') {
+  const handleCheckout = async () => {
+    const session = await getServerSession(authOptions);
+
+    let accessToken = session?.accessToken;
+    if (!accessToken) {
+      const cookies = headers().get('cookie') || '';
+      const parsedCookies = cookie.parse(cookies);
+      accessToken = parsedCookies.access_token;
+      console.log('Session:', headers().get('cookie'));
+    }
+
+    if (!accessToken) {
       router.push('/auth/signin'); // Если не авторизован, перенаправляем на страницу входа
       return;
     }
