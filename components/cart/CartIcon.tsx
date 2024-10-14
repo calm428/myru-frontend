@@ -15,7 +15,7 @@ export default function CartIcon() {
   return (
     <Link href='/cart' className='relative'>
       <CiShoppingCart size={24} />
-      <span className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'>
+      <span className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-gray-500 text-xs text-white'>
         {cartItems.length}
       </span>
     </Link>
