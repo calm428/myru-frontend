@@ -8,6 +8,7 @@ import { siteConfig } from '@/config/site';
 import AlarmNav from './alarm-nav';
 import Notification from './notification';
 import dynamic from 'next/dynamic';
+import Favorites from './favorites';
 
 // Динамически импортируем клиентский компонент для корзины
 const DynamicCartIcon = dynamic(() => import('@/components/cart/CartIcon'), {
@@ -36,6 +37,7 @@ export default function ClientHeader({ data }: ClientHeaderProps) {
         <MainNav items={siteConfig.mainNav} />
         <div className='flex items-center gap-4'>
           <AlarmNav authenticated={!!data} />
+          <Favorites authenticated={!!data} />
           <DynamicCartIcon /> {/* Отображаем иконку корзины динамически */}{' '}
           <Notification authenticated={!!data} />
         </div>

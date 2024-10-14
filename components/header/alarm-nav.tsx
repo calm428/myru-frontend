@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import eventBus from '@/eventBus';
-import { TiMessages } from 'react-icons/ti';
+import { PiChatCenteredTextThin } from 'react-icons/pi';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { PaxContext } from '@/context/context';
 import useCentrifuge from '@/hooks/useCentrifuge';
@@ -57,9 +57,9 @@ export default function AlarmNav({
     <div className='flex'>
       <button onClick={checkMessagesInPathname}>
         <div className='relative'>
-          <TiMessages size={24} />
+          <PiChatCenteredTextThin size={24} />
           {roomCount > 0 && (
-            <span className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'>
+            <span className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-gray-500 text-xs text-white'>
               {roomCount}
             </span>
           )}
