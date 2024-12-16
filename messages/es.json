@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "Mi Rusia En Línea",
-    "description": "Red de transmisión popular de Rusia"
+    "description": "Una plataforma que combina comercio, redes sociales y streaming basados en tecnologías blockchain. Transacciones confiables, transmisiones en vivo y una comunidad activa: todo para tu exitosa presencia en línea."
   },
   "main": {
     "notifications": "Notificaciones",
@@ -20,7 +20,7 @@
     "recharge_via_bank_card": "Recargar a través de tarjeta bancaria",
     "exploreProfilesButton": "Explorar Perfiles",
     "noFollowersMessage": "Aún no tienes seguidores",
-    "noFollowingsMessage": "Aún no sigues a nadie",  
+    "noFollowingsMessage": "Aún no sigues a nadie",
     "one_page": "Sólo 1 página",
     "back_flow": "Volver",
     "next_flow": "Adelante",
@@ -29,7 +29,7 @@
     "about": "Acerca de",
     "contact": "Contacto",
     "dark_mode": "Modo Oscuro",
-    "type_message":"escribe un mensaje...",
+    "type_message": "escribe un mensaje...",
     "light_mode": "Modo Claro",
     "trade": "Éteres",
     "dashboard": "Tablero",

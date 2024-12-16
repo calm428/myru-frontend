@@ -82,6 +82,11 @@ module.exports = {
         panel: '0 0 10px -7px rgb(0, 0, 0)',
       },
       keyframes: {
+        text: {
+          to: {
+            backgroundPosition: '200% center',
+          },
+        },
         'accordion-down': {
           from: { height: 0 },
           to: { height: 'var(--radix-accordion-content-height)' },
@@ -90,8 +95,17 @@ module.exports = {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: 0 },
         },
+        slide: {
+          '0%': { transform: 'translateY(100%)', opacity: 0.1 },
+          '15%': { transform: 'translateY(0)', opacity: 1 },
+          '30%': { transform: 'translateY(0)', opacity: 1 },
+          '45%': { transform: 'translateY(-100%)', opacity: 1 },
+          '100%': { transform: 'translateY(-100%)', opacity: 0.1 },
+        },
       },
       animation: {
+        'text-gradient': 'text 1.5s linear infinite',
+        slide: 'slide 2.5s linear infinite',
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
       },

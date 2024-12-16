@@ -4,11 +4,18 @@ export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.toString();
 
   const locale = req.nextUrl.searchParams.get('language') || 'en';
+  const token = req.cookies.get('access_token')?.value; // Получаем только значение токена
 
   try {
     const res = await fetch(
       `${process.env.API_URL}/api/blog/listAll${query ? `?${query}` : ''}`,
-      { cache: 'no-cache' }
+      {
+        headers: {
+          // Добавляем заголовок Authorization с токеном
+          Authorization: `${token}`,
+        },
+        cache: 'no-cache', // Добавляем cache в тот же объект
+      }
     );
     if (!res.ok) {
       throw new Error('Failed to fetch data');
@@ -18,6 +25,7 @@ export async function GET(req: NextRequest) {
 
     const flows = data.data.map((item: any) => {
       return {
+        isFavorite: item.isfavorite,
         id: item.uniqId,
         title:
           item.multilangtitle[locale.charAt(0).toUpperCase() + locale.slice(1)],

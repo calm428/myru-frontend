@@ -210,7 +210,7 @@ export default function FilterListSection() {
 
   return (
     filtersApplied && (
-      <div className='relative flex w-full flex-wrap items-center gap-2 pb-4 pt-2'>
+      <div className='relative flex w-full flex-wrap items-center gap-2 pb-8 pt-0'>
         <Badges />
         {filtersApplied && session?.user?.id && (
           <Dialog open={open} onOpenChange={setOpen}>

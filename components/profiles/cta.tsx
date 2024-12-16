@@ -80,7 +80,7 @@ function Clock({
 }
 
 export default function CTASection({ title, description, icon }: CTAProps) {
-  const { user } = useContext(PaxContext);
+  const { user, cryptoBalance } = useContext(PaxContext);
   const t = useTranslations('main');
 
   const Icon = icon;
@@ -116,7 +116,7 @@ export default function CTASection({ title, description, icon }: CTAProps) {
         </PlanUpgradeModal>
         <Button variant='outline' className='w-ful' asChild>
           <Link href='/profile/accouting'>
-            {t('balance')} {user?.balance || 0} ₽
+            {t('balance')} {cryptoBalance || 0} RUDT
           </Link>
         </Button>
         <Button variant='outline' className='w-full text-white'>

@@ -91,11 +91,11 @@ const ChatNavComponent: React.FC<Props> = ({ mode }: Props) => {
   }, [activeRoom]);
 
   return (
-    <div ref={navbarRef} className='new-sidebar w-full pt-[70px] md:w-[300px]'>
-      <div className='h-screen w-full overflow-y-auto border-l border-r bg-white py-2 dark:bg-black'>
+    <div ref={navbarRef} className='new-sidebar w-full pt-[57px] md:w-[300px]'>
+      <div className='h-screen w-full overflow-y-auto border-l border-r bg-white py-0 dark:bg-black'>
         <div className='bg-card-gradient-menu px-5 text-lg font-medium text-gray-800 dark:text-white'>
           <button
-            className='toggle-btn  absolute right-4 top-[92px] z-10'
+            className='toggle-btn  absolute right-4 top-[72px] z-10'
             onClick={() => setShowNav(!showNav)}
           >
             <IoIosClose size={24} />
@@ -136,7 +136,7 @@ const ChatNavComponent: React.FC<Props> = ({ mode }: Props) => {
                 onChange={(e) => setKeyword(e.target.value)}
               />
             </div>
-            <ScrollArea className='h-[calc(100vh_-_14.5rem)] rounded-lg bg-background p-4'>
+            <ScrollArea className='h-[calc(100vh_-_13.3rem)] rounded-lg bg-background p-4'>
               <div>
                 {chatRooms.length > 0 ? (
                   chatRooms
@@ -155,10 +155,7 @@ const ChatNavComponent: React.FC<Props> = ({ mode }: Props) => {
             </ScrollArea>
             <div className='bg-card-gradient-menu-on px-2 py-2'>
               <StreamingCreateModal onCreate={() => {}} isLoading={false}>
-                <Button
-                  variant='outline'
-                  className='mx-auto flex'
-                >
+                <Button variant='outline' className='mx-auto flex'>
                   {t('start_stream')}
                 </Button>
               </StreamingCreateModal>

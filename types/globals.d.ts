@@ -1,7 +1,21 @@
 declare global {
-    interface Window {
-      ym: any;
-    }
+  interface Window {
+    ym: any;
   }
-  
-  export {};
+
+  interface WebkitMessageHandlers {
+    shareHandler: {
+      postMessage: (message: string) => void;
+    };
+  }
+
+  interface Webkit {
+    messageHandlers: WebkitMessageHandlers;
+  }
+
+  interface Window {
+    webkit?: Webkit;
+  }
+}
+
+export {};

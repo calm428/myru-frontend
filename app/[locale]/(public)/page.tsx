@@ -8,6 +8,8 @@ import { scrollToTransition } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { TbFilterSearch } from 'react-icons/tb'; // Импорт иконки
+import HeroSection from '@/components/main/heroForMain';
+import Head from 'next/head'; // Импортируем Head
 
 export default function HomePage() {
   const searchParams = useSearchParams();
@@ -90,6 +92,8 @@ export default function HomePage() {
 
   return (
     <div>
+      <HeroSection />
+
       {(!isCTAVisible || isScrolledDown) && (
         <button
           onClick={toggleCTAVisibility}

@@ -511,7 +511,7 @@ export default function Messages({ children }: MessagesProps) {
       <div className={`new-container${isOpen ? ' open' : ''}`}>
         <div
           ref={sidebarRef}
-          className='new-sidebar w-full pt-[70px] md:w-[300px]'
+          className='new-sidebar w-full pt-[57px] md:w-[300px]'
         >
           <div className='h-screen w-full overflow-y-auto border-l border-r bg-card-gradient py-2'>
             <div className='px-5 text-lg font-medium text-gray-800 dark:text-white'>

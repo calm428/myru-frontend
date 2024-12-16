@@ -1,18 +1,22 @@
 'use client';
 
 import { PaxContext } from '@/context/context';
-import { useContext, useEffect, useState } from 'react';
-import { IoIosNotifications } from "react-icons/io";
-import { usePathname, useRouter } from 'next/navigation';
+import { useContext, useEffect } from 'react';
+import { IoIosNotificationsOutline } from 'react-icons/io';
+
 import Link from 'next/link';
 import eventBus from '@/lib/eventBus';
 import useSWR from 'swr';
 import toast from 'react-hot-toast';
 import { useNotification } from '@/provider/notificationProvider';
 
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export default function Notification({ authenticated }: { authenticated: boolean; }) {
+export default function Notification({
+  authenticated,
+}: {
+  authenticated: boolean;
+}) {
   const { user, socket } = useContext(PaxContext);
   const { playNotificationSound } = useNotification();
 
@@ -24,7 +28,7 @@ export default function Notification({ authenticated }: { authenticated: boolean
     };
 
     eventBus.on('notificationRead', handleNotificationRead);
-    
+
     return () => {
       eventBus.off('notificationRead', handleNotificationRead);
     };
@@ -45,20 +49,16 @@ export default function Notification({ authenticated }: { authenticated: boolean
 
   if (!data) return null;
 
-  const unreadCount = data?.data?.unread;
+  const unreadCount = data?.data?.unread || 0;
 
   return authenticated || user ? (
-    <Link href="/profile/notifications">
-      <button>
-        <div className='flex items-center justify-center'>
-        <span className='relative -top-2 left-10 rounded-full bg-card-gradient-menu px-2 text-center text-xs'>
-          {unreadCount > 0 ? unreadCount : 0}
+    <Link href='/profile/notifications'>
+      <div className='relative'>
+        <IoIosNotificationsOutline size={24} />
+        <span className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-gray-500 text-xs text-white'>
+          {unreadCount}
         </span>
-          <IoIosNotifications size={32} />
-        </div>
-      </button>
+      </div>
     </Link>
-  ) : (
-    <></>
-  );
+  ) : null;
 }

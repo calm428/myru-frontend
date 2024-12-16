@@ -34,6 +34,7 @@ export interface FlowData {
   review: {
     totalviews: number;
   };
+  isFavorite: boolean;
 }
 
 const pageSize = 10;

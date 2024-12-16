@@ -5,6 +5,13 @@ export async function GET(req: NextRequest) {
 
   // const locale = req.nextUrl.searchParams.get('language') || 'en';
 
+  if (!query) {
+    return NextResponse.json(
+      { error: 'No query parameters provided' },
+      { status: 400 }
+    );
+  }
+
   try {
     const res = await fetch(
       `${process.env.API_URL}/api/cities/query${query ? `?${query}` : ''}`
@@ -18,6 +25,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
+    console.error('Error fetching data:', error);
+
     return NextResponse.json(
       { error: 'Failed to fetch data' },
       { status: 500 }

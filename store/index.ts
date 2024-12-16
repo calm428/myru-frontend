@@ -1,4 +1,4 @@
-import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import activeSpeakersSlice from './slices/activeSpeakersSlice';
 import participantSlice from './slices/participantSlice';
@@ -12,6 +12,7 @@ import { pollsApi } from './services/pollsApi';
 import breakoutRoomSlice from './slices/breakoutRoomSlice';
 import { breakoutRoomApi } from './services/breakoutRoomApi';
 import speechServicesSlice from './slices/speechServicesSlice';
+import cartSlice from './cartSlice';
 
 export const makeStore = () => {
   return configureStore({
@@ -25,9 +26,10 @@ export const makeStore = () => {
       whiteboard: whiteboardSlice,
       externalMediaPlayer: externalMediaPlayerSlice,
       breakoutRoom: breakoutRoomSlice,
+      speechServices: speechServicesSlice,
+      cart: cartSlice, // <-- Добавляем новый срез корзины
       [pollsApi.reducerPath]: pollsApi.reducer,
       [breakoutRoomApi.reducerPath]: breakoutRoomApi.reducer,
-      speechServices: speechServicesSlice,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().concat(
@@ -37,10 +39,10 @@ export const makeStore = () => {
     devTools: !process.env.NEXT_PUBLIC_IS_PRODUCTION,
   });
 };
+
 export const store = makeStore();
 setupListeners(store.dispatch);
-// Infer the type of makeStore
+
 export type AppStore = ReturnType<typeof makeStore>;
-// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<AppStore['getState']>;
 export type AppDispatch = AppStore['dispatch'];
